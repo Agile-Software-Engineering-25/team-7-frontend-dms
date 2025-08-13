@@ -33,6 +33,7 @@ export default defineConfig(({ command }) => ({
       "@hooks": path.resolve(__dirname, "./src/hooks"),
       "@assets": path.resolve(__dirname, "./src/assets"),
       "@stores": path.resolve(__dirname, "./src/stores"),
+      "@shared-components": path.resolve(__dirname, "./shared-components/src/components"),
     },
   },
   build: {
