@@ -36,15 +36,13 @@
       "document": "Document",
       "pdf": "PDF"
     },
-    "moreActions": "More actions"
-    ,
+    "moreActions": "More actions",
     "snack": {
       "renamed": "Renamed",
       "renameFailed": "Rename failed",
       "deleted": "Deleted",
       "deleteFailed": "Delete failed"
-    }
-  ,
+    },
   "fileExplorer": "File Explorer"
   }
 }

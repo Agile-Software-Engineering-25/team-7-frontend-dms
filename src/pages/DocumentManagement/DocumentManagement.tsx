@@ -176,10 +176,6 @@ function FileExplorer(): JSX.Element {
   ) => {
     setSnack({ open: true, msg, severity });
   };
-        showSnack(t('documentManagement.snack.renamed', 'Renamed'), 'success');
-      } catch (err) {
-        setItems((prev) => prev.map((p) => (p.id === it.id ? it : p)));
-        showSnack(t('documentManagement.snack.renameFailed', 'Rename failed'), 'error');
   const handleOpenRename = (id: string) => {
     setActiveId(id);
     const it = getItemById(id);
