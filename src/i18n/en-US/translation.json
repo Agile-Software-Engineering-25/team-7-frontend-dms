@@ -44,5 +44,7 @@
       "deleted": "Deleted",
       "deleteFailed": "Delete failed"
     }
+  ,
+  "fileExplorer": "File Explorer"
   }
 }

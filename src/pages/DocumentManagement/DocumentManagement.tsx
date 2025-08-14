@@ -73,7 +73,7 @@ const DocumentManagement: React.FC = () => {
       <ActionButtons />
       <Breadcrumb />
       <Card
-        title="File Explorer"
+        title={t('documentManagement.fileExplorer', 'File Explorer')}
         variant="outlined"
         size="lg"
         color="neutral"
@@ -112,9 +112,9 @@ function FileExplorer(): JSX.Element {
   const [renameOpen, setRenameOpen] = React.useState(false);
   const [renameValue, setRenameValue] = React.useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
-  const [snackOpen, setSnackOpen] = React.useState(false);
-  const [snackMsg, setSnackMsg] = React.useState<string | null>(null);
-  const [snackSeverity, setSnackSeverity] = React.useState<'success' | 'error'>('success');
+  const [snack, setSnack] = React.useState<{ open: boolean; msg?: string | null; severity: 'success' | 'error' }>(
+    { open: false, msg: null, severity: 'success' }
+  );
 
   // menu handling moved into FileItemActions component
 
@@ -145,6 +145,24 @@ function FileExplorer(): JSX.Element {
     setActiveId(null);
   };
 
+  const getItemById = (id?: string | null) => items.find((i) => i.id === (id ?? ''));
+
+  const showSnack = (msg: string, severity: 'success' | 'error' = 'success') => {
+    setSnack({ open: true, msg, severity });
+  };
+
+  const handleOpenRename = (id: string) => {
+    setActiveId(id);
+    const it = getItemById(id);
+    setRenameValue(it?.name ?? '');
+    setRenameOpen(true);
+  };
+
+  const handleOpenDelete = (id: string) => {
+    setActiveId(id);
+    setDeleteConfirmOpen(true);
+  };
+
   const handleRename = async () => {
     if (!activeId) return handleClose();
     const it = items.find((i) => i.id === activeId);
@@ -155,14 +173,10 @@ function FileExplorer(): JSX.Element {
       setItems((prev) => prev.map((p) => (p.id === it.id ? { ...p, name: newName } : p)));
       try {
         await api.renameDocument(it.id, newName);
-        setSnackSeverity('success');
-        setSnackMsg(t('documentManagement.snack.renamed', 'Renamed'));
-        setSnackOpen(true);
+  showSnack(t('documentManagement.snack.renamed', 'Renamed'), 'success');
       } catch (err) {
         setItems((prev) => prev.map((p) => (p.id === it.id ? it : p)));
-        setSnackSeverity('error');
-        setSnackMsg(t('documentManagement.snack.renameFailed', 'Rename failed'));
-        setSnackOpen(true);
+  showSnack(t('documentManagement.snack.renameFailed', 'Rename failed'), 'error');
       }
     }
     setRenameOpen(false);
@@ -178,13 +192,9 @@ function FileExplorer(): JSX.Element {
     try {
       await api.deleteDocument(it.id);
       setItems((prev) => prev.filter((p) => p.id !== activeId));
-  setSnackSeverity('success');
-  setSnackMsg(t('documentManagement.snack.deleted', 'Deleted'));
-  setSnackOpen(true);
+  showSnack(t('documentManagement.snack.deleted', 'Deleted'), 'success');
     } catch (err) {
-  setSnackSeverity('error');
-  setSnackMsg(t('documentManagement.snack.deleteFailed', 'Delete failed'));
-  setSnackOpen(true);
+  showSnack(t('documentManagement.snack.deleteFailed', 'Delete failed'), 'error');
     }
     setDeleteConfirmOpen(false);
     handleClose();
@@ -203,20 +213,7 @@ function FileExplorer(): JSX.Element {
       </Typography>
       <List aria-label="file list">
         {items.map((item) => (
-          <FileListItem
-            key={item.id}
-            item={item}
-            onRename={(id) => {
-              setActiveId(id);
-              const it = items.find((i) => i.id === id);
-              setRenameValue(it?.name ?? '');
-              setRenameOpen(true);
-            }}
-            onDelete={(id) => {
-              setActiveId(id);
-              setDeleteConfirmOpen(true);
-            }}
-          />
+          <FileListItem key={item.id} item={item} onRename={handleOpenRename} onDelete={handleOpenDelete} />
         ))}
       </List>
 
@@ -251,9 +248,9 @@ function FileExplorer(): JSX.Element {
           </MuiButton>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snackOpen} autoHideDuration={3000} onClose={() => setSnackOpen(false)}>
-        <Alert onClose={() => setSnackOpen(false)} severity={snackSeverity} sx={{ width: '100%' }}>
-          {snackMsg}
+      <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
+        <Alert onClose={() => setSnack((s) => ({ ...s, open: false }))} severity={snack.severity} sx={{ width: '100%' }}>
+          {snack.msg}
         </Alert>
       </Snackbar>
     </Box>
