@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { IconButton, Menu, MenuItem, ListItemSecondaryAction, Tooltip } from '@mui/material';
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemSecondaryAction,
+  Tooltip,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -9,12 +15,18 @@ type Props = {
   onDelete: () => void;
 };
 
-const FileItemActions: React.FC<Props> = ({ itemId, itemName, onRename, onDelete }) => {
+const FileItemActions: React.FC<Props> = ({
+  itemId,
+  itemName,
+  onRename,
+  onDelete,
+}) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   return (

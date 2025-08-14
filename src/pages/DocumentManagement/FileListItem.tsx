@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { ListItem, ListItemAvatar, Avatar, ListItemText, Box, Typography, Chip } from '@mui/material';
+import {
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  Box,
+  Typography,
+  Chip,
+} from '@mui/material';
 import FileItemActions from './FileItemActions';
 
 type Item = {
@@ -39,17 +47,39 @@ function formatDate(iso: string) {
 
 const FileListItem: React.FC<Props> = ({ item, onRename, onDelete }) => {
   return (
-    <ListItem key={item.id} divider role="listitem" sx={{ alignItems: 'center' }}>
+    <ListItem
+      key={item.id}
+      divider
+      role="listitem"
+      sx={{ alignItems: 'center' }}
+    >
       <ListItemAvatar>
-        <Avatar aria-hidden>{item.itemType === 'folder' ? '📁' : item.itemType === 'pdf' ? '📄' : '📎'}</Avatar>
+        <Avatar aria-hidden>
+          {item.itemType === 'folder'
+            ? '📁'
+            : item.itemType === 'pdf'
+              ? '📄'
+              : '📎'}
+        </Avatar>
       </ListItemAvatar>
       <ListItemText
         primary={
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'baseline', flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              alignItems: 'baseline',
+              flexWrap: 'wrap',
+            }}
+          >
             <Typography component="span" sx={{ fontWeight: 600 }}>
               {item.name}
             </Typography>
-            <Chip label={item.itemType} size="small" aria-label={`Type: ${item.itemType}`} />
+            <Chip
+              label={item.itemType}
+              size="small"
+              aria-label={`Type: ${item.itemType}`}
+            />
           </Box>
         }
         secondary={

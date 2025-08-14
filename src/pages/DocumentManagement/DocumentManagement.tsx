@@ -40,7 +40,9 @@ const ActionButtons: React.FC = () => {
   return (
     <Box sx={{ display: 'flex', gap: 2, marginBottom: 2 }}>
       {/* kept minimal as requested */}
-  <Typography variant="body2">{t('documentManagement.actionsNote', 'Manage files below')}</Typography>
+      <Typography variant="body2">
+        {t('documentManagement.actionsNote', 'Manage files below')}
+      </Typography>
     </Box>
   );
 };
@@ -56,34 +58,34 @@ const Breadcrumb: React.FC = () => (
 const DocumentManagement: React.FC = () => {
   const { t } = useTranslation();
   return (
-  <Box sx={{ display: 'flex', height: '100vh', background: '#f4f6fa' }}>
-    <Sidebar />
-    <Box
-      sx={{
-        flex: 1,
-        padding: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-      }}
-    >
-      <Typography variant="h4" sx={{ marginBottom: 4 }}>
-        {t('documentManagement.title', 'Document Management')}
-      </Typography>
-      <ActionButtons />
-      <Breadcrumb />
-      <Card
-        title={t('documentManagement.fileExplorer', 'File Explorer')}
-        variant="outlined"
-        size="lg"
-        color="neutral"
-        sx={fileExplorerCardStyles}
+    <Box sx={{ display: 'flex', height: '100vh', background: '#f4f6fa' }}>
+      <Sidebar />
+      <Box
+        sx={{
+          flex: 1,
+          padding: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
       >
-        {/* File explorer list with accessible actions */}
-        <FileExplorer />
-      </Card>
+        <Typography variant="h4" sx={{ marginBottom: 4 }}>
+          {t('documentManagement.title', 'Document Management')}
+        </Typography>
+        <ActionButtons />
+        <Breadcrumb />
+        <Card
+          title={t('documentManagement.fileExplorer', 'File Explorer')}
+          variant="outlined"
+          size="lg"
+          color="neutral"
+          sx={fileExplorerCardStyles}
+        >
+          {/* File explorer list with accessible actions */}
+          <FileExplorer />
+        </Card>
+      </Box>
     </Box>
-  </Box>
   );
 };
 
@@ -96,9 +98,27 @@ type Item = {
 };
 
 const sampleItems: Item[] = [
-  { id: '1', name: 'Project Plan.docx', size: 23456, uploadDate: '2025-08-01T10:23:00Z', itemType: 'document' },
-  { id: '2', name: 'Designs.pdf', size: 1048576, uploadDate: '2025-07-28T08:12:00Z', itemType: 'pdf' },
-  { id: '3', name: 'Archives', size: 0, uploadDate: '2025-06-15T12:00:00Z', itemType: 'folder' },
+  {
+    id: '1',
+    name: 'Project Plan.docx',
+    size: 23456,
+    uploadDate: '2025-08-01T10:23:00Z',
+    itemType: 'document',
+  },
+  {
+    id: '2',
+    name: 'Designs.pdf',
+    size: 1048576,
+    uploadDate: '2025-07-28T08:12:00Z',
+    itemType: 'pdf',
+  },
+  {
+    id: '3',
+    name: 'Archives',
+    size: 0,
+    uploadDate: '2025-06-15T12:00:00Z',
+    itemType: 'folder',
+  },
 ];
 
 // formatSize/formatDate moved to FileListItem
@@ -112,9 +132,11 @@ function FileExplorer(): JSX.Element {
   const [renameOpen, setRenameOpen] = React.useState(false);
   const [renameValue, setRenameValue] = React.useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
-  const [snack, setSnack] = React.useState<{ open: boolean; msg?: string | null; severity: 'success' | 'error' }>(
-    { open: false, msg: null, severity: 'success' }
-  );
+  const [snack, setSnack] = React.useState<{
+    open: boolean;
+    msg?: string | null;
+    severity: 'success' | 'error';
+  }>({ open: false, msg: null, severity: 'success' });
 
   // menu handling moved into FileItemActions component
 
@@ -145,9 +167,13 @@ function FileExplorer(): JSX.Element {
     setActiveId(null);
   };
 
-  const getItemById = (id?: string | null) => items.find((i) => i.id === (id ?? ''));
+  const getItemById = (id?: string | null) =>
+    items.find((i) => i.id === (id ?? ''));
 
-  const showSnack = (msg: string, severity: 'success' | 'error' = 'success') => {
+  const showSnack = (
+    msg: string,
+    severity: 'success' | 'error' = 'success'
+  ) => {
     setSnack({ open: true, msg, severity });
   };
 
@@ -170,13 +196,18 @@ function FileExplorer(): JSX.Element {
     // use value from dialog
     const newName = renameValue.trim();
     if (newName && it) {
-      setItems((prev) => prev.map((p) => (p.id === it.id ? { ...p, name: newName } : p)));
+      setItems((prev) =>
+        prev.map((p) => (p.id === it.id ? { ...p, name: newName } : p))
+      );
       try {
         await api.renameDocument(it.id, newName);
-  showSnack(t('documentManagement.snack.renamed', 'Renamed'), 'success');
-      } catch (err) {
+        showSnack(t('documentManagement.snack.renamed', 'Renamed'), 'success');
+      } catch {
         setItems((prev) => prev.map((p) => (p.id === it.id ? it : p)));
-  showSnack(t('documentManagement.snack.renameFailed', 'Rename failed'), 'error');
+        showSnack(
+          t('documentManagement.snack.renameFailed', 'Rename failed'),
+          'error'
+        );
       }
     }
     setRenameOpen(false);
@@ -192,9 +223,12 @@ function FileExplorer(): JSX.Element {
     try {
       await api.deleteDocument(it.id);
       setItems((prev) => prev.filter((p) => p.id !== activeId));
-  showSnack(t('documentManagement.snack.deleted', 'Deleted'), 'success');
-    } catch (err) {
-  showSnack(t('documentManagement.snack.deleteFailed', 'Delete failed'), 'error');
+      showSnack(t('documentManagement.snack.deleted', 'Deleted'), 'success');
+    } catch {
+      showSnack(
+        t('documentManagement.snack.deleteFailed', 'Delete failed'),
+        'error'
+      );
     }
     setDeleteConfirmOpen(false);
     handleClose();
@@ -207,29 +241,55 @@ function FileExplorer(): JSX.Element {
   // simplified: no upload / create folder handlers here per request
 
   return (
-    <Box role="region" aria-labelledby="file-explorer-title" sx={{ overflow: 'auto' }}>
+    <Box
+      role="region"
+      aria-labelledby="file-explorer-title"
+      sx={{ overflow: 'auto' }}
+    >
       <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
         {t('documentManagement.files', 'Files')}
       </Typography>
       <List aria-label="file list">
         {items.map((item) => (
-          <FileListItem key={item.id} item={item} onRename={handleOpenRename} onDelete={handleOpenDelete} />
+          <FileListItem
+            key={item.id}
+            item={item}
+            onRename={handleOpenRename}
+            onDelete={handleOpenDelete}
+          />
         ))}
       </List>
 
       {/* Rename dialog */}
-      <Dialog open={renameOpen} onClose={() => setRenameOpen(false)} aria-labelledby="rename-title">
-        <DialogTitle id="rename-title">{t('documentManagement.renameDialog.title', 'Rename')}</DialogTitle>
+      <Dialog
+        open={renameOpen}
+        onClose={() => setRenameOpen(false)}
+        aria-labelledby="rename-title"
+      >
+        <DialogTitle id="rename-title">
+          {t('documentManagement.renameDialog.title', 'Rename')}
+        </DialogTitle>
         <DialogContent>
-          <TextField autoFocus margin="dense" label={t('documentManagement.renameDialog.label', 'New name')} fullWidth value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
+          <TextField
+            autoFocus
+            margin="dense"
+            label={t('documentManagement.renameDialog.label', 'New name')}
+            fullWidth
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <MuiButton onClick={() => setRenameOpen(false)}>{t('documentManagement.renameDialog.cancel', 'Cancel')}</MuiButton>
-          <MuiButton onClick={handleRename} variant="contained">{t('documentManagement.renameDialog.confirm', 'Rename')}</MuiButton>
+          <MuiButton onClick={() => setRenameOpen(false)}>
+            {t('documentManagement.renameDialog.cancel', 'Cancel')}
+          </MuiButton>
+          <MuiButton onClick={handleRename} variant="contained">
+            {t('documentManagement.renameDialog.confirm', 'Rename')}
+          </MuiButton>
         </DialogActions>
       </Dialog>
 
-  {/* per-item menu handled in FileItemActions component */}
+      {/* per-item menu handled in FileItemActions component */}
 
       {/* Delete confirmation dialog */}
       <Dialog
@@ -237,24 +297,39 @@ function FileExplorer(): JSX.Element {
         onClose={() => setDeleteConfirmOpen(false)}
         aria-labelledby="delete-confirm-title"
       >
-        <DialogTitle id="delete-confirm-title">{t('documentManagement.deleteDialog.title', 'Delete')}</DialogTitle>
+        <DialogTitle id="delete-confirm-title">
+          {t('documentManagement.deleteDialog.title', 'Delete')}
+        </DialogTitle>
         <DialogContent>
-          {t('documentManagement.deleteDialog.message', 'Are you sure you want to delete this item?')}
+          {t(
+            'documentManagement.deleteDialog.message',
+            'Are you sure you want to delete this item?'
+          )}
         </DialogContent>
         <DialogActions>
-          <MuiButton onClick={() => setDeleteConfirmOpen(false)}>{t('documentManagement.deleteDialog.cancel', 'Cancel')}</MuiButton>
+          <MuiButton onClick={() => setDeleteConfirmOpen(false)}>
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
+          </MuiButton>
           <MuiButton onClick={handleDelete} variant="contained" color="error">
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
           </MuiButton>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
-        <Alert onClose={() => setSnack((s) => ({ ...s, open: false }))} severity={snack.severity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={3000}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+      >
+        <Alert
+          onClose={() => setSnack((s) => ({ ...s, open: false }))}
+          severity={snack.severity}
+          sx={{ width: '100%' }}
+        >
           {snack.msg}
         </Alert>
       </Snackbar>
     </Box>
   );
-};
+}
 
 export default DocumentManagement;

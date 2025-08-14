@@ -3,8 +3,18 @@ import { BACKEND_BASE_URL } from '@/config';
 import { useCallback } from 'react';
 
 type FolderResponse = {
-  folders: { id: string; name: string; parentId?: string; createdDate?: string };
-  subfolders: Array<{ id: string; name: string; parentId?: string; createdDate?: string }>;
+  folders: {
+    id: string;
+    name: string;
+    parentId?: string;
+    createdDate?: string;
+  };
+  subfolders: Array<{
+    id: string;
+    name: string;
+    parentId?: string;
+    createdDate?: string;
+  }>;
   documents: Array<{
     id: string;
     name: string;
@@ -21,7 +31,9 @@ const useDmsApi = () => {
 
   const getFolder = useCallback(
     async (id: string) => {
-      const response = await axiosInstance.get<FolderResponse>(`/dms/v1/folders/${id}`);
+      const response = await axiosInstance.get<FolderResponse>(
+        `/dms/v1/folders/${id}`
+      );
       return response.data;
     },
     [axiosInstance]
@@ -29,7 +41,9 @@ const useDmsApi = () => {
 
   const renameDocument = useCallback(
     async (id: string, name: string) => {
-      const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, { name });
+      const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
+        name,
+      });
       return response.data;
     },
     [axiosInstance]
@@ -57,13 +71,22 @@ const useDmsApi = () => {
 
   const createFolder = useCallback(
     async (name: string, parentId?: string) => {
-      const response = await axiosInstance.post('/dms/v1/folders', { name, parentId });
+      const response = await axiosInstance.post('/dms/v1/folders', {
+        name,
+        parentId,
+      });
       return response.data;
     },
     [axiosInstance]
   );
 
-  return { getFolder, renameDocument, deleteDocument, uploadDocument, createFolder };
+  return {
+    getFolder,
+    renameDocument,
+    deleteDocument,
+    uploadDocument,
+    createFolder,
+  };
 };
 
 export default useDmsApi;
