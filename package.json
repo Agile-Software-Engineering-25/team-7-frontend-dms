@@ -13,10 +13,11 @@
     "cy:run": "cypress run",
     "init": "sh ./scripts/prepare.sh",
     "updateSharedComponents": "sh ./scripts/updateSharedComponents.sh",
-    "ci": "start-server-and-test dev http://localhost:5173 cy:run"
+  "ci": "start-server-and-test dev http://localhost:5173 cy:run"
   },
   "dependencies": {
     "@agile-software/shared-components": "file:./shared-components",
+    "@ase/frontendtemplate": "file:",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/joy": "^5.0.0-beta.52",
@@ -35,7 +36,7 @@
     "vite-plugin-react-single-spa-hmr": "^1.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
+  "@eslint/js": "^9.29.0",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
     "@types/babel__template": "^7.4.4",
@@ -63,13 +64,14 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "jsdom": "^22.0.0",
     "prettier": "^3.6.2",
     "start-server-and-test": "^2.0.13",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^5.4.19",
     "vite-plugin-externalize-dependencies": "^1.0.1",
-    "vite-plugin-single-spa": "^1.0.0"
+  "vite-plugin-single-spa": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^18 || ^19",

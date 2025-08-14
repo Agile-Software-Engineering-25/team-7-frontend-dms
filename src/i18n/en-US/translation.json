@@ -12,5 +12,37 @@
       "weatherHeader": "Current Weather",
       "temperature": "Temperature"
     }
+  },
+  "documentManagement": {
+    "title": "Document Management",
+    "actionsNote": "Manage files below",
+    "files": "Files",
+    "rename": "Rename",
+    "delete": "Delete",
+    "renameDialog": {
+      "title": "Rename",
+      "label": "New name",
+      "cancel": "Cancel",
+      "confirm": "Rename"
+    },
+    "deleteDialog": {
+      "title": "Delete",
+      "message": "Do you really want to delete this item?",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "type": {
+      "folder": "Folder",
+      "document": "Document",
+      "pdf": "PDF"
+    },
+    "moreActions": "More actions",
+    "snack": {
+      "renamed": "Renamed",
+      "renameFailed": "Rename failed",
+      "deleted": "Deleted",
+      "deleteFailed": "Delete failed"
+    },
+  "fileExplorer": "File Explorer"
   }
 }
