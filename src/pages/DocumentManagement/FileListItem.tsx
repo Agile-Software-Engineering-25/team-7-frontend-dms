@@ -6,7 +6,6 @@ import {
   ListItemText,
   Box,
   Typography,
-  Chip,
 } from '@mui/material';
 import FileItemActions from './FileItemActions';
 
@@ -75,11 +74,6 @@ const FileListItem: React.FC<Props> = ({ item, onRename, onDelete }) => {
             <Typography component="span" sx={{ fontWeight: 600 }}>
               {item.name}
             </Typography>
-            <Chip
-              label={item.itemType}
-              size="small"
-              aria-label={`Type: ${item.itemType}`}
-            />
           </Box>
         }
         secondary={
