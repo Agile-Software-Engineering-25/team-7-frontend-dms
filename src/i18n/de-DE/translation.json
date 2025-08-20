@@ -15,6 +15,7 @@
   },
   "documentManagement": {
     "title": "Dokumentenverwaltung",
+    "sidebarTitle": "DMS",
     "actionsNote": "Verwalte Dateien unten",
     "files": "Dateien",
     "rename": "Umbenennen",
@@ -31,6 +32,15 @@
       "cancel": "Abbrechen",
       "confirm": "Löschen"
     },
+    "deleteFolderDialog": {
+      "title": "Ordner löschen",
+      "message": "Beim Löschen dieses Ordners werden auch alle enthaltenen Dokumente gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "newFolder": {
+      "title": "Ordner erstellen",
+      "label": "Ordnername",
+      "create": "Erstellen"
+    },
     "type": {
       "folder": "Ordner",
       "document": "Dokument",
@@ -41,8 +51,11 @@
       "renamed": "Umbenannt",
       "renameFailed": "Umbenennung fehlgeschlagen",
       "deleted": "Gelöscht",
-      "deleteFailed": "Löschen fehlgeschlagen"
+      "deleteFailed": "Löschen fehlgeschlagen",
+      "created": "Erstellt",
+      "createFailed": "Erstellung fehlgeschlagen"
     },
-  "fileExplorer": "Datei-Explorer"
+    "root": "Startseite",
+    "fileExplorer": "Datei-Explorer"
   }
 }

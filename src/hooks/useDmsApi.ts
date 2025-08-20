@@ -49,9 +49,26 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const renameFolder = useCallback(
+    async (id: string, name: string) => {
+      const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
+        name,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
   const deleteDocument = useCallback(
     async (id: string) => {
       await axiosInstance.delete(`/dms/v1/documents/${id}`);
+    },
+    [axiosInstance]
+  );
+
+  const deleteFolder = useCallback(
+    async (id: string) => {
+      await axiosInstance.delete(`/dms/v1/folders/${id}`);
     },
     [axiosInstance]
   );
@@ -83,7 +100,9 @@ const useDmsApi = () => {
   return {
     getFolder,
     renameDocument,
+    renameFolder,
     deleteDocument,
+    deleteFolder,
     uploadDocument,
     createFolder,
   };

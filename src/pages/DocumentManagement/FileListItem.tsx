@@ -7,6 +7,9 @@ import {
   Box,
   Typography,
 } from '@mui/material';
+import FolderIcon from '@mui/icons-material/Folder';
+import DescriptionIcon from '@mui/icons-material/Description';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FileItemActions from './FileItemActions';
 
 type Item = {
@@ -21,6 +24,7 @@ type Props = {
   item: Item;
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
+  onOpen?: (id: string) => void;
 };
 
 function formatSize(bytes: number) {
@@ -44,7 +48,12 @@ function formatDate(iso: string) {
   }
 }
 
-const FileListItem: React.FC<Props> = ({ item, onRename, onDelete }) => {
+const FileListItem: React.FC<Props> = ({
+  item,
+  onRename,
+  onDelete,
+  onOpen,
+}) => {
   return (
     <ListItem
       key={item.id}
@@ -53,12 +62,14 @@ const FileListItem: React.FC<Props> = ({ item, onRename, onDelete }) => {
       sx={{ alignItems: 'center' }}
     >
       <ListItemAvatar>
-        <Avatar aria-hidden>
-          {item.itemType === 'folder'
-            ? '📁'
-            : item.itemType === 'pdf'
-              ? '📄'
-              : '📎'}
+        <Avatar aria-hidden aria-label={item.itemType}>
+          {item.itemType === 'folder' ? (
+            <FolderIcon fontSize="small" aria-hidden />
+          ) : item.itemType === 'pdf' ? (
+            <DescriptionIcon fontSize="small" aria-hidden />
+          ) : (
+            <InsertDriveFileIcon fontSize="small" aria-hidden />
+          )}
         </Avatar>
       </ListItemAvatar>
       <ListItemText
@@ -71,7 +82,25 @@ const FileListItem: React.FC<Props> = ({ item, onRename, onDelete }) => {
               flexWrap: 'wrap',
             }}
           >
-            <Typography component="span" sx={{ fontWeight: 600 }}>
+            <Typography
+              component="span"
+              sx={{
+                fontWeight: 600,
+                cursor: item.itemType === 'folder' ? 'pointer' : 'default',
+              }}
+              onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
+              role={item.itemType === 'folder' ? 'button' : undefined}
+              tabIndex={item.itemType === 'folder' ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (
+                  item.itemType === 'folder' &&
+                  (e.key === 'Enter' || e.key === ' ')
+                ) {
+                  e.preventDefault();
+                  onOpen?.(item.id);
+                }
+              }}
+            >
               {item.name}
             </Typography>
           </Box>

@@ -15,6 +15,7 @@
   },
   "documentManagement": {
     "title": "Document Management",
+    "sidebarTitle": "DMS",
     "actionsNote": "Manage files below",
     "files": "Files",
     "rename": "Rename",
@@ -31,6 +32,15 @@
       "cancel": "Cancel",
       "confirm": "Delete"
     },
+    "deleteFolderDialog": {
+      "title": "Delete folder",
+      "message": "Deleting this folder will also delete all contained documents. This action cannot be undone."
+    },
+    "newFolder": {
+      "title": "Create folder",
+      "label": "Folder name",
+      "create": "Create"
+    },
     "type": {
       "folder": "Folder",
       "document": "Document",
@@ -41,8 +51,11 @@
       "renamed": "Renamed",
       "renameFailed": "Rename failed",
       "deleted": "Deleted",
-      "deleteFailed": "Delete failed"
+      "deleteFailed": "Delete failed",
+      "created": "Created",
+      "createFailed": "Create failed"
     },
-  "fileExplorer": "File Explorer"
+    "root": "Home",
+    "fileExplorer": "File Explorer"
   }
 }
