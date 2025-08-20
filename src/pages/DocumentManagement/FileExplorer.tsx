@@ -425,7 +425,7 @@ export default function FileExplorer(): JSX.Element {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewFolderOpen(false)} variant="solid">
-            {t('documentManagement.renameDialog.cancel', 'Cancel')}
+            {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
           <Button onClick={handleCreateFolder} variant="solid">
             {t('documentManagement.newFolder.create', 'Create')}

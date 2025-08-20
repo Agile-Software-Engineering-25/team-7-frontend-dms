@@ -33,7 +33,8 @@ export function parseFolderMetadata(
     for (const item of subfolders as unknown[]) {
       const it = item as Record<string, unknown>;
       if (typeof it['id'] === 'string' && it['id'] === currentId) {
-        if (typeof it['id'] === 'string') mdId = it['id'];
+        // we already know it['id'] === currentId and is a string
+        mdId = currentId;
         if (typeof it['name'] === 'string') mdName = it['name'];
         if (typeof it['parentId'] === 'string') mdParent = it['parentId'];
         break;
