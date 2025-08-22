@@ -13,13 +13,14 @@
     "cy:run": "cypress run",
     "init": "sh ./scripts/prepare.sh",
     "updateSharedComponents": "sh ./scripts/updateSharedComponents.sh",
-  "ci": "start-server-and-test dev http://localhost:5173 cy:run"
+    "ci": "start-server-and-test dev http://localhost:5173 cy:run"
   },
   "dependencies": {
     "@agile-software/shared-components": "file:./shared-components",
     "@ase/frontendtemplate": "file:",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.1",
     "@reduxjs/toolkit": "^2.8.2",
@@ -36,7 +37,7 @@
     "vite-plugin-react-single-spa-hmr": "^1.0.0"
   },
   "devDependencies": {
-  "@eslint/js": "^9.29.0",
+    "@eslint/js": "^9.29.0",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.27.0",
     "@types/babel__template": "^7.4.4",
@@ -71,7 +72,7 @@
     "typescript-eslint": "^8.34.1",
     "vite": "^5.4.19",
     "vite-plugin-externalize-dependencies": "^1.0.1",
-  "vite-plugin-single-spa": "^1.0.0"
+    "vite-plugin-single-spa": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^18 || ^19",

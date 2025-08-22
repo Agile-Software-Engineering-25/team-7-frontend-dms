@@ -6,6 +6,7 @@ import {
   ListItemSecondaryAction,
   Tooltip,
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -40,7 +41,7 @@ const FileItemActions: React.FC<Props> = ({
           aria-expanded={open ? 'true' : undefined}
           onClick={handleOpen}
         >
-          <span aria-hidden>⋯</span>
+          <MoreVertIcon aria-hidden />
         </IconButton>
       </Tooltip>
 
