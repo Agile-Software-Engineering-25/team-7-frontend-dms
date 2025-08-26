@@ -320,6 +320,25 @@ export default function FileExplorer(): JSX.Element {
           );
           return;
         }
+        // if the folder is already directly inside the target, noop
+        try {
+          const srcFolderData = await api.getFolder(sourceId);
+          const srcMeta = parseFolderMetadata(srcFolderData, sourceId);
+          const srcParent = srcMeta.parentId ?? 'root';
+          if (srcParent === targetFolderId) {
+            showSnack(
+              t(
+                'documentManagement.snack.alreadyInFolder',
+                'Folder is already in the selected folder.'
+              ),
+              'error'
+            );
+            return;
+          }
+        } catch {
+          // ignore errors here and fall back to descendant-check below
+        }
+
         const bad = await isDescendant(targetFolderId, sourceId);
         if (bad) {
           showSnack(

@@ -53,7 +53,8 @@
       "deleted": "Gelöscht",
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
-      "createFailed": "Erstellung fehlgeschlagen"
+  "createFailed": "Erstellung fehlgeschlagen",
+  "alreadyInFolder": "Der Ordner befindet sich bereits in diesem Ordner."
     },
     "root": "Startseite",
     "fileExplorer": "Datei-Explorer"
