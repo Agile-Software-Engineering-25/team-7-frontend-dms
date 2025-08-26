@@ -17,6 +17,7 @@ import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { parseFolderMetadata } from './folderMetadata';
 import FileListItem from './FileListItem';
 import BreadcrumbBar from './BreadcrumbBar';
+import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import Button from '@shared-components/Button/Button';
 
@@ -97,10 +98,10 @@ export default function FileExplorer(): JSX.Element {
     };
     const onDropOnBreadcrumb = (e: Event) => {
       // @ts-ignore
-      const detail = e?.detail;
+      const detail = e?.detail as { item: DmsDragPayload; targetId?: string } | undefined;
       if (!detail) return;
       const { item, targetId } = detail;
-      handleMove(item.id, item.type, targetId);
+      if (item && targetId) handleMove(item.id, item.type, targetId);
     };
     document.addEventListener('dms:request-move', onRequestMove as EventListener);
     document.addEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
@@ -108,7 +109,7 @@ export default function FileExplorer(): JSX.Element {
       document.removeEventListener('dms:request-move', onRequestMove as EventListener);
       document.removeEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
     };
-  }, []);
+  }, [items]);
 
   const refresh = React.useCallback(async () => {
     try {

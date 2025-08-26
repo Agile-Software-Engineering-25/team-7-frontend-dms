@@ -24,6 +24,12 @@ function genId() {
   return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
 }
 
+/**
+ * In-memory mock API for DMS. Intentionally naive and synchronous-ish for
+ * simple local development and tests. Data is not persisted across reloads.
+ *
+ * Use via `useDmsApiSelector()` when mock mode is enabled.
+ */
 export default function createMockApi() {
   // initial data based on the sampleItems used in the FileExplorer
   const folders = new Map<string, Folder>();

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
+import { emitRequestMove } from '../../lib/dmsEvents';
 
 type Props = {
   itemId: string;
@@ -63,14 +64,7 @@ const FileItemActions: React.FC<Props> = ({
         <MenuItem
           onClick={() => {
             handleClose();
-            // dispatch a custom event so the FileExplorer can open a move-chooser
-            const ev = new CustomEvent('dms:request-move', {
-              detail: { id: itemId },
-              bubbles: true,
-              cancelable: true,
-            });
-            // @ts-ignore DOM event
-            document.dispatchEvent(ev);
+            emitRequestMove(itemId);
           }}
         >
           {t('documentManagement.move', 'Move')}

@@ -2,6 +2,7 @@ import * as React from 'react';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
+import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
 
 type PathItem = { id: string; name: string };
 
@@ -63,18 +64,9 @@ const BreadcrumbBar: React.FC<{
             ref={index === path.length - 1 ? lastItemRef : undefined}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
-              try {
-                const raw = e.dataTransfer?.getData('application/x-dms-item');
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                const ev = new CustomEvent('dms:drop-on-breadcrumb', {
-                  detail: { item: parsed, targetId: item.id },
-                  bubbles: true,
-                });
-                document.dispatchEvent(ev);
-              } catch {
-                // ignore
-              }
+              const parsed = parseDragData(e.dataTransfer);
+              if (!parsed) return;
+              emitDropOnBreadcrumb(parsed, item.id);
             }}
           />
         ))}
