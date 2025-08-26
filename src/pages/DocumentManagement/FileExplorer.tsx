@@ -29,38 +29,14 @@ type Item = {
   itemType: 'folder' | 'document' | 'pdf' | 'other';
 };
 
-const sampleItems: Item[] = [
-  {
-    id: '1',
-    name: 'Project Plan.docx',
-    size: 23456,
-    uploadDate: '2025-08-01T10:23:00Z',
-    itemType: 'document',
-  },
-  {
-    id: '2',
-    name: 'Designs.pdf',
-    size: 1048576,
-    uploadDate: '2025-07-28T08:12:00Z',
-    itemType: 'pdf',
-  },
-  {
-    id: '3',
-    name: 'Archives',
-    size: 0,
-    uploadDate: '2025-06-15T12:00:00Z',
-    itemType: 'folder',
-  },
-];
 
 // Maximum folder depth to walk when building breadcrumb paths.
 const MAX_PATH_DEPTH = 50;
 
 export default function FileExplorer(): JSX.Element {
   const { t } = useTranslation();
-  // To test with mock data in the browser console set: window.__USE_DMS_MOCK__ = true
   const api = useDmsApiSelector();
-  const [items, setItems] = React.useState<Item[]>(sampleItems);
+  const [items, setItems] = React.useState<Item[]>([]);
   const currentFolderIdRef = React.useRef<string>('root');
   const [currentPath, setCurrentPath] = React.useState<
     Array<{ id: string; name: string }>

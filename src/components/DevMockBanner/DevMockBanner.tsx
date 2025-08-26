@@ -21,6 +21,13 @@ export default function DevMockBanner(): JSX.Element | null {
       // also expose to window for runtime checks
       // @ts-ignore
       window.__DMS_MOCK_PREF__ = enabled;
+      // notify listeners that the mock preference changed
+      try {
+        const ev = new CustomEvent('dms:mock-changed');
+        window.dispatchEvent(ev);
+      } catch {
+        // ignore environments without CustomEvent
+      }
       // eslint-disable-next-line no-console
       console.info('DMS mock mode set to', enabled);
     } catch {
