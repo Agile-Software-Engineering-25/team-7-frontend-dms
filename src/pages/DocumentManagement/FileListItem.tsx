@@ -86,7 +86,7 @@ const FileListItem: React.FC<Props> = ({
             JSON.stringify({ id: item.id, type: item.itemType })
           );
           // show copy/move effect
-          e.dataTransfer!.effectAllowed = 'move';
+          if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
         } catch {
           // ignore
         }

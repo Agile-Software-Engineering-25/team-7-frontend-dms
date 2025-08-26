@@ -74,28 +74,47 @@ export default function FileExplorer(): JSX.Element {
   const [moveSourceType, setMoveSourceType] = React.useState<
     Item['itemType'] | string | null
   >(null);
+  // keep a ref to the latest items so event handlers don't need to be
+  // re-registered whenever `items` changes.
+  const itemsRef = React.useRef<Item[]>(items);
+  React.useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
-  // handle DOM custom events from FileItemActions or breadcrumb drops
+  // We'll also keep a ref for `handleMove` so breadcrumb-drop handlers can
+  // invoke it without the listener needing to be re-registered.
+  const handleMoveRef = React.useRef<
+    | ((
+        sourceId: string,
+        sourceType: Item['itemType'] | string,
+        targetId: string
+      ) => Promise<void>)
+    | null
+  >(null);
+
+  // handle DOM custom events from FileItemActions or breadcrumb drops.
+  // Register listeners once and read the latest values via refs.
   React.useEffect(() => {
     const onRequestMove = (e: Event) => {
-      const ce = e as CustomEvent<{ id?: string }> | undefined;
+      const ce = e as CustomEvent<{ id?: string }>;
       const id = ce?.detail?.id as string | undefined;
       if (id) {
         setMoveSourceId(id);
-        const found = items.find((x) => x.id === id);
+        const found = itemsRef.current.find((x) => x.id === id);
         setMoveSourceType(found?.itemType ?? 'document');
         setMoveChooserOpen(true);
       }
     };
+
     const onDropOnBreadcrumb = (e: Event) => {
-      const ce = e as
-        | CustomEvent<{ item: DmsDragPayload; targetId?: string }>
-        | undefined;
+      const ce = e as CustomEvent<{ item: DmsDragPayload; targetId?: string }>;
       const detail = ce?.detail;
       if (!detail) return;
       const { item, targetId } = detail;
-      if (item && targetId) handleMove(item.id, item.type, targetId);
+      if (item && targetId)
+        handleMoveRef.current?.(item.id, item.type, targetId);
     };
+
     document.addEventListener(
       'dms:request-move',
       onRequestMove as EventListener
@@ -114,7 +133,8 @@ export default function FileExplorer(): JSX.Element {
         onDropOnBreadcrumb as EventListener
       );
     };
-  }, [items]);
+    // empty deps so listeners are registered once on mount
+  }, []);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -175,6 +195,9 @@ export default function FileExplorer(): JSX.Element {
   const handleClose = () => {
     setActiveId(null);
   };
+
+  // keep handleMoveRef up to date so event handlers call the latest function
+  // (updated after handleMove is declared further below)
 
   const getItemById = (id?: string | null) =>
     items.find((i) => i.id === (id ?? ''));
@@ -446,6 +469,11 @@ export default function FileExplorer(): JSX.Element {
     setMoveChooserOpen(false);
     setMoveSourceId(null);
   };
+
+  // keep handleMoveRef up to date so event handlers call the latest function
+  React.useEffect(() => {
+    handleMoveRef.current = handleMove;
+  }, [handleMove]);
 
   // Provide per-row drop handler by cloning items into a wrapper that accepts drops
 
