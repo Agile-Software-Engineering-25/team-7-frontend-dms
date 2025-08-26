@@ -6,6 +6,7 @@ import { CssVarsProvider as JoyCssVarsProvider } from '@mui/joy';
 import './i18n';
 import { Provider } from 'react-redux';
 import store from '@stores/index.ts';
+import DevMockBanner from '@components/DevMockBanner/DevMockBanner';
 
 const theme = createCustomTheme({
   colorSchemes: {
@@ -37,6 +38,8 @@ function App({ basename }: AppProps) {
     <Provider store={store}>
       <ThemeProvider theme={{ [MATERIAL_THEME_ID]: theme }}>
         <JoyCssVarsProvider>
+          {/* dev-only mock banner */}
+          {(import.meta as any).env?.DEV ? <DevMockBanner /> : null}
           <BrowserRouter basename={basename}>
             <RoutingComponent />
           </BrowserRouter>

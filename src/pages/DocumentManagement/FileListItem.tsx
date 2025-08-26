@@ -64,6 +64,7 @@ const FileListItem: React.FC<Props> = ({
       divider
       role="listitem"
       draggable
+  onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
       onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(
