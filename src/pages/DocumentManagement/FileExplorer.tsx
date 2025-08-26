@@ -29,6 +29,21 @@ type Item = {
   itemType: 'folder' | 'document' | 'pdf' | 'other';
 };
 
+type FolderResponse = {
+  documents?: Array<{
+    id: string;
+    name: string;
+    size: number;
+    createdDate?: string;
+    type?: string;
+  }>;
+  subfolders?: Array<{
+    id: string;
+    name: string;
+    createdDate?: string;
+  }>;
+  path?: Array<{ id: string; name: string }>;
+};
 
 // Maximum folder depth to walk when building breadcrumb paths.
 const MAX_PATH_DEPTH = 50;
@@ -63,8 +78,8 @@ export default function FileExplorer(): JSX.Element {
   // handle DOM custom events from FileItemActions or breadcrumb drops
   React.useEffect(() => {
     const onRequestMove = (e: Event) => {
-      // @ts-ignore
-      const id = e?.detail?.id as string | undefined;
+      const ce = e as CustomEvent<{ id?: string }> | undefined;
+      const id = ce?.detail?.id as string | undefined;
       if (id) {
         setMoveSourceId(id);
         const found = items.find((x) => x.id === id);
@@ -73,23 +88,39 @@ export default function FileExplorer(): JSX.Element {
       }
     };
     const onDropOnBreadcrumb = (e: Event) => {
-      // @ts-ignore
-      const detail = e?.detail as { item: DmsDragPayload; targetId?: string } | undefined;
+      const ce = e as
+        | CustomEvent<{ item: DmsDragPayload; targetId?: string }>
+        | undefined;
+      const detail = ce?.detail;
       if (!detail) return;
       const { item, targetId } = detail;
       if (item && targetId) handleMove(item.id, item.type, targetId);
     };
-    document.addEventListener('dms:request-move', onRequestMove as EventListener);
-    document.addEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
+    document.addEventListener(
+      'dms:request-move',
+      onRequestMove as EventListener
+    );
+    document.addEventListener(
+      'dms:drop-on-breadcrumb',
+      onDropOnBreadcrumb as EventListener
+    );
     return () => {
-      document.removeEventListener('dms:request-move', onRequestMove as EventListener);
-      document.removeEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
+      document.removeEventListener(
+        'dms:request-move',
+        onRequestMove as EventListener
+      );
+      document.removeEventListener(
+        'dms:drop-on-breadcrumb',
+        onDropOnBreadcrumb as EventListener
+      );
     };
   }, [items]);
 
   const refresh = React.useCallback(async () => {
     try {
-      const folder = await api.getFolder(currentFolderIdRef.current);
+      const folder = (await api.getFolder(
+        currentFolderIdRef.current
+      )) as FolderResponse;
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -124,7 +155,7 @@ export default function FileExplorer(): JSX.Element {
         const iterationLimit = MAX_PATH_DEPTH;
         let iteration = 0;
         while (currentId && iteration < iterationLimit) {
-          const folderData = await api.getFolder(currentId);
+          const folderData = (await api.getFolder(currentId)) as FolderResponse;
           const md = parseFolderMetadata(folderData, currentId);
           path.push({ id: md.id, name: md.name });
           if (!md.parentId || md.parentId === 'root') break;
@@ -295,7 +326,7 @@ export default function FileExplorer(): JSX.Element {
           if (current === sourceIdCheck) return true;
           // when at root stop
           if (current === 'root') break;
-          const folderData = await api.getFolder(current);
+          const folderData = (await api.getFolder(current)) as FolderResponse;
           const md = parseFolderMetadata(folderData, current);
           if (!md.parentId) break;
           current = md.parentId;
@@ -310,19 +341,21 @@ export default function FileExplorer(): JSX.Element {
     try {
       if (sourceType === 'folder') {
         // disallow moving a folder into itself or into its descendant
-          if (sourceId === targetFolderId) {
-            showSnack(
-              t(
-                'documentManagement.snack.invalidMove',
-                'Cannot move a folder into itself or its descendant.'
-              ),
-              'error'
-            );
+        if (sourceId === targetFolderId) {
+          showSnack(
+            t(
+              'documentManagement.snack.invalidMove',
+              'Cannot move a folder into itself or its descendant.'
+            ),
+            'error'
+          );
           return;
         }
         // if the folder is already directly inside the target, noop
         try {
-          const srcFolderData = await api.getFolder(sourceId);
+          const srcFolderData = (await api.getFolder(
+            sourceId
+          )) as FolderResponse;
           const srcMeta = parseFolderMetadata(srcFolderData, sourceId);
           const srcParent = srcMeta.parentId ?? 'root';
           if (srcParent === targetFolderId) {
@@ -350,13 +383,16 @@ export default function FileExplorer(): JSX.Element {
           );
           return;
         }
-        await api.moveFolder(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+        await api.moveFolder(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
       } else {
         // For documents, avoid a no-op move if it's already in the target folder.
         try {
           // If the document is visible in the current listing, its parent is currentFolderIdRef.current.
           const inCurrent = items.find((it) => it.id === sourceId);
-            if (inCurrent && currentFolderIdRef.current === targetFolderId) {
+          if (inCurrent && currentFolderIdRef.current === targetFolderId) {
             showSnack(
               t(
                 'documentManagement.snack.alreadyInFolderFile',
@@ -370,9 +406,9 @@ export default function FileExplorer(): JSX.Element {
           // Otherwise, check the current path folders (cheap limited scan) to find the doc.
           for (const p of currentPath) {
             try {
-              const folderData = await api.getFolder(p.id);
+              const folderData = (await api.getFolder(p.id)) as FolderResponse;
               const docs = folderData.documents || [];
-              if (docs.find((d: any) => d.id === sourceId)) {
+              if (docs.find((d) => d.id === sourceId)) {
                 if (p.id === targetFolderId) {
                   showSnack(
                     t(
@@ -393,13 +429,19 @@ export default function FileExplorer(): JSX.Element {
           // ignore fallback errors
         }
 
-        await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+        await api.moveDocument(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
       }
       // remove moved item from current listing if it left current folder
       setItems((prev) => prev.filter((i) => i.id !== sourceId));
       showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
-    } catch (err) {
-      showSnack(t('documentManagement.snack.moveFailed', 'Move failed'), 'error');
+    } catch {
+      showSnack(
+        t('documentManagement.snack.moveFailed', 'Move failed'),
+        'error'
+      );
     }
     setMoveChooserOpen(false);
     setMoveSourceId(null);

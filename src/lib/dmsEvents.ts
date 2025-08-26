@@ -14,7 +14,10 @@ export const EVENT_REQUEST_MOVE = 'dms:request-move';
 export const EVENT_DROP_ON_BREADCRUMB = 'dms:drop-on-breadcrumb';
 
 export function emitRequestMove(id: string) {
-  const ev = new CustomEvent(EVENT_REQUEST_MOVE, { detail: { id }, bubbles: true });
+  const ev = new CustomEvent(EVENT_REQUEST_MOVE, {
+    detail: { id },
+    bubbles: true,
+  });
   // dispatch on document so components don't need direct refs
   document.dispatchEvent(ev);
 }

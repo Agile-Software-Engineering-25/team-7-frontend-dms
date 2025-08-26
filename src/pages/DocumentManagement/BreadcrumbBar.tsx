@@ -74,7 +74,10 @@ const BreadcrumbBar: React.FC<{
             }}
             sx={
               dragOverId === item.id
-                ? { boxShadow: (theme) => `0 0 0 2px ${theme.palette.primary.main}55` }
+                ? {
+                    boxShadow: (theme) =>
+                      `0 0 0 2px ${theme.palette.primary.main}55`,
+                  }
                 : undefined
             }
           />

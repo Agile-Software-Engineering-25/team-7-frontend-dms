@@ -21,7 +21,7 @@ function nowIso() {
 }
 
 function genId() {
-  return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+  return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 /**
@@ -122,7 +122,11 @@ export default function createMockApi() {
     folders.set(id, folder);
     const parent = folders.get(folder.parentId!);
     if (parent) parent.subfolders.unshift(id);
-    return { id: folder.id, name: folder.name, createdDate: folder.createdDate };
+    return {
+      id: folder.id,
+      name: folder.name,
+      createdDate: folder.createdDate,
+    };
   }
 
   async function renameFolder(id: string, name: string) {
