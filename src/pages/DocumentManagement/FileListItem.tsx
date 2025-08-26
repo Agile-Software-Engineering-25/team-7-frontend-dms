@@ -25,6 +25,8 @@ type Props = {
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
   onOpen?: (id: string) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
 
 function formatSize(bytes: number) {
@@ -53,14 +55,16 @@ const FileListItem: React.FC<Props> = ({
   onRename,
   onDelete,
   onOpen,
+  onDrop,
+  onDragOver,
 }) => {
   return (
     <ListItem
-      key={item.id}
+      component="div"
       divider
       role="listitem"
       draggable
-      onDragStart={(e) => {
+      onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(
             'application/x-dms-item',
@@ -75,6 +79,8 @@ const FileListItem: React.FC<Props> = ({
       onDragEnd={() => {
         /* no-op for now */
       }}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
       sx={{ alignItems: 'center' }}
     >
       <ListItemAvatar>

@@ -369,8 +369,12 @@ export default function FileExplorer(): JSX.Element {
       </Box>
       <List aria-label="file list">
         {items.map((item) => (
-          <div
+          <FileListItem
             key={item.id}
+            item={item}
+            onRename={handleOpenRename}
+            onDelete={handleOpenDelete}
+            onOpen={handleOpenFolder}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               try {
@@ -385,14 +389,7 @@ export default function FileExplorer(): JSX.Element {
                 // ignore
               }
             }}
-          >
-            <FileListItem
-              item={item}
-              onRename={handleOpenRename}
-              onDelete={handleOpenDelete}
-              onOpen={handleOpenFolder}
-            />
-          </div>
+          />
         ))}
       </List>
 
