@@ -58,6 +58,20 @@ const FileListItem: React.FC<Props> = ({
   onDrop,
   onDragOver,
 }) => {
+  const [isDragOver, setIsDragOver] = React.useState(false);
+  const dragCounter = React.useRef(0);
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragCounter.current += 1;
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragCounter.current = Math.max(0, dragCounter.current - 1);
+    if (dragCounter.current === 0) setIsDragOver(false);
+  };
   return (
     <ListItem
       component="div"
@@ -80,9 +94,20 @@ const FileListItem: React.FC<Props> = ({
       onDragEnd={() => {
         /* no-op for now */
       }}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
       onDrop={onDrop}
       onDragOver={onDragOver}
-      sx={{ alignItems: 'center' }}
+      sx={{
+        alignItems: 'center',
+        transition: 'background-color 120ms ease, box-shadow 120ms ease',
+        ...(isDragOver
+          ? {
+              backgroundColor: 'action.selected',
+              boxShadow: (theme) => `0 0 0 2px ${theme.palette.primary.main}55`,
+            }
+          : {}),
+      }}
     >
       <ListItemAvatar>
         <Avatar aria-hidden aria-label={item.itemType}>
