@@ -339,11 +339,13 @@ export default function FileExplorer(): JSX.Element {
   };
 
   React.useEffect(() => {
+    // Run once on mount. navigation and folder changes explicitly call refresh/buildPathFromId.
     (async () => {
       await refresh();
       await buildPathFromId(currentFolderIdRef.current);
     })();
-  }, [refresh, buildPathFromId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box

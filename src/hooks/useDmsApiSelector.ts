@@ -1,5 +1,6 @@
 import useDmsApi from './useDmsApi';
 import createMockApi from './useDmsApiMock';
+import { useMemo } from 'react';
 
 let mockInstance: ReturnType<typeof createMockApi> | null = null;
 
@@ -10,5 +11,7 @@ export default function useDmsApiSelector() {
     if (!mockInstance) mockInstance = createMockApi();
     return mockInstance;
   }
-  return useDmsApi();
+  const real = useDmsApi();
+  // ensure a stable reference across renders
+  return useMemo(() => real, [real]);
 }

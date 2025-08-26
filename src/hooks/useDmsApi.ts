@@ -1,6 +1,6 @@
 import useAxiosInstance from '@hooks/useAxiosInstance';
 import { BACKEND_BASE_URL } from '@/config';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type FolderResponse = {
   folders: {
@@ -119,17 +119,32 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
-  return {
-    getFolder,
-    renameDocument,
-    renameFolder,
-    deleteDocument,
-    deleteFolder,
-    uploadDocument,
-    createFolder,
-  moveDocument,
-  moveFolder,
-  };
+  const api = useMemo(
+    () => ({
+      getFolder,
+      renameDocument,
+      renameFolder,
+      deleteDocument,
+      deleteFolder,
+      uploadDocument,
+      createFolder,
+      moveDocument,
+      moveFolder,
+    }),
+    [
+      getFolder,
+      renameDocument,
+      renameFolder,
+      deleteDocument,
+      deleteFolder,
+      uploadDocument,
+      createFolder,
+      moveDocument,
+      moveFolder,
+    ]
+  );
+
+  return api;
 };
 
 export default useDmsApi;
