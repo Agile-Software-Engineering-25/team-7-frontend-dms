@@ -97,6 +97,28 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const moveDocument = useCallback(
+    async (id: string, parentId?: string) => {
+      // PATCH document to update its parent folder. Backend may support other move semantics.
+      const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
+        parentId,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const moveFolder = useCallback(
+    async (id: string, parentId?: string) => {
+      // PATCH folder to update its parent folder.
+      const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
+        parentId,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
   return {
     getFolder,
     renameDocument,
@@ -105,6 +127,8 @@ const useDmsApi = () => {
     deleteFolder,
     uploadDocument,
     createFolder,
+  moveDocument,
+  moveFolder,
   };
 };
 

@@ -59,6 +59,22 @@ const FileListItem: React.FC<Props> = ({
       key={item.id}
       divider
       role="listitem"
+      draggable
+      onDragStart={(e) => {
+        try {
+          e.dataTransfer?.setData(
+            'application/x-dms-item',
+            JSON.stringify({ id: item.id, type: item.itemType })
+          );
+          // show copy/move effect
+          e.dataTransfer!.effectAllowed = 'move';
+        } catch {
+          // ignore
+        }
+      }}
+      onDragEnd={() => {
+        /* no-op for now */
+      }}
       sx={{ alignItems: 'center' }}
     >
       <ListItemAvatar>

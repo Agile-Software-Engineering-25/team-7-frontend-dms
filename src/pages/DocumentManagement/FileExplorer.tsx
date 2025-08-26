@@ -13,7 +13,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import useDmsApi from '@hooks/useDmsApi';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { parseFolderMetadata } from './folderMetadata';
 import FileListItem from './FileListItem';
 import BreadcrumbBar from './BreadcrumbBar';
@@ -57,7 +57,8 @@ const MAX_PATH_DEPTH = 50;
 
 export default function FileExplorer(): JSX.Element {
   const { t } = useTranslation();
-  const api = useDmsApi();
+  // To test with mock data in the browser console set: window.__USE_DMS_MOCK__ = true
+  const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>(sampleItems);
   const currentFolderIdRef = React.useRef<string>('root');
   const [currentPath, setCurrentPath] = React.useState<
@@ -76,6 +77,38 @@ export default function FileExplorer(): JSX.Element {
     msg?: string | null;
     severity: 'success' | 'error';
   }>({ open: false, msg: null, severity: 'success' });
+  const [moveChooserOpen, setMoveChooserOpen] = React.useState(false);
+  const [moveSourceId, setMoveSourceId] = React.useState<string | null>(null);
+  const [moveSourceType, setMoveSourceType] = React.useState<
+    Item['itemType'] | string | null
+  >(null);
+
+  // handle DOM custom events from FileItemActions or breadcrumb drops
+  React.useEffect(() => {
+    const onRequestMove = (e: Event) => {
+      // @ts-ignore
+      const id = e?.detail?.id as string | undefined;
+      if (id) {
+        setMoveSourceId(id);
+        const found = items.find((x) => x.id === id);
+        setMoveSourceType(found?.itemType ?? 'document');
+        setMoveChooserOpen(true);
+      }
+    };
+    const onDropOnBreadcrumb = (e: Event) => {
+      // @ts-ignore
+      const detail = e?.detail;
+      if (!detail) return;
+      const { item, targetId } = detail;
+      handleMove(item.id, item.type, targetId);
+    };
+    document.addEventListener('dms:request-move', onRequestMove as EventListener);
+    document.addEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
+    return () => {
+      document.removeEventListener('dms:request-move', onRequestMove as EventListener);
+      document.removeEventListener('dms:drop-on-breadcrumb', onDropOnBreadcrumb as EventListener);
+    };
+  }, []);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -269,6 +302,31 @@ export default function FileExplorer(): JSX.Element {
     }
   };
 
+  const handleMove = async (
+    sourceId: string,
+    sourceType: Item['itemType'] | string,
+    targetFolderId: string
+  ) => {
+    // Prevent moving into same folder (noop)
+    if (!sourceId || !targetFolderId) return;
+    try {
+      if (sourceType === 'folder') {
+        await api.moveFolder(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+      } else {
+        await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+      }
+      // remove moved item from current listing if it left current folder
+      setItems((prev) => prev.filter((i) => i.id !== sourceId));
+      showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+    } catch (err) {
+      showSnack(t('documentManagement.snack.moveFailed', 'Move failed'), 'error');
+    }
+    setMoveChooserOpen(false);
+    setMoveSourceId(null);
+  };
+
+  // Provide per-row drop handler by cloning items into a wrapper that accepts drops
+
   const handleNavigatePath = (id: string) => {
     setCurrentPath((p) => {
       const idx = p.findIndex((x) => x.id === id);
@@ -309,15 +367,77 @@ export default function FileExplorer(): JSX.Element {
       </Box>
       <List aria-label="file list">
         {items.map((item) => (
-          <FileListItem
+          <div
             key={item.id}
-            item={item}
-            onRename={handleOpenRename}
-            onDelete={handleOpenDelete}
-            onOpen={handleOpenFolder}
-          />
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              try {
+                const raw = e.dataTransfer?.getData('application/x-dms-item');
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                // If dropped onto a folder, move into that folder
+                if (item.itemType === 'folder') {
+                  handleMove(parsed.id, parsed.type, item.id);
+                }
+              } catch {
+                // ignore
+              }
+            }}
+          >
+            <FileListItem
+              item={item}
+              onRename={handleOpenRename}
+              onDelete={handleOpenDelete}
+              onOpen={handleOpenFolder}
+            />
+          </div>
         ))}
       </List>
+
+      {/* Move chooser dialog (keyboard fallback). Simple: pick one of the current breadcrumb entries as destination */}
+      <Dialog
+        open={Boolean(moveChooserOpen && moveSourceId)}
+        onClose={() => {
+          setMoveChooserOpen(false);
+          setMoveSourceId(null);
+        }}
+        aria-labelledby="move-dialog-title"
+      >
+        <DialogTitle id="move-dialog-title">
+          {t('documentManagement.moveDialog.title', 'Move item')}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            {t(
+              'documentManagement.moveDialog.select',
+              'Select destination folder from the current path'
+            )}
+          </Typography>
+          {currentPath.map((p) => (
+            <Box key={p.id} sx={{ mb: 1 }}>
+              <Button
+                variant="soft"
+                onClick={() =>
+                  moveSourceId &&
+                  handleMove(moveSourceId, moveSourceType ?? 'document', p.id)
+                }
+              >
+                {p.name}
+              </Button>
+            </Box>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setMoveChooserOpen(false);
+              setMoveSourceId(null);
+            }}
+          >
+            {t('documentManagement.moveDialog.cancel', 'Cancel')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={renameOpen}

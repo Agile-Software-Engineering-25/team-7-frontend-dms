@@ -61,6 +61,21 @@ const BreadcrumbBar: React.FC<{
             size="small"
             aria-current={index === path.length - 1 ? 'page' : undefined}
             ref={index === path.length - 1 ? lastItemRef : undefined}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              try {
+                const raw = e.dataTransfer?.getData('application/x-dms-item');
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                const ev = new CustomEvent('dms:drop-on-breadcrumb', {
+                  detail: { item: parsed, targetId: item.id },
+                  bubbles: true,
+                });
+                document.dispatchEvent(ev);
+              } catch {
+                // ignore
+              }
+            }}
           />
         ))}
       </Breadcrumbs>
