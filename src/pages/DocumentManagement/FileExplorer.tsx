@@ -352,6 +352,47 @@ export default function FileExplorer(): JSX.Element {
         }
         await api.moveFolder(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
       } else {
+        // For documents, avoid a no-op move if it's already in the target folder.
+        try {
+          // If the document is visible in the current listing, its parent is currentFolderIdRef.current.
+          const inCurrent = items.find((it) => it.id === sourceId);
+          if (inCurrent && currentFolderIdRef.current === targetFolderId) {
+            showSnack(
+              t(
+                'documentManagement.snack.alreadyInFolder',
+                'Folder is already in the selected folder.'
+              ),
+              'error'
+            );
+            return;
+          }
+
+          // Otherwise, check the current path folders (cheap limited scan) to find the doc.
+          for (const p of currentPath) {
+            try {
+              const folderData = await api.getFolder(p.id);
+              const docs = folderData.documents || [];
+              if (docs.find((d: any) => d.id === sourceId)) {
+                if (p.id === targetFolderId) {
+                  showSnack(
+                    t(
+                      'documentManagement.snack.alreadyInFolder',
+                      'Folder is already in the selected folder.'
+                    ),
+                    'error'
+                  );
+                  return;
+                }
+                break;
+              }
+            } catch {
+              // ignore and continue
+            }
+          }
+        } catch {
+          // ignore fallback errors
+        }
+
         await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
       }
       // remove moved item from current listing if it left current folder
