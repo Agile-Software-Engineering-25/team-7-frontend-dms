@@ -310,8 +310,51 @@ export default function FileExplorer(): JSX.Element {
   ) => {
     // Prevent moving into same folder (noop)
     if (!sourceId || !targetFolderId) return;
+    // Helper: determine whether `targetId` is a descendant of `sourceId`.
+    const isDescendant = async (targetId: string, sourceIdCheck: string) => {
+      try {
+        let current: string | undefined = targetId;
+        let depth = 0;
+        while (current && depth < MAX_PATH_DEPTH) {
+          if (current === sourceIdCheck) return true;
+          // when at root stop
+          if (current === 'root') break;
+          const folderData = await api.getFolder(current);
+          const md = parseFolderMetadata(folderData, current);
+          if (!md.parentId) break;
+          current = md.parentId;
+          depth += 1;
+        }
+        return false;
+      } catch {
+        // on error, be conservative and disallow
+        return true;
+      }
+    };
     try {
       if (sourceType === 'folder') {
+        // disallow moving a folder into itself or into its descendant
+        if (sourceId === targetFolderId) {
+          showSnack(
+            t(
+              'documentManagement.snack.invalidMove',
+              'Cannot move a folder into itself or its descendant.'
+            ),
+            'error'
+          );
+          return;
+        }
+        const bad = await isDescendant(targetFolderId, sourceId);
+        if (bad) {
+          showSnack(
+            t(
+              'documentManagement.snack.invalidMove',
+              'Cannot move a folder into itself or its descendant.'
+            ),
+            'error'
+          );
+          return;
+        }
         await api.moveFolder(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
       } else {
         await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
