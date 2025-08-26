@@ -310,14 +310,14 @@ export default function FileExplorer(): JSX.Element {
     try {
       if (sourceType === 'folder') {
         // disallow moving a folder into itself or into its descendant
-        if (sourceId === targetFolderId) {
-          showSnack(
-            t(
-              'documentManagement.snack.invalidMove',
-              'Cannot move a folder into itself or its descendant.'
-            ),
-            'error'
-          );
+          if (sourceId === targetFolderId) {
+            showSnack(
+              t(
+                'documentManagement.snack.invalidMove',
+                'Cannot move a folder into itself or its descendant.'
+              ),
+              'error'
+            );
           return;
         }
         // if the folder is already directly inside the target, noop
@@ -328,8 +328,8 @@ export default function FileExplorer(): JSX.Element {
           if (srcParent === targetFolderId) {
             showSnack(
               t(
-                'documentManagement.snack.alreadyInFolder',
-                'Folder is already in the selected folder.'
+                'documentManagement.snack.alreadyInFolderFolder',
+                'Cannot move folder: it is already in the selected folder.'
               ),
               'error'
             );
@@ -356,11 +356,11 @@ export default function FileExplorer(): JSX.Element {
         try {
           // If the document is visible in the current listing, its parent is currentFolderIdRef.current.
           const inCurrent = items.find((it) => it.id === sourceId);
-          if (inCurrent && currentFolderIdRef.current === targetFolderId) {
+            if (inCurrent && currentFolderIdRef.current === targetFolderId) {
             showSnack(
               t(
-                'documentManagement.snack.alreadyInFolder',
-                'Folder is already in the selected folder.'
+                'documentManagement.snack.alreadyInFolderFile',
+                'Cannot move file: it is already in the selected folder.'
               ),
               'error'
             );
@@ -376,8 +376,8 @@ export default function FileExplorer(): JSX.Element {
                 if (p.id === targetFolderId) {
                   showSnack(
                     t(
-                      'documentManagement.snack.alreadyInFolder',
-                      'Folder is already in the selected folder.'
+                      'documentManagement.snack.alreadyInFolderFile',
+                      'Cannot move file: it is already in the selected folder.'
                     ),
                     'error'
                   );
