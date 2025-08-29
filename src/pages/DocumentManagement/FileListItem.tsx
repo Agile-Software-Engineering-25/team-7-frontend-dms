@@ -25,6 +25,8 @@ type Props = {
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
   onOpen?: (id: string) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
 
 function formatSize(bytes: number) {
@@ -53,13 +55,59 @@ const FileListItem: React.FC<Props> = ({
   onRename,
   onDelete,
   onOpen,
+  onDrop,
+  onDragOver,
 }) => {
+  const [isDragOver, setIsDragOver] = React.useState(false);
+  const dragCounter = React.useRef(0);
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragCounter.current += 1;
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragCounter.current = Math.max(0, dragCounter.current - 1);
+    if (dragCounter.current === 0) setIsDragOver(false);
+  };
   return (
     <ListItem
-      key={item.id}
+      component="div"
       divider
       role="listitem"
-      sx={{ alignItems: 'center' }}
+      draggable
+      onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
+      onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
+        try {
+          e.dataTransfer?.setData(
+            'application/x-dms-item',
+            JSON.stringify({ id: item.id, type: item.itemType })
+          );
+          // show copy/move effect
+          if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+        } catch {
+          // ignore
+        }
+      }}
+      onDragEnd={() => {
+        /* no-op for now */
+      }}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      sx={{
+        alignItems: 'center',
+        transition: 'background-color 120ms ease, box-shadow 120ms ease',
+        ...(isDragOver
+          ? {
+              backgroundColor: 'action.selected',
+              boxShadow: (theme) => `0 0 0 2px ${theme.palette.primary.main}55`,
+            }
+          : {}),
+      }}
     >
       <ListItemAvatar>
         <Avatar aria-hidden aria-label={item.itemType}>
@@ -88,7 +136,6 @@ const FileListItem: React.FC<Props> = ({
                 fontWeight: 600,
                 cursor: item.itemType === 'folder' ? 'pointer' : 'default',
               }}
-              onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
               role={item.itemType === 'folder' ? 'button' : undefined}
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
               onKeyDown={(e) => {

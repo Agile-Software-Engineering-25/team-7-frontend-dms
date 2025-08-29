@@ -53,7 +53,9 @@
       "deleted": "Deleted",
       "deleteFailed": "Delete failed",
       "created": "Created",
-      "createFailed": "Create failed"
+  "createFailed": "Create failed",
+  "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
+  "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
     },
     "root": "Home",
     "fileExplorer": "File Explorer"

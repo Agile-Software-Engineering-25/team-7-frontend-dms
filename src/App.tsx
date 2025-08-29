@@ -37,6 +37,7 @@ function App({ basename }: AppProps) {
     <Provider store={store}>
       <ThemeProvider theme={{ [MATERIAL_THEME_ID]: theme }}>
         <JoyCssVarsProvider>
+          {/* no frontend toggle for mock mode; control via code (window.__USE_DMS_MOCK__ or ?mock=1) */}
           <BrowserRouter basename={basename}>
             <RoutingComponent />
           </BrowserRouter>

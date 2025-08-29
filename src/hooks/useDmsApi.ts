@@ -1,6 +1,6 @@
 import useAxiosInstance from '@hooks/useAxiosInstance';
 import { BACKEND_BASE_URL } from '@/config';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type FolderResponse = {
   folders: {
@@ -97,15 +97,54 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
-  return {
-    getFolder,
-    renameDocument,
-    renameFolder,
-    deleteDocument,
-    deleteFolder,
-    uploadDocument,
-    createFolder,
-  };
+  const moveDocument = useCallback(
+    async (id: string, parentId?: string) => {
+      // PATCH document to update its parent folder. Backend may support other move semantics.
+      const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
+        parentId,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const moveFolder = useCallback(
+    async (id: string, parentId?: string) => {
+      // PATCH folder to update its parent folder.
+      const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
+        parentId,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const api = useMemo(
+    () => ({
+      getFolder,
+      renameDocument,
+      renameFolder,
+      deleteDocument,
+      deleteFolder,
+      uploadDocument,
+      createFolder,
+      moveDocument,
+      moveFolder,
+    }),
+    [
+      getFolder,
+      renameDocument,
+      renameFolder,
+      deleteDocument,
+      deleteFolder,
+      uploadDocument,
+      createFolder,
+      moveDocument,
+      moveFolder,
+    ]
+  );
+
+  return api;
 };
 
 export default useDmsApi;

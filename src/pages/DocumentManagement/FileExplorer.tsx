@@ -13,10 +13,11 @@ import {
   IconButton,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import useDmsApi from '@hooks/useDmsApi';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { parseFolderMetadata } from './folderMetadata';
 import FileListItem from './FileListItem';
 import BreadcrumbBar from './BreadcrumbBar';
+import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import Button from '@shared-components/Button/Button';
 
@@ -28,37 +29,29 @@ type Item = {
   itemType: 'folder' | 'document' | 'pdf' | 'other';
 };
 
-const sampleItems: Item[] = [
-  {
-    id: '1',
-    name: 'Project Plan.docx',
-    size: 23456,
-    uploadDate: '2025-08-01T10:23:00Z',
-    itemType: 'document',
-  },
-  {
-    id: '2',
-    name: 'Designs.pdf',
-    size: 1048576,
-    uploadDate: '2025-07-28T08:12:00Z',
-    itemType: 'pdf',
-  },
-  {
-    id: '3',
-    name: 'Archives',
-    size: 0,
-    uploadDate: '2025-06-15T12:00:00Z',
-    itemType: 'folder',
-  },
-];
+type FolderResponse = {
+  documents?: Array<{
+    id: string;
+    name: string;
+    size: number;
+    createdDate?: string;
+    type?: string;
+  }>;
+  subfolders?: Array<{
+    id: string;
+    name: string;
+    createdDate?: string;
+  }>;
+  path?: Array<{ id: string; name: string }>;
+};
 
 // Maximum folder depth to walk when building breadcrumb paths.
 const MAX_PATH_DEPTH = 50;
 
 export default function FileExplorer(): JSX.Element {
   const { t } = useTranslation();
-  const api = useDmsApi();
-  const [items, setItems] = React.useState<Item[]>(sampleItems);
+  const api = useDmsApiSelector();
+  const [items, setItems] = React.useState<Item[]>([]);
   const currentFolderIdRef = React.useRef<string>('root');
   const [currentPath, setCurrentPath] = React.useState<
     Array<{ id: string; name: string }>
@@ -76,10 +69,78 @@ export default function FileExplorer(): JSX.Element {
     msg?: string | null;
     severity: 'success' | 'error';
   }>({ open: false, msg: null, severity: 'success' });
+  const [moveChooserOpen, setMoveChooserOpen] = React.useState(false);
+  const [moveSourceId, setMoveSourceId] = React.useState<string | null>(null);
+  const [moveSourceType, setMoveSourceType] = React.useState<
+    Item['itemType'] | string | null
+  >(null);
+  // keep a ref to the latest items so event handlers don't need to be
+  // re-registered whenever `items` changes.
+  const itemsRef = React.useRef<Item[]>(items);
+  React.useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // We'll also keep a ref for `handleMove` so breadcrumb-drop handlers can
+  // invoke it without the listener needing to be re-registered.
+  const handleMoveRef = React.useRef<
+    | ((
+        sourceId: string,
+        sourceType: Item['itemType'] | string,
+        targetId: string
+      ) => Promise<void>)
+    | null
+  >(null);
+
+  // handle DOM custom events from FileItemActions or breadcrumb drops.
+  // Register listeners once and read the latest values via refs.
+  React.useEffect(() => {
+    const onRequestMove = (e: Event) => {
+      const ce = e as CustomEvent<{ id?: string }>;
+      const id = ce?.detail?.id as string | undefined;
+      if (id) {
+        setMoveSourceId(id);
+        const found = itemsRef.current.find((x) => x.id === id);
+        setMoveSourceType(found?.itemType ?? 'document');
+        setMoveChooserOpen(true);
+      }
+    };
+
+    const onDropOnBreadcrumb = (e: Event) => {
+      const ce = e as CustomEvent<{ item: DmsDragPayload; targetId?: string }>;
+      const detail = ce?.detail;
+      if (!detail) return;
+      const { item, targetId } = detail;
+      if (item && targetId)
+        handleMoveRef.current?.(item.id, item.type, targetId);
+    };
+
+    document.addEventListener(
+      'dms:request-move',
+      onRequestMove as EventListener
+    );
+    document.addEventListener(
+      'dms:drop-on-breadcrumb',
+      onDropOnBreadcrumb as EventListener
+    );
+    return () => {
+      document.removeEventListener(
+        'dms:request-move',
+        onRequestMove as EventListener
+      );
+      document.removeEventListener(
+        'dms:drop-on-breadcrumb',
+        onDropOnBreadcrumb as EventListener
+      );
+    };
+    // empty deps so listeners are registered once on mount
+  }, []);
 
   const refresh = React.useCallback(async () => {
     try {
-      const folder = await api.getFolder(currentFolderIdRef.current);
+      const folder = (await api.getFolder(
+        currentFolderIdRef.current
+      )) as FolderResponse;
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -114,7 +175,7 @@ export default function FileExplorer(): JSX.Element {
         const iterationLimit = MAX_PATH_DEPTH;
         let iteration = 0;
         while (currentId && iteration < iterationLimit) {
-          const folderData = await api.getFolder(currentId);
+          const folderData = (await api.getFolder(currentId)) as FolderResponse;
           const md = parseFolderMetadata(folderData, currentId);
           path.push({ id: md.id, name: md.name });
           if (!md.parentId || md.parentId === 'root') break;
@@ -134,6 +195,9 @@ export default function FileExplorer(): JSX.Element {
   const handleClose = () => {
     setActiveId(null);
   };
+
+  // keep handleMoveRef up to date so event handlers call the latest function
+  // (updated after handleMove is declared further below)
 
   const getItemById = (id?: string | null) =>
     items.find((i) => i.id === (id ?? ''));
@@ -269,6 +333,150 @@ export default function FileExplorer(): JSX.Element {
     }
   };
 
+  const handleMove = async (
+    sourceId: string,
+    sourceType: Item['itemType'] | string,
+    targetFolderId: string
+  ) => {
+    // Prevent moving into same folder (noop)
+    if (!sourceId || !targetFolderId) return;
+    // Helper: determine whether `targetId` is a descendant of `sourceId`.
+    const isDescendant = async (targetId: string, sourceIdCheck: string) => {
+      try {
+        let current: string | undefined = targetId;
+        let depth = 0;
+        while (current && depth < MAX_PATH_DEPTH) {
+          if (current === sourceIdCheck) return true;
+          // when at root stop
+          if (current === 'root') break;
+          const folderData = (await api.getFolder(current)) as FolderResponse;
+          const md = parseFolderMetadata(folderData, current);
+          if (!md.parentId) break;
+          current = md.parentId;
+          depth += 1;
+        }
+        return false;
+      } catch {
+        // on error, be conservative and disallow
+        return true;
+      }
+    };
+    try {
+      if (sourceType === 'folder') {
+        // disallow moving a folder into itself or into its descendant
+        if (sourceId === targetFolderId) {
+          showSnack(
+            t(
+              'documentManagement.snack.invalidMove',
+              'Cannot move a folder into itself or its descendant.'
+            ),
+            'error'
+          );
+          return;
+        }
+        // if the folder is already directly inside the target, noop
+        try {
+          const srcFolderData = (await api.getFolder(
+            sourceId
+          )) as FolderResponse;
+          const srcMeta = parseFolderMetadata(srcFolderData, sourceId);
+          const srcParent = srcMeta.parentId ?? 'root';
+          if (srcParent === targetFolderId) {
+            showSnack(
+              t(
+                'documentManagement.snack.alreadyInFolderFolder',
+                'Cannot move folder: it is already in the selected folder.'
+              ),
+              'error'
+            );
+            return;
+          }
+        } catch {
+          // ignore errors here and fall back to descendant-check below
+        }
+
+        const bad = await isDescendant(targetFolderId, sourceId);
+        if (bad) {
+          showSnack(
+            t(
+              'documentManagement.snack.invalidMove',
+              'Cannot move a folder into itself or its descendant.'
+            ),
+            'error'
+          );
+          return;
+        }
+        await api.moveFolder(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
+      } else {
+        // For documents, avoid a no-op move if it's already in the target folder.
+        try {
+          // If the document is visible in the current listing, its parent is currentFolderIdRef.current.
+          const inCurrent = items.find((it) => it.id === sourceId);
+          if (inCurrent && currentFolderIdRef.current === targetFolderId) {
+            showSnack(
+              t(
+                'documentManagement.snack.alreadyInFolderFile',
+                'Cannot move file: it is already in the selected folder.'
+              ),
+              'error'
+            );
+            return;
+          }
+
+          // Otherwise, check the current path folders (cheap limited scan) to find the doc.
+          for (const p of currentPath) {
+            try {
+              const folderData = (await api.getFolder(p.id)) as FolderResponse;
+              const docs = folderData.documents || [];
+              if (docs.find((d) => d.id === sourceId)) {
+                if (p.id === targetFolderId) {
+                  showSnack(
+                    t(
+                      'documentManagement.snack.alreadyInFolderFile',
+                      'Cannot move file: it is already in the selected folder.'
+                    ),
+                    'error'
+                  );
+                  return;
+                }
+                break;
+              }
+            } catch {
+              // ignore and continue
+            }
+          }
+        } catch {
+          // ignore fallback errors
+        }
+
+        await api.moveDocument(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
+      }
+      // remove moved item from current listing if it left current folder
+      setItems((prev) => prev.filter((i) => i.id !== sourceId));
+      showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+    } catch {
+      showSnack(
+        t('documentManagement.snack.moveFailed', 'Move failed'),
+        'error'
+      );
+    }
+    setMoveChooserOpen(false);
+    setMoveSourceId(null);
+  };
+
+  // keep handleMoveRef up to date so event handlers call the latest function
+  React.useEffect(() => {
+    handleMoveRef.current = handleMove;
+  }, [handleMove]);
+
+  // Provide per-row drop handler by cloning items into a wrapper that accepts drops
+
   const handleNavigatePath = (id: string) => {
     setCurrentPath((p) => {
       const idx = p.findIndex((x) => x.id === id);
@@ -281,11 +489,13 @@ export default function FileExplorer(): JSX.Element {
   };
 
   React.useEffect(() => {
+    // Run once on mount. navigation and folder changes explicitly call refresh/buildPathFromId.
     (async () => {
       await refresh();
       await buildPathFromId(currentFolderIdRef.current);
     })();
-  }, [refresh, buildPathFromId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box
@@ -315,9 +525,68 @@ export default function FileExplorer(): JSX.Element {
             onRename={handleOpenRename}
             onDelete={handleOpenDelete}
             onOpen={handleOpenFolder}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              try {
+                const raw = e.dataTransfer?.getData('application/x-dms-item');
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                // If dropped onto a folder, move into that folder
+                if (item.itemType === 'folder') {
+                  handleMove(parsed.id, parsed.type, item.id);
+                }
+              } catch {
+                // ignore
+              }
+            }}
           />
         ))}
       </List>
+
+      {/* Move chooser dialog (keyboard fallback). Simple: pick one of the current breadcrumb entries as destination */}
+      <Dialog
+        open={Boolean(moveChooserOpen && moveSourceId)}
+        onClose={() => {
+          setMoveChooserOpen(false);
+          setMoveSourceId(null);
+        }}
+        aria-labelledby="move-dialog-title"
+      >
+        <DialogTitle id="move-dialog-title">
+          {t('documentManagement.moveDialog.title', 'Move item')}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            {t(
+              'documentManagement.moveDialog.select',
+              'Select destination folder from the current path'
+            )}
+          </Typography>
+          {currentPath.map((p) => (
+            <Box key={p.id} sx={{ mb: 1 }}>
+              <Button
+                variant="soft"
+                onClick={() =>
+                  moveSourceId &&
+                  handleMove(moveSourceId, moveSourceType ?? 'document', p.id)
+                }
+              >
+                {p.name}
+              </Button>
+            </Box>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setMoveChooserOpen(false);
+              setMoveSourceId(null);
+            }}
+          >
+            {t('documentManagement.moveDialog.cancel', 'Cancel')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={renameOpen}

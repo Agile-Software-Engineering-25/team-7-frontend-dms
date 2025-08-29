@@ -2,6 +2,7 @@ import * as React from 'react';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
+import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
 
 type PathItem = { id: string; name: string };
 
@@ -12,6 +13,7 @@ const BreadcrumbBar: React.FC<{
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const lastItemRef = React.useRef<HTMLButtonElement | null>(null);
   const liveRef = React.useRef<HTMLDivElement | null>(null);
+  const [dragOverId, setDragOverId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -61,6 +63,23 @@ const BreadcrumbBar: React.FC<{
             size="small"
             aria-current={index === path.length - 1 ? 'page' : undefined}
             ref={index === path.length - 1 ? lastItemRef : undefined}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnter={() => setDragOverId(item.id)}
+            onDragLeave={() => setDragOverId((v) => (v === item.id ? null : v))}
+            onDrop={(e) => {
+              const parsed = parseDragData(e.dataTransfer);
+              if (!parsed) return;
+              emitDropOnBreadcrumb(parsed, item.id);
+              setDragOverId(null);
+            }}
+            sx={
+              dragOverId === item.id
+                ? {
+                    boxShadow: (theme) =>
+                      `0 0 0 2px ${theme.palette.primary.main}55`,
+                  }
+                : undefined
+            }
           />
         ))}
       </Breadcrumbs>

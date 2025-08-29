@@ -53,7 +53,9 @@
       "deleted": "Gelöscht",
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
-      "createFailed": "Erstellung fehlgeschlagen"
+  "createFailed": "Erstellung fehlgeschlagen",
+  "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
+  "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."
     },
     "root": "Startseite",
     "fileExplorer": "Datei-Explorer"

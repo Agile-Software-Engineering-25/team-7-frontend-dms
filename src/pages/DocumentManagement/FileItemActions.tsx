@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
+import { emitRequestMove } from '../../lib/dmsEvents';
 
 type Props = {
   itemId: string;
@@ -59,6 +60,14 @@ const FileItemActions: React.FC<Props> = ({
           }}
         >
           {t('documentManagement.rename', 'Rename')}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            emitRequestMove(itemId);
+          }}
+        >
+          {t('documentManagement.move', 'Move')}
         </MenuItem>
         <MenuItem
           onClick={() => {
