@@ -316,6 +316,22 @@ export default function FileExplorer(): JSX.Element {
       return;
     }
 
+    // check duplicates
+    const duplicate = selectedFiles.find((file) =>
+    items.some((item) => item.name === file.name)
+    );
+    if (duplicate) {
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      showSnack(t('documentManagement.snack.duplicate',
+        {defaultValue:'File {{duplicateName}} already existing',
+          duplicateName: duplicate.name,
+        }), 'error');
+      return;
+    }
+
     try {
       for (const file of selectedFiles) {
         await api.uploadDocument(
