@@ -47,7 +47,7 @@ type FolderResponse = {
 
 // Maximum folder depth to walk when building breadcrumb paths.
 const MAX_PATH_DEPTH = 50;
-const MAX_FILE_SIZE_MB = 20;
+const MAX_FILE_SIZE_MB = 5;
 
 export default function FileExplorer(): JSX.Element {
   const { t } = useTranslation();
@@ -311,26 +311,18 @@ export default function FileExplorer(): JSX.Element {
       (f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024
     );
     if (tooBig) {
+      handleCloseUpload();
       showSnack(t('documentManagement.snack.fileTooLarge', 'File exceeds max size'), 'error');
       return;
     }
 
     try {
       for (const file of selectedFiles) {
-        const created = await api.uploadDocument(
+        await api.uploadDocument(
           file,
           currentFolderIdRef.current
         );
-        setItems((prev) => [
-          {
-            id: created.id,
-            name: created.name,
-            size: created.size,
-            uploadDate: created.createdDate ?? new Date().toISOString(),
-            itemType: created.type === 'application/pdf' ? 'pdf': 'document',
-          },
-          ...prev,
-        ])
+        await refresh();
       }
       showSnack(t('documentManagement.snack.uploaded', 'Uploaded successfully'), 'success');
     } catch {
