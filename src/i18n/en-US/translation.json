@@ -20,6 +20,15 @@
     "files": "Files",
     "rename": "Rename",
     "delete": "Delete",
+    "uploadDocument": {
+      "button": "Upload Document",
+      "title": "Upload Document",
+      "maxSize": "Maximum {{max}} MB per file",
+      "selectFiles": "Select Files",
+      "selected": "Selected files:",
+      "cancel": "Cancel",
+      "confirm": "Upload"
+    },
     "renameDialog": {
       "title": "Rename",
       "label": "New name",
@@ -53,6 +62,10 @@
       "deleted": "Deleted",
       "deleteFailed": "Delete failed",
       "created": "Created",
+      "noFiles": "No files selected",
+      "fileTooLarge": "File exceeds maximum size",
+      "uploaded": "Uploaded successfully",
+      "uploadFailed": "Upload failed",
   "createFailed": "Create failed",
   "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
   "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."

@@ -20,6 +20,15 @@
     "files": "Dateien",
     "rename": "Umbenennen",
     "delete": "Löschen",
+    "uploadDocument": {
+      "button": "Dokument hochladen",
+      "title": "Dokument hochladen",
+      "maxSize": "Maximal {{max}} MB pro Datei",
+      "selectFiles": "Dateien auswählen",
+      "selected": "Ausgewählte Dateien:",
+      "cancel": "Abbrechen",
+      "confirm": "Hochladen"
+    },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -53,6 +62,10 @@
       "deleted": "Gelöscht",
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
+      "noFiles": "Keine Dateien ausgewählt",
+      "fileTooLarge": "Datei überschreitet die maximale Größe",
+      "uploaded": "Erfolgreich hochgeladen",
+      "uploadFailed": "Upload fehlgeschlagen",
   "createFailed": "Erstellung fehlgeschlagen",
   "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
   "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."

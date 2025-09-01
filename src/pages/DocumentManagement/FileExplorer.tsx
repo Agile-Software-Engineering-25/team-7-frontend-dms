@@ -47,6 +47,7 @@ type FolderResponse = {
 
 // Maximum folder depth to walk when building breadcrumb paths.
 const MAX_PATH_DEPTH = 50;
+const MAX_FILE_SIZE_MB = 20;
 
 export default function FileExplorer(): JSX.Element {
   const { t } = useTranslation();
@@ -62,7 +63,10 @@ export default function FileExplorer(): JSX.Element {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
   const [deleteFolderConfirmOpen, setDeleteFolderConfirmOpen] =
     React.useState(false);
+  const [uploadOpen, setUploadOpen] = React.useState(false);
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [newFolderOpen, setNewFolderOpen] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [newFolderName, setNewFolderName] = React.useState('');
   const [snack, setSnack] = React.useState<{
     open: boolean;
@@ -295,6 +299,57 @@ export default function FileExplorer(): JSX.Element {
     handleClose();
   };
 
+  const handleUploadDocument = async () => {
+    // check if files are present
+    if (selectedFiles.length === 0) {
+      showSnack(t('documentManagement.snack.noFiles', 'No files selected'), 'error');
+      return;
+    }
+
+    // check max file size
+    const tooBig = selectedFiles.find(
+      (f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024
+    );
+    if (tooBig) {
+      showSnack(t('documentManagement.snack.fileTooLarge', 'File exceeds max size'), 'error');
+      return;
+    }
+
+    try {
+      for (const file of selectedFiles) {
+        const created = await api.uploadDocument(
+          file,
+          currentFolderIdRef.current
+        );
+        setItems((prev) => [
+          {
+            id: created.id,
+            name: created.name,
+            size: created.size,
+            uploadDate: created.createdDate ?? new Date().toISOString(),
+            itemType: created.type === 'application/pdf' ? 'pdf': 'document',
+          },
+          ...prev,
+        ])
+      }
+      showSnack(t('documentManagement.snack.uploaded', 'Uploaded successfully'), 'success');
+    } catch {
+      showSnack(t('documentManagement.snack.uploadFailed', 'Upload failed'), 'error');
+    }
+
+    // reset and close
+    setUploadOpen(false);
+    setSelectedFiles([]);
+  };
+
+  const handleCloseUpload = () => {
+    setUploadOpen(false);
+    setSelectedFiles([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleCreateFolder = async () => {
     const name = newFolderName.trim();
     if (!name) return setNewFolderOpen(false);
@@ -517,6 +572,13 @@ export default function FileExplorer(): JSX.Element {
           <CreateNewFolderIcon fontSize="small" aria-hidden />
         </IconButton>
       </Box>
+      <Button
+      variant="solid"
+      sx={{ backgroundColor: '#2f3b52', color: '#fff', '&:hover': { backgroundColor: '#47566eff'}}}
+      onClick={() => setUploadOpen(true)}
+      >
+        {t('documentManagement.uploadDocument.button', 'Upload Document')}
+      </Button>
       <List aria-label="file list">
         {items.map((item) => (
           <FileListItem
@@ -698,6 +760,65 @@ export default function FileExplorer(): JSX.Element {
           </Button>
           <Button onClick={handleCreateFolder} variant="solid">
             {t('documentManagement.newFolder.create', 'Create')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Upload document dialog */}
+      <Dialog
+      open={uploadOpen}
+      onClose={handleCloseUpload}
+      aria-labelledby="upload-dialog-title"
+      >
+        <DialogTitle id="upload-dialog-title">
+          {t('documentManagement.uploadDocument.title', 'Upload document')}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            {t('documentManagement.uploadDocument.maxSize', {
+              defaultValue: 'Maximal {{max}} MB per file',
+              max: MAX_FILE_SIZE_MB,
+            })}
+          </Typography>
+          <input
+            id="file-input"
+            type="file"
+            multiple
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              setSelectedFiles(files);
+            }}
+          />
+          <label htmlFor="file-input">
+            <Button component="span" variant="soft">
+              {t('documentManagement.uploadDocument.selectFiles', 'Select files:')}
+            </Button>
+          </label>
+
+          {/* Show selected files */}
+          {selectedFiles.length > 0 && (
+            <Box sx={{ mt:2 }}>
+              <Typography variant="subtitle2">
+                {t('documentMangement.uploadDocument.selected', 'Selected files:')}
+              </Typography>
+              <ul>
+                {selectedFiles.map((file) => (
+                  <li key={file.name}>
+                    {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                  </li>
+                ))}
+              </ul>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseUpload} variant="solid">
+            {t('documentManagement.uploadDocument.cancel', 'Cancel')}
+          </Button>
+          <Button onClick={handleUploadDocument} variant="solid">
+            {t('documentManagement.uploadDocument.confirm', 'upload')}
           </Button>
         </DialogActions>
       </Dialog>
