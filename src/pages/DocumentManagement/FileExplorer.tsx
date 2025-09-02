@@ -302,7 +302,10 @@ export default function FileExplorer(): JSX.Element {
   const handleUploadDocument = async () => {
     // check if files are present
     if (selectedFiles.length === 0) {
-      showSnack(t('documentManagement.snack.noFiles', 'No files selected'), 'error');
+      showSnack(
+        t('documentManagement.snack.noFiles', 'No files selected'),
+        'error'
+      );
       return;
     }
 
@@ -312,37 +315,46 @@ export default function FileExplorer(): JSX.Element {
     );
     if (tooBig) {
       handleCloseUpload();
-      showSnack(t('documentManagement.snack.fileTooLarge', 'File exceeds max size'), 'error');
+      showSnack(
+        t('documentManagement.snack.fileTooLarge', 'File exceeds max size'),
+        'error'
+      );
       return;
     }
 
     // check duplicates
     const duplicate = selectedFiles.find((file) =>
-    items.some((item) => item.name === file.name)
+      items.some((item) => item.name === file.name)
     );
     if (duplicate) {
       setSelectedFiles([]);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      showSnack(t('documentManagement.snack.duplicate',
-        {defaultValue:'File {{duplicateName}} already existing',
+      showSnack(
+        t('documentManagement.snack.duplicate', {
+          defaultValue: 'File {{duplicateName}} already existing',
           duplicateName: duplicate.name,
-        }), 'error');
+        }),
+        'error'
+      );
       return;
     }
 
     try {
       for (const file of selectedFiles) {
-        await api.uploadDocument(
-          file,
-          currentFolderIdRef.current
-        );
+        await api.uploadDocument(file, currentFolderIdRef.current);
         await refresh();
       }
-      showSnack(t('documentManagement.snack.uploaded', 'Uploaded successfully'), 'success');
+      showSnack(
+        t('documentManagement.snack.uploaded', 'Uploaded successfully'),
+        'success'
+      );
     } catch {
-      showSnack(t('documentManagement.snack.uploadFailed', 'Upload failed'), 'error');
+      showSnack(
+        t('documentManagement.snack.uploadFailed', 'Upload failed'),
+        'error'
+      );
     }
 
     // reset and close
@@ -581,9 +593,13 @@ export default function FileExplorer(): JSX.Element {
         </IconButton>
       </Box>
       <Button
-      variant="solid"
-      sx={{ backgroundColor: '#2f3b52', color: '#fff', '&:hover': { backgroundColor: '#47566eff'}}}
-      onClick={() => setUploadOpen(true)}
+        variant="solid"
+        sx={{
+          backgroundColor: '#2f3b52',
+          color: '#fff',
+          '&:hover': { backgroundColor: '#47566eff' },
+        }}
+        onClick={() => setUploadOpen(true)}
       >
         {t('documentManagement.uploadDocument.button', 'Upload Document')}
       </Button>
@@ -774,9 +790,9 @@ export default function FileExplorer(): JSX.Element {
 
       {/* Upload document dialog */}
       <Dialog
-      open={uploadOpen}
-      onClose={handleCloseUpload}
-      aria-labelledby="upload-dialog-title"
+        open={uploadOpen}
+        onClose={handleCloseUpload}
+        aria-labelledby="upload-dialog-title"
       >
         <DialogTitle id="upload-dialog-title">
           {t('documentManagement.uploadDocument.title', 'Upload document')}
@@ -801,15 +817,21 @@ export default function FileExplorer(): JSX.Element {
           />
           <label htmlFor="file-input">
             <Button component="span" variant="soft">
-              {t('documentManagement.uploadDocument.selectFiles', 'Select files:')}
+              {t(
+                'documentManagement.uploadDocument.selectFiles',
+                'Select files:'
+              )}
             </Button>
           </label>
 
           {/* Show selected files */}
           {selectedFiles.length > 0 && (
-            <Box sx={{ mt:2 }}>
+            <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2">
-                {t('documentMangement.uploadDocument.selected', 'Selected files:')}
+                {t(
+                  'documentMangement.uploadDocument.selected',
+                  'Selected files:'
+                )}
               </Typography>
               <ul>
                 {selectedFiles.map((file) => (
