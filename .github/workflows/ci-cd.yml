@@ -35,12 +35,6 @@ jobs:
           cd shared-components
           npm run build
 
-      - name: Upload shared components artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: shared-components-dist
-          path: shared-components/dist/
-
       - name: Build application
         run: npm run build
         env:
