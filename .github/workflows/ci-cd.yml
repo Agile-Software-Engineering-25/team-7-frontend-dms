@@ -63,9 +63,9 @@ jobs:
         run: |
           $HOME/minio-binaries/mc cp --recursive dist/ minio/${{ secrets.BUCKET_NAME }}
 
-      - name: Set bucket to public (optional)
-        run: |
-          $HOME/minio-binaries/mc anonymous set public minio/${{ secrets.BUCKET_NAME }} || echo "Could not set public access - check permissions"
+      #- name: Set bucket to public (optional)
+      #  run: |
+      #    $HOME/minio-binaries/mc anonymous set public minio/${{ secrets.BUCKET_NAME }} || echo "Could not set public access - check permissions"
 
       - name: List uploaded files
         run: |

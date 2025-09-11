@@ -13,7 +13,7 @@
     "cy:run": "cypress run",
     "init": "sh ./scripts/prepare.sh",
     "updateSharedComponents": "sh ./scripts/updateSharedComponents.sh",
-    "ci": "start-server-and-test dev http://localhost:5173"
+    "ci": "start-server-and-test dev http://localhost:5173 cy:run"
   },
   "dependencies": {
     "@agile-software/shared-components": "file:shared-components",
