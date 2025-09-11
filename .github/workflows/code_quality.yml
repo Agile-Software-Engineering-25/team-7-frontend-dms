@@ -39,7 +39,17 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      - name: Check for spec files
+        id: check_specs
+        run: |
+          if find cypress/e2e -name "*.cy.{js,jsx,ts,tsx}" 2>/dev/null | grep -q .; then
+            echo "specs_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "specs_exist=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Clear shared components dir
+        if: steps.check_specs.outputs.specs_exist == 'true'
         run: |
           rm -rf ./shared-components/*
           rm -rf ./shared-components/.[!.]* ./shared-components/..?* || true
