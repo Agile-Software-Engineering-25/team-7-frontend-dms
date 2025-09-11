@@ -4,7 +4,6 @@ echo "Updating shared components to the newest version..."
 
 # Initialize shared-components
 git submodule update
-cd ..
 cd shared-components
 npm install
 npm run build
