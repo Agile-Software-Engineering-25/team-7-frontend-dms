@@ -29,6 +29,11 @@
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
+    "downloadDocument": {
+      "button": "Dokumente herunterladen",
+      "download": "Herunterladen",
+      "description": "Lädt jedes Dokument innerhalb des jetzigen Ordners herunter"
+    },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -67,6 +72,8 @@
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei {{duplicateName}} existiert bereits",
+      "downloaded": "Download gestartet",
+      "downloadFailed": "Download fehlgeschlagen",
   "createFailed": "Erstellung fehlgeschlagen",
   "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
   "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."

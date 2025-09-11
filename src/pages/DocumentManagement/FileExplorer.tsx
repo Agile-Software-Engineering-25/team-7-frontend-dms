@@ -370,6 +370,28 @@ export default function FileExplorer(): JSX.Element {
     }
   };
 
+  const handleDownload = async (docId: string) => {
+    try {
+      const doc = items.find((i) => i.id === docId);
+      if (!doc) return;
+
+      const { url, name } = await api.downloadDocument(docId);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name;
+      link.click();
+
+      showSnack(t('documentManagement.snack.downloaded', 'Download started'), 'success');
+    } catch {
+      showSnack(t('documentManagement.snack.downloadFailed', 'Download failed'), 'error');
+    }
+  };
+
+  const downloadAllInCurrentDir = async () => {
+    // TODO: Implementieren
+  };
+
   const handleCreateFolder = async () => {
     const name = newFolderName.trim();
     if (!name) return setNewFolderOpen(false);
@@ -593,6 +615,8 @@ export default function FileExplorer(): JSX.Element {
         </IconButton>
       </Box>
       <Button
+        aria-label={t('documentManagement.uploadDocuemnt.button', 'Upload document')}
+        aria-describedby={t('documentManagement.uploadDocument.maxSize', 'Max size of a file: X MB')}
         variant="solid"
         sx={{
           backgroundColor: '#2f3b52',
@@ -601,8 +625,22 @@ export default function FileExplorer(): JSX.Element {
         }}
         onClick={() => setUploadOpen(true)}
       >
-        {t('documentManagement.uploadDocument.button', 'Upload Document')}
+        {t('documentManagement.uploadDocument.button', 'Upload document')}
       </Button>
+      <Button
+        aria-label={t('documentManagement.downloadDocument.button', 'Download documents')}
+        aria-describedby={t('documentManagement.downloadDocument.description', 'Downloads every document in current directory')}
+        variant="solid"
+        sx={{
+          backgroundColor: '#2f3b52',
+          color: '#fff',
+          margin: 1,
+          '&:hover': {backgroundColor: '#47566eff' },
+        }}
+        onClick={() => downloadAllInCurrentDir()}
+        >
+          {t('documentManagement.downloadDocument.button', 'Download documents')}
+        </Button>
       <List aria-label="file list">
         {items.map((item) => (
           <FileListItem
@@ -611,6 +649,7 @@ export default function FileExplorer(): JSX.Element {
             onRename={handleOpenRename}
             onDelete={handleOpenDelete}
             onOpen={handleOpenFolder}
+            onDownload={handleDownload}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               try {
