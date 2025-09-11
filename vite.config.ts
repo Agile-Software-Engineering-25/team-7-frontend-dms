@@ -36,8 +36,29 @@ resolve: {
     },
 },
   build: {
+    // Emit a single bundle with deterministic names (no hashed assets folder)
+    // - inlineDynamicImports ensures dynamic imports are inlined into the single bundle
+    // - entryFileNames sets the produced entry filename to singleSpa.js
+    // - assetFileNames allows placing logo.svg at the build root
+    // - assetsDir left as '' so assets are emitted into the root of the dist folder
+    assetsDir: "",
+    cssCodeSplit: false,
     rollupOptions: {
       external: [...NPM_EXTERNALS],
+      output: {
+        inlineDynamicImports: true,
+        entryFileNames: "singleSpa.js",
+        // chunkFileNames won't be used when inlineDynamicImports is true, but keep a stable pattern
+        chunkFileNames: "singleSpa-[name].js",
+        assetFileNames: (assetInfo) => {
+          // Emit logo.svg at the dist root as logo.svg
+          if (assetInfo && assetInfo.name && assetInfo.name.endsWith("logo.svg")) {
+            return "logo.svg";
+          }
+          // For other assets keep their original name and extension at root
+          return assetInfo && assetInfo.name ? assetInfo.name : "[name][extname]";
+        },
+      },
     },
   },
 }));
