@@ -59,15 +59,16 @@ jobs:
         run: |
           $HOME/minio-binaries/mc rm --recursive --force minio/${{ secrets.BUCKET_NAME }} || echo "No existing files to remove"
 
-      - name: Upload dist files to MinIO
-        run: |
-          $HOME/minio-binaries/mc cp --recursive dist/ minio/${{ secrets.BUCKET_NAME }}
-
       - name: Test MinIO Write Permission
         run: |
           echo "test" > test.txt
           $HOME/minio-binaries/mc cp test.txt minio/${{ secrets.BUCKET_NAME }}/test.txt
           $HOME/minio-binaries/mc rm minio/${{ secrets.BUCKET_NAME }}/test.txt
+
+      - name: Upload dist files to MinIO
+        run: |
+          $HOME/minio-binaries/mc cp --recursive dist/ minio/${{ secrets.BUCKET_NAME }}
+
 
       #- name: Set bucket to public (optional)
       #  run: |
