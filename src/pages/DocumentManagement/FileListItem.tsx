@@ -25,6 +25,7 @@ type Props = {
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
   onOpen?: (id: string) => void;
+  onPreview?: (id: string) => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
@@ -55,6 +56,7 @@ const FileListItem: React.FC<Props> = ({
   onRename,
   onDelete,
   onOpen,
+  onPreview,
   onDrop,
   onDragOver,
 }) => {
@@ -78,7 +80,13 @@ const FileListItem: React.FC<Props> = ({
       divider
       role="listitem"
       draggable
-      onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
+      onClick={() => {
+        if (item.itemType === 'folder'){
+          onOpen?.(item.id);
+        } else {
+          onPreview?.(item.id);
+        }
+      }}
       onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(

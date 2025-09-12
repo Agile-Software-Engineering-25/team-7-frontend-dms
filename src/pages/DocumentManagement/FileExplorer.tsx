@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { parseFolderMetadata } from './folderMetadata';
 import FileListItem from './FileListItem';
+import FileViewer from './FileViewer';
 import BreadcrumbBar from './BreadcrumbBar';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
@@ -65,6 +66,8 @@ export default function FileExplorer(): JSX.Element {
     React.useState(false);
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const [viewerOpen, setViewerOpen] = React.useState(false);
+  const [viewerFile, setViewerFile] = React.useState<{url: string, name: string, type: string} | null>(null);
   const [newFolderOpen, setNewFolderOpen] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [newFolderName, setNewFolderName] = React.useState('');
@@ -297,6 +300,24 @@ export default function FileExplorer(): JSX.Element {
     }
     setDeleteFolderConfirmOpen(false);
     handleClose();
+  };
+
+  const handleOpenViewer = async (docId: string) => {
+    try {
+      const { url, name } = await api.downloadDocument(docId);
+      const doc = items.find((i) => i.id === docId);
+      if (!doc) return;
+
+      setViewerFile({ url, name, type: doc.itemType ?? 'application/octet-stream' });
+      setViewerOpen(true);
+    } catch {
+      showSnack(t('documentManagement.snack.previewFailed', 'Preview failed'), 'error');
+    }
+  };
+
+  const handleCloseViewer = () => {
+    setViewerFile(null);
+    setViewerOpen(false);
   };
 
   const handleUploadDocument = async () => {
@@ -611,6 +632,7 @@ export default function FileExplorer(): JSX.Element {
             onRename={handleOpenRename}
             onDelete={handleOpenDelete}
             onOpen={handleOpenFolder}
+            onPreview={item.itemType !== 'folder' ? handleOpenViewer : undefined}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               try {
@@ -629,6 +651,14 @@ export default function FileExplorer(): JSX.Element {
         ))}
       </List>
 
+      {/* File viewer dialog */}
+      <FileViewer
+        open={viewerOpen}
+        onClose={handleCloseViewer}
+        fileUrl={viewerFile?.url ?? null}
+        fileName={viewerFile?.name ?? null}
+        fileType={viewerFile?.type ?? null}
+      />
       {/* Move chooser dialog (keyboard fallback). Simple: pick one of the current breadcrumb entries as destination */}
       <Dialog
         open={Boolean(moveChooserOpen && moveSourceId)}

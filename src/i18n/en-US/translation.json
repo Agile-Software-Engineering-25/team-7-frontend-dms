@@ -67,6 +67,7 @@
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
       "duplicate": "File {{duplicateName}} already existing",
+      "previewFailed": "Preview failed",
   "createFailed": "Create failed",
   "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
   "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."

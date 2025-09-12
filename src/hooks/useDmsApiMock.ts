@@ -193,6 +193,18 @@ export default function createMockApi() {
     return { id: d.id, name: d.name, size: d.size, createdDate: d.createdDate };
   }
 
+  async function downloadDocument(id: string) {
+    const doc = documents.get(id);
+    if (!doc) throw new Error('Document not found');
+
+    // create dummy blob
+    const content = `Mock file content for ${doc.name}`;
+    const blob = new Blob([content], {type: doc.type ?? 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+
+    return { url, name: doc.name };
+  }
+
   async function moveDocument(id: string, parentId?: string) {
     const d = documents.get(id);
     if (!d) throw new Error('Document not found');
@@ -230,6 +242,7 @@ export default function createMockApi() {
     deleteDocument,
     deleteFolder,
     uploadDocument,
+    downloadDocument,
     createFolder,
     moveDocument,
     moveFolder,
