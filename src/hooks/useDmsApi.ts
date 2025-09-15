@@ -99,7 +99,8 @@ const useDmsApi = () => {
         if (match?.[1]) filename = match[1];
       }
 
-      const mimeType = response.headers['content-type'] ?? 'application/octet-stream';
+      const mimeType =
+        response.headers['content-type'] ?? 'application/octet-stream';
 
       const blob = new Blob([response.data], { type: mimeType });
       const url = window.URL.createObjectURL(blob);

@@ -251,18 +251,49 @@ export default function createMockApi() {
 
     // public/mock-files
     const publicBase = '/mock-files';
-    if (id === 'pdf-1') return { url: `${publicBase}/example.pdf`, name: doc.name, type: 'application/pdf' };
-    if (id === 'svg-1') return { url: `${publicBase}/example.svg`, name: doc.name, type: 'image/svg+xml' };
-    if (id === 'png-1') return { url: `${publicBase}/example.png`, name: doc.name, type: 'image/png' };
-    if (id === 'jpg-1') return { url: `${publicBase}/example.jpg`, name: doc.name, type: 'image/jpeg' };
-    if (id === 'txt-1') return { url: `${publicBase}/example.txt`, name: doc.name, type: 'text/plain' };
-    
+    if (id === 'pdf-1')
+      return {
+        url: `${publicBase}/example.pdf`,
+        name: doc.name,
+        type: 'application/pdf',
+      };
+    if (id === 'svg-1')
+      return {
+        url: `${publicBase}/example.svg`,
+        name: doc.name,
+        type: 'image/svg+xml',
+      };
+    if (id === 'png-1')
+      return {
+        url: `${publicBase}/example.png`,
+        name: doc.name,
+        type: 'image/png',
+      };
+    if (id === 'jpg-1')
+      return {
+        url: `${publicBase}/example.jpg`,
+        name: doc.name,
+        type: 'image/jpeg',
+      };
+    if (id === 'txt-1')
+      return {
+        url: `${publicBase}/example.txt`,
+        name: doc.name,
+        type: 'text/plain',
+      };
+
     // fallback: create dummy blob
     const content = `Mock file content for ${doc.name}`;
-    const blob = new Blob([content], {type: doc.type ?? 'application/octet-stream' });
+    const blob = new Blob([content], {
+      type: doc.type ?? 'application/octet-stream',
+    });
     const url = URL.createObjectURL(blob);
 
-    return { url, name: doc.name, type: doc.type ?? 'application/octet-stream' };
+    return {
+      url,
+      name: doc.name,
+      type: doc.type ?? 'application/octet-stream',
+    };
   }
 
   async function moveDocument(id: string, parentId?: string) {

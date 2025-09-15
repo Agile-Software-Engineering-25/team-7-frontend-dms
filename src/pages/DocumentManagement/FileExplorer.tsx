@@ -67,7 +67,11 @@ export default function FileExplorer(): JSX.Element {
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [viewerOpen, setViewerOpen] = React.useState(false);
-  const [viewerFile, setViewerFile] = React.useState<{url: string, name: string, type: string} | null>(null);
+  const [viewerFile, setViewerFile] = React.useState<{
+    url: string;
+    name: string;
+    type: string;
+  } | null>(null);
   const [newFolderOpen, setNewFolderOpen] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [newFolderName, setNewFolderName] = React.useState('');
@@ -312,7 +316,10 @@ export default function FileExplorer(): JSX.Element {
       setViewerFile({ url, name, type });
       setViewerOpen(true);
     } catch {
-      showSnack(t('documentManagement.snack.previewFailed', 'Preview failed'), 'error');
+      showSnack(
+        t('documentManagement.snack.previewFailed', 'Preview failed'),
+        'error'
+      );
     }
   };
 
@@ -633,7 +640,9 @@ export default function FileExplorer(): JSX.Element {
             onRename={handleOpenRename}
             onDelete={handleOpenDelete}
             onOpen={handleOpenFolder}
-            onPreview={item.itemType !== 'folder' ? handleOpenViewer : undefined}
+            onPreview={
+              item.itemType !== 'folder' ? handleOpenViewer : undefined
+            }
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               try {

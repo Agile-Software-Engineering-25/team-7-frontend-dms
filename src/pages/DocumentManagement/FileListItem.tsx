@@ -81,7 +81,7 @@ const FileListItem: React.FC<Props> = ({
       role="listitem"
       draggable
       onClick={() => {
-        if (item.itemType === 'folder'){
+        if (item.itemType === 'folder') {
           onOpen?.(item.id);
         } else {
           onPreview?.(item.id);
@@ -171,9 +171,7 @@ const FileListItem: React.FC<Props> = ({
           </Box>
         }
       />
-      <Box
-        onClick={(e) => e.stopPropagation()}
-      >
+      <Box onClick={(e) => e.stopPropagation()}>
         <FileItemActions
           itemId={item.id}
           itemName={item.name}
