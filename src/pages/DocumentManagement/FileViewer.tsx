@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Typography,
-  List,
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Snackbar,
-  Alert,
-  IconButton,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import useDmsApiSelector from '@hooks/useDmsApiSelector';
-import { parseFolderMetadata } from './folderMetadata';
 import Button from '@shared-components/Button/Button';
 
 type FileViewerProps = {
