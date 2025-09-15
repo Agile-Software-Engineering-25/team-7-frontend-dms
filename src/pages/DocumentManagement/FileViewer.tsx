@@ -32,6 +32,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
     fileName,
     fileType,
 }) => {
+    const { t } = useTranslation();
     const [textContent, setTextContent] = useState<string | null>(null);
 
     useEffect(() => {
@@ -54,6 +55,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
     };
 
     const renderPreview = () => {
+        // console.log("renderPreview called with:", { fileUrl, fileType, fileName });
         if (!fileUrl || !fileType) return null;
 
         if (fileType === 'application/pdf') {
@@ -100,8 +102,12 @@ const FileViewer: React.FC<FileViewerProps> = ({
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
             <DialogContent>{renderPreview()}</DialogContent>
             <DialogActions>
-                <Button onClick={handleDownload}>Download</Button>
-                <Button onClick={onClose} color='primary'>Schließen</Button>
+                <Button onClick={handleDownload}>
+                    {t('documentManagement.fileViewer.download','Download')}
+                </Button>
+                <Button onClick={onClose} color='primary'>
+                    {t('documentManagement.fileViewer.close', 'Close')}
+                </Button>
             </DialogActions>
         </Dialog>
     );

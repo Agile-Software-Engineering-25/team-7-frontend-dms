@@ -29,6 +29,10 @@
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
+    "fileViewer": {
+      "download": "Herunterladen",
+      "close": "Schließen"
+  },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",

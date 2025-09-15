@@ -29,6 +29,10 @@
       "cancel": "Cancel",
       "confirm": "Upload"
     },
+    "fileViewer": {
+      "download": "Download",
+      "close": "Close"
+    },
     "renameDialog": {
       "title": "Rename",
       "label": "New name",

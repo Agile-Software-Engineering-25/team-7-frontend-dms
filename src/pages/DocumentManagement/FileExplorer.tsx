@@ -303,12 +303,13 @@ export default function FileExplorer(): JSX.Element {
   };
 
   const handleOpenViewer = async (docId: string) => {
+    // console.log("handleOpenViewer called with:", docId)
     try {
-      const { url, name } = await api.downloadDocument(docId);
+      const { url, name, type } = await api.downloadDocument(docId);
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      setViewerFile({ url, name, type: doc.itemType ?? 'application/octet-stream' });
+      setViewerFile({ url, name, type });
       setViewerOpen(true);
     } catch {
       showSnack(t('documentManagement.snack.previewFailed', 'Preview failed'), 'error');

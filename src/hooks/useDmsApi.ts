@@ -86,7 +86,7 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
-const downloadDocument = useCallback(
+  const downloadDocument = useCallback(
     async (id: string) => {
       const response = await axiosInstance.get(`/dms/v1/documents/${id}`, {
         responseType: 'blob',
@@ -99,8 +99,11 @@ const downloadDocument = useCallback(
         if (match?.[1]) filename = match[1];
       }
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      return { url, name: filename };
+      const mimeType = response.headers['content-type'] ?? 'application/octet-stream';
+
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      return { url, name: filename, type: mimeType };
     },
     [axiosInstance]
   );
