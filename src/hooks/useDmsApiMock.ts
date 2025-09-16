@@ -31,10 +31,11 @@ function genId() {
  * Use via `useDmsApiSelector()` when mock mode is enabled.
  */
 export default function createMockApi() {
-  // initial data based on the sampleItems used in the FileExplorer
+  // Neue Mock-Struktur: Informatik Studiengänge (Telekom) > BIN-T22/T23/T24 > F1-F4/F3
   const folders = new Map<string, Folder>();
   const documents = new Map<string, Doc>();
 
+  // Root-Ordner
   const root: Folder = {
     id: 'root',
     name: 'Home',
@@ -45,38 +46,164 @@ export default function createMockApi() {
   };
   folders.set(root.id, root);
 
-  // sample docs
-  const d1: Doc = {
-    id: '1',
-    name: 'Project Plan.docx',
-    size: 23456,
-    createdDate: '2025-08-01T10:23:00Z',
-    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  // Hauptordner
+  const infId = 'inf';
+  const infFolder: Folder = {
+    id: infId,
+    name: 'Informatik Studiengänge (Telekom)',
     parentId: 'root',
-  };
-  const d2: Doc = {
-    id: '2',
-    name: 'Designs.pdf',
-    size: 1048576,
-    createdDate: '2025-07-28T08:12:00Z',
-    type: 'application/pdf',
-    parentId: 'root',
-  };
-  documents.set(d1.id, d1);
-  documents.set(d2.id, d2);
-  root.documents.push(d1.id, d2.id);
-
-  // sample folder
-  const f1: Folder = {
-    id: '3',
-    name: 'Archives',
-    parentId: 'root',
-    createdDate: '2025-06-15T12:00:00Z',
+    createdDate: nowIso(),
     subfolders: [],
     documents: [],
   };
-  folders.set(f1.id, f1);
-  root.subfolders.push(f1.id);
+  folders.set(infId, infFolder);
+  root.subfolders.push(infId);
+
+  // BIN-TXX Ordner und Unterordner
+  const binDefs = [
+    { name: 'BIN-T22', jahr: '22', fCount: 4 },
+    { name: 'BIN-T23', jahr: '23', fCount: 4 },
+    { name: 'BIN-T24', jahr: '24', fCount: 3 },
+  ];
+
+  binDefs.forEach((bin) => {
+    const binId = `bin-${bin.jahr}`;
+    const binFolder: Folder = {
+      id: binId,
+      name: bin.name,
+      parentId: infId,
+      createdDate: nowIso(),
+      subfolders: [],
+      documents: [],
+    };
+    folders.set(binId, binFolder);
+    infFolder.subfolders.push(binId);
+
+    // Wirtschaftstrends.pptx und ETFs_explained.docx nur für BIN-T23
+    if (bin.jahr === '23') {
+      const wirtschaftId = 'pptx-23';
+      const wirtschaftDoc: Doc = {
+        id: wirtschaftId,
+        name: 'Wirtschaftstrends.pptx',
+        size: 500000,
+        createdDate: nowIso(),
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        parentId: binId,
+      };
+      documents.set(wirtschaftId, wirtschaftDoc);
+      binFolder.documents.push(wirtschaftId);
+
+      const etfsId = 'docx-etfs-23';
+      const etfsDoc: Doc = {
+        id: etfsId,
+        name: 'ETFs_explained.docx',
+        size: 42000,
+        createdDate: nowIso(),
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        parentId: binId,
+      };
+      documents.set(etfsId, etfsDoc);
+      binFolder.documents.push(etfsId);
+    }
+
+    // F1-FX Unterordner und PDF-Dokumente
+    for (let f = 1; f <= bin.fCount; f++) {
+      const fId = `bin-${bin.jahr}-f${f}`;
+      const fFolder: Folder = {
+        id: fId,
+        name: `F${f}`,
+        parentId: binId,
+        createdDate: nowIso(),
+        subfolders: [],
+        documents: [],
+      };
+      folders.set(fId, fFolder);
+      binFolder.subfolders.push(fId);
+
+      // PDF-Dokument für F-Ordner
+      const pdfId = `pdf-${bin.jahr}-f${f}`;
+      const pdfDoc: Doc = {
+        id: pdfId,
+        name: `Stundenplan_${bin.name}-F${f}_SoSe25.pdf`,
+        size: 1048576,
+        createdDate: nowIso(),
+        type: 'application/pdf',
+        parentId: fId,
+      };
+      documents.set(pdfId, pdfDoc);
+      fFolder.documents.push(pdfId);
+
+      // Verschachtelte Unterordner für F2 nur in BIN-T23
+      if (f === 2 && bin.jahr === '23') {
+        const subfolderNames = [
+          'Wie',
+          'ist',
+          'das',
+          'eigentlich',
+          'mit',
+          'ganz',
+          'vielen',
+          'Unterordnern',
+        ];
+        let parentSubId = fId;
+        subfolderNames.forEach((name, idx) => {
+          const subId = `${fId}-sub${idx}`;
+          const subFolder: Folder = {
+            id: subId,
+            name,
+            parentId: parentSubId,
+            createdDate: nowIso(),
+            subfolders: [],
+            documents: [],
+          };
+          folders.set(subId, subFolder);
+          const parentFolder = folders.get(parentSubId);
+          if (parentFolder) parentFolder.subfolders.push(subId);
+          parentSubId = subId;
+        });
+        // Test-Ordner im letzten Unterordner anlegen und Datei hineinlegen
+        const lastSubId = `${fId}-sub${subfolderNames.length - 1}`;
+        const testFolderId = `${lastSubId}-test`;
+        const testFolder: Folder = {
+          id: testFolderId,
+          name: 'Test',
+          parentId: lastSubId,
+          createdDate: nowIso(),
+          subfolders: [],
+          documents: [],
+        };
+        folders.set(testFolderId, testFolder);
+        const lastSubFolder = folders.get(lastSubId);
+        if (lastSubFolder) lastSubFolder.subfolders.push(testFolderId);
+
+        // Scrum-Ordner im Test-Ordner anlegen
+        const scrumFolderId = `${testFolderId}-design`;
+        const scrumFolder: Folder = {
+          id: scrumFolderId,
+          name: 'Design',
+          parentId: testFolderId,
+          createdDate: nowIso(),
+          subfolders: [],
+          documents: [],
+        };
+        folders.set(scrumFolderId, scrumFolder);
+        testFolder.subfolders.push(scrumFolderId);
+
+        // Datei im Test-Ordner anlegen
+        const falschId = `csv-${bin.jahr}-f2-falsch`;
+        const falschDoc: Doc = {
+          id: falschId,
+          name: 'falsch_benannt.csv',
+          size: 1234,
+          createdDate: nowIso(),
+          type: 'text/csv',
+          parentId: testFolderId,
+        };
+        documents.set(falschId, falschDoc);
+        testFolder.documents.push(falschId);
+      }
+    }
+  });
 
   async function getFolder(id: string) {
     const f = folders.get(id);
