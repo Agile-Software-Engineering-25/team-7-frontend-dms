@@ -32,7 +32,12 @@
     "downloadDocument": {
       "button": "Dokumente herunterladen",
       "download": "Herunterladen",
-      "description": "Lädt jedes Dokument innerhalb des jetzigen Ordners herunter"
+      "description": "Lädt jedes Dokument innerhalb des jetzigen Ordners herunter",
+      "title": "Dokumente herunterladen",
+      "allDocs": "Alle Dokumente herunterladen",
+      "selectedDocs": "Dokumente auswählen",
+      "confirm": "Herunterladen",
+      "cancel": "Abbrechen"
     },
     "renameDialog": {
       "title": "Umbenennen",
@@ -74,6 +79,9 @@
       "duplicate": "Datei {{duplicateName}} existiert bereits",
       "downloaded": "Download gestartet",
       "downloadFailed": "Download fehlgeschlagen",
+      "noDocsInFolder": "Es gibt keine Dokumente oder Ordner im aktuellen Verzeichnis",
+      "noSelection": "Keine Auswahl",
+      "noDocsInSelection": "Keine Dokumente in der Auswahl",
   "createFailed": "Erstellung fehlgeschlagen",
   "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
   "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."

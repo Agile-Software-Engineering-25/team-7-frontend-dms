@@ -12,7 +12,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FileItemActions from './FileItemActions';
 
-type Item = {
+export type Item = {
   id: string;
   name: string;
   size: number;
