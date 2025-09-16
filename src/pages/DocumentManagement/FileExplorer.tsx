@@ -63,7 +63,10 @@ export default function FileExplorer(): JSX.Element {
   const [currentPath, setCurrentPath] = React.useState<
     Array<{ id: string; name: string }>
   >([{ id: 'root', name: t('documentManagement.root', 'Home') }]);
-  const currentFolderName = (currentPath.length > 0 ? currentPath[currentPath.length - 1].name : 'documents') || 'documents';
+  const currentFolderName =
+    (currentPath.length > 0
+      ? currentPath[currentPath.length - 1].name
+      : 'documents') || 'documents';
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [renameOpen, setRenameOpen] = React.useState(false);
   const [renameValue, setRenameValue] = React.useState('');
@@ -390,13 +393,22 @@ export default function FileExplorer(): JSX.Element {
       link.download = name;
       link.click();
 
-      showSnack(t('documentManagement.snack.downloaded', 'Download started'), 'success');
+      showSnack(
+        t('documentManagement.snack.downloaded', 'Download started'),
+        'success'
+      );
     } catch {
-      showSnack(t('documentManagement.snack.downloadFailed', 'Download failed'), 'error');
+      showSnack(
+        t('documentManagement.snack.downloadFailed', 'Download failed'),
+        'error'
+      );
     }
   };
 
-  const hasAnyDownloadableDocs = React.useCallback(() => items.length > 0, [items]);
+  const hasAnyDownloadableDocs = React.useCallback(
+    () => items.length > 0,
+    [items]
+  );
 
   const isDoc = (i: Item) => i.itemType === 'document' || i.itemType === 'pdf';
 
@@ -412,7 +424,7 @@ export default function FileExplorer(): JSX.Element {
       })
     );
     const nested: DocForZip[] = [];
-    for (const sf of (folder.subfolders || [])) {
+    for (const sf of folder.subfolders || []) {
       const childPrefix = `${prefix}/${sf.name}`;
       const inside = await collectDocsFromFolderWithPaths(sf.id, childPrefix);
       nested.push(...inside);
@@ -643,8 +655,14 @@ export default function FileExplorer(): JSX.Element {
         </IconButton>
       </Box>
       <Button
-        aria-label={t('documentManagement.uploadDocuemnt.button', 'Upload document')}
-        aria-describedby={t('documentManagement.uploadDocument.maxSize', 'Max size of a file: X MB')}
+        aria-label={t(
+          'documentManagement.uploadDocuemnt.button',
+          'Upload document'
+        )}
+        aria-describedby={t(
+          'documentManagement.uploadDocument.maxSize',
+          'Max size of a file: X MB'
+        )}
         variant="solid"
         sx={{
           backgroundColor: '#2f3b52',
@@ -656,25 +674,36 @@ export default function FileExplorer(): JSX.Element {
         {t('documentManagement.uploadDocument.button', 'Upload document')}
       </Button>
       <Button
-        aria-label={t('documentManagement.downloadDocument.button', 'Download documents')}
-        aria-describedby={t('documentManagement.downloadDocument.description', 'Downloads every document in current directory')}
+        aria-label={t(
+          'documentManagement.downloadDocument.button',
+          'Download documents'
+        )}
+        aria-describedby={t(
+          'documentManagement.downloadDocument.description',
+          'Downloads every document in current directory'
+        )}
         variant="solid"
         sx={{
           backgroundColor: '#2f3b52',
           color: '#fff',
           margin: 1,
-          '&:hover': {backgroundColor: '#47566eff' },
+          '&:hover': { backgroundColor: '#47566eff' },
         }}
         onClick={() => {
           if (!hasAnyDownloadableDocs()) {
             showSnack(
-              t('documentManagement.snack.noDocsInFolder', 'No documents or folders in current directory'), 'error');
+              t(
+                'documentManagement.snack.noDocsInFolder',
+                'No documents or folders in current directory'
+              ),
+              'error'
+            );
             return;
           }
           setDownloadDialogOpen(true);
         }}
-        >
-          {t('documentManagement.downloadDocument.button', 'Download documents')}
+      >
+        {t('documentManagement.downloadDocument.button', 'Download documents')}
       </Button>
       <List aria-label="file list">
         {items.map((item) => (
@@ -934,12 +963,15 @@ export default function FileExplorer(): JSX.Element {
         onConfirm={async (selectedIds) => {
           try {
             if (!selectedIds || selectedIds.length === 0) {
-              showSnack(t('documentManagement.snack.noSelecttion', 'No Selection'), 'error');
+              showSnack(
+                t('documentManagement.snack.noSelecttion', 'No Selection'),
+                'error'
+              );
               return;
             }
 
             const idSet = new Set(selectedIds);
-            const selectedItems = items.filter(i => idSet.has(i.id));
+            const selectedItems = items.filter((i) => idSet.has(i.id));
 
             const docsForZip: DocForZip[] = [];
 
@@ -948,21 +980,36 @@ export default function FileExplorer(): JSX.Element {
                 const { url, name } = await api.downloadDocument(item.id);
                 docsForZip.push({ url, name });
               } else if (item.itemType === 'folder') {
-                const nested = await collectDocsFromFolderWithPaths(item.id, item.name);
+                const nested = await collectDocsFromFolderWithPaths(
+                  item.id,
+                  item.name
+                );
                 docsForZip.push(...nested);
               }
             }
 
             if (docsForZip.length === 0) {
-              showSnack(t('documentManagement.snack.noDocsInSelection', 'No documents in selection'), 'error');
+              showSnack(
+                t(
+                  'documentManagement.snack.noDocsInSelection',
+                  'No documents in selection'
+                ),
+                'error'
+              );
               return;
             }
-            
+
             await api.downloadAsZip(docsForZip, currentFolderName);
-            showSnack(t('documentManagement.snack.downloaded', 'Download started'), 'success');
+            showSnack(
+              t('documentManagement.snack.downloaded', 'Download started'),
+              'success'
+            );
             setDownloadDialogOpen(false);
           } catch {
-            showSnack(t('documentManagement.snack.downloadFailed', 'Download failed'), 'error');
+            showSnack(
+              t('documentManagement.snack.downloadFailed', 'Download failed'),
+              'error'
+            );
           }
         }}
       />

@@ -1,8 +1,8 @@
 import useAxiosInstance from '@hooks/useAxiosInstance';
 import { BACKEND_BASE_URL } from '@/config';
 import { useCallback, useMemo } from 'react';
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 type FolderResponse = {
   folders: {
@@ -109,7 +109,7 @@ const useDmsApi = () => {
 
   const downloadAsZip = useCallback(
     async (docs: { url: string; name: string }[], folderName?: string) => {
-      if (!docs || docs.length === 0){
+      if (!docs || docs.length === 0) {
         throw new Error('No documents to zip');
       }
       const zip = new JSZip();
@@ -121,8 +121,8 @@ const useDmsApi = () => {
         zip.file(doc.name, blob);
       }
 
-      const content = await zip.generateAsync({ type: "blob" });
-      const folder = folderName || "documents";
+      const content = await zip.generateAsync({ type: 'blob' });
+      const folder = folderName || 'documents';
       saveAs(content, `${folder}.zip`);
     },
     []

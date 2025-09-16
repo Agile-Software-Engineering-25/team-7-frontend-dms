@@ -1,5 +1,5 @@
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 type Doc = {
   id: string;
@@ -202,7 +202,9 @@ export default function createMockApi() {
 
     // create dummy blob
     const content = `Mock file content for ${doc.name}`;
-    const blob = new Blob([content], {type: doc.type ?? 'application/octet-stream' });
+    const blob = new Blob([content], {
+      type: doc.type ?? 'application/octet-stream',
+    });
     const url = URL.createObjectURL(blob);
 
     return { url, name: doc.name };
@@ -211,7 +213,7 @@ export default function createMockApi() {
   async function downloadAsZip(
     docs: { url: string; name: string }[],
     folderName?: string
-    ) {
+  ) {
     if (!docs || docs.length === 0) {
       throw new Error('No documents to zip');
     }
@@ -223,8 +225,8 @@ export default function createMockApi() {
       zip.file(doc.name, blob);
     }
 
-    const content = await zip.generateAsync({ type: "blob" });
-    const folder = folderName || "mock-folder";
+    const content = await zip.generateAsync({ type: 'blob' });
+    const folder = folderName || 'mock-folder';
     saveAs(content, `${folder}.zip`);
   }
 

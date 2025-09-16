@@ -76,9 +76,9 @@ const FileItemActions: React.FC<Props> = ({
             handleClose();
             onDownload();
           }}
-          >
-            {t('documentManagement.downloadDocument.download', 'Download')}
-          </MenuItem>
+        >
+          {t('documentManagement.downloadDocument.download', 'Download')}
+        </MenuItem>
         <MenuItem
           onClick={() => {
             handleClose();
