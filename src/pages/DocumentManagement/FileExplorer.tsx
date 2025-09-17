@@ -415,17 +415,41 @@ export default function FileExplorer(): JSX.Element {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      const { url, name } = await api.downloadDocument(docId);
+      if (doc.itemType === 'document') {
+        const { url, name } = await api.downloadDocument(docId);
 
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = name;
-      link.click();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
 
-      showSnack(
-        t('documentManagement.snack.downloaded', 'Download started'),
-        'success'
-      );
+        showSnack(
+          t('documentManagement.snack.downloaded', 'Download started'),
+          'success'
+        );
+      } else if (doc.itemType === 'folder') {
+        const docsForZip = await collectDocsFromFolderWithPaths(
+          doc.id,
+          doc.name
+        );
+
+        if (docsForZip.length === 0) {
+          showSnack(
+            t(
+              'documentManagement.snack.noDocsInSelection',
+              'No documents in folder'
+            ),
+            'error'
+          );
+        }
+
+        await api.downloadAsZip(docsForZip, doc.name);
+
+        showSnack(
+          t('documentManagement.snack.downloaded', 'Download started'),
+          'success'
+        );
+      }
     } catch {
       showSnack(
         t('documentManagement.snack.downloadFailed', 'Download failed'),
