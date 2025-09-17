@@ -78,7 +78,6 @@ const FileListItem: React.FC<Props> = ({
       divider
       role="listitem"
       draggable
-      onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
       onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(
@@ -138,6 +137,7 @@ const FileListItem: React.FC<Props> = ({
               }}
               role={item.itemType === 'folder' ? 'button' : undefined}
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
+              onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
               onKeyDown={(e) => {
                 if (
                   item.itemType === 'folder' &&
