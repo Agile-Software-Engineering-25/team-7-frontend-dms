@@ -101,8 +101,10 @@ const useDmsApi = () => {
         if (match?.[1]) filename = match[1];
       }
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      return { url, name: filename };
+      const mimeType = response.headers['Content-type'] ?? 'application/octet-stream';
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+      return { url, name: filename, type: mimeType };
     },
     [axiosInstance]
   );
