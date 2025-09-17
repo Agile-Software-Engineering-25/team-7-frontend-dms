@@ -1,3 +1,6 @@
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+
 type Doc = {
   id: string;
   name: string;
@@ -193,6 +196,40 @@ export default function createMockApi() {
     return { id: d.id, name: d.name, size: d.size, createdDate: d.createdDate };
   }
 
+  async function downloadDocument(id: string) {
+    const doc = documents.get(id);
+    if (!doc) throw new Error('Document not found');
+
+    // create dummy blob
+    const content = `Mock file content for ${doc.name}`;
+    const blob = new Blob([content], {
+      type: doc.type ?? 'application/octet-stream',
+    });
+    const url = URL.createObjectURL(blob);
+
+    return { url, name: doc.name };
+  }
+
+  async function downloadAsZip(
+    docs: { url: string; name: string }[],
+    folderName?: string
+  ) {
+    if (!docs || docs.length === 0) {
+      throw new Error('No documents to zip');
+    }
+    const zip = new JSZip();
+
+    for (const doc of docs) {
+      const response = await fetch(doc.url);
+      const blob = await response.blob();
+      zip.file(doc.name, blob);
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const folder = folderName || 'mock-folder';
+    saveAs(content, `${folder}.zip`);
+  }
+
   async function moveDocument(id: string, parentId?: string) {
     const d = documents.get(id);
     if (!d) throw new Error('Document not found');
@@ -230,6 +267,8 @@ export default function createMockApi() {
     deleteDocument,
     deleteFolder,
     uploadDocument,
+    downloadDocument,
+    downloadAsZip,
     createFolder,
     moveDocument,
     moveFolder,

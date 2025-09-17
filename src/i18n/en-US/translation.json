@@ -29,6 +29,16 @@
       "cancel": "Cancel",
       "confirm": "Upload"
     },
+    "downloadDocument": {
+      "button": "Download documents",
+      "download": "Download",
+      "description": "Downloads every document in current directory",
+      "title": "Download documents",
+      "allDocs": "Download all documents",
+      "selectedDocs": "Choose documents",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
     "renameDialog": {
       "title": "Rename",
       "label": "New name",
@@ -67,6 +77,11 @@
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
       "duplicate": "File {{duplicateName}} already existing",
+      "downloaded": "Download started",
+      "downloadFailed": "Download failed",
+      "noDocsInFolder": "No documents or folders in current directory",
+      "noSelection": "No selection",
+      "noDocsInSelection": "No documents in selection",
   "createFailed": "Create failed",
   "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
   "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
