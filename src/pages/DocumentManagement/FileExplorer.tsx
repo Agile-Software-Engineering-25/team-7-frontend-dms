@@ -973,7 +973,7 @@ export default function FileExplorer(): JSX.Element {
             const idSet = new Set(selectedIds);
             const selectedItems = items.filter((i) => idSet.has(i.id));
 
-            const docsForZip: DocForZip[] = [];
+            let docsForZip: DocForZip[] = [];
 
             for (const item of selectedItems) {
               if (isDoc(item)) {
@@ -999,12 +999,23 @@ export default function FileExplorer(): JSX.Element {
               return;
             }
 
-            await api.downloadAsZip(docsForZip, currentFolderName);
-            showSnack(
-              t('documentManagement.snack.downloaded', 'Download started'),
-              'success'
-            );
-            setDownloadDialogOpen(false);
+            if (docsForZip.length === 1) {
+              const { url, name } = docsForZip[0];
+              const a = document.createElement('a');
+              a.href = url,
+              a.download = name,
+              a.click();
+              showSnack(t('documentManagement.snack.downloaded', 'Download started'), 'success');
+              setDownloadDialogOpen(false);
+              return;
+            } else {
+              await api.downloadAsZip(docsForZip, currentFolderName);
+              showSnack(
+                t('documentManagement.snack.downloaded', 'Download started'),
+                'success'
+              );
+              setDownloadDialogOpen(false);
+            }
           } catch {
             showSnack(
               t('documentManagement.snack.downloadFailed', 'Download failed'),
