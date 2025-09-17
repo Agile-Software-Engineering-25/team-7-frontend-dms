@@ -113,7 +113,10 @@ const useDmsApi = () => {
   );
 
   const downloadAsZip = useCallback(
-    async (docs: { url: string; name: string }[], folderName?: string) => {
+    async (
+      docs: { url: string; name: string; path: string }[],
+      folderName?: string
+    ) => {
       if (!docs || docs.length === 0) {
         throw new Error('No documents to zip');
       }
@@ -122,8 +125,8 @@ const useDmsApi = () => {
       for (const doc of docs) {
         const response = await fetch(doc.url);
         const blob = await response.blob();
-
-        zip.file(doc.name, blob);
+        const fullPath = doc.path ? `${doc.path}/${doc.name}` : doc.name;
+        zip.file(fullPath, blob);
       }
 
       const content = await zip.generateAsync({ type: 'blob' });

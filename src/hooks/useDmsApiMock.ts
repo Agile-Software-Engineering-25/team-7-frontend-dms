@@ -300,7 +300,7 @@ export default function createMockApi() {
   }
 
   async function downloadAsZip(
-    docs: { url: string; name: string }[],
+    docs: { url: string; name: string; path: string }[],
     folderName?: string
   ) {
     if (!docs || docs.length === 0) {
@@ -311,7 +311,8 @@ export default function createMockApi() {
     for (const doc of docs) {
       const response = await fetch(doc.url);
       const blob = await response.blob();
-      zip.file(doc.name, blob);
+      const fullPath = doc.path ? `${doc.path}/${doc.name}` : doc.name;
+      zip.file(fullPath, blob);
     }
 
     const content = await zip.generateAsync({ type: 'blob' });

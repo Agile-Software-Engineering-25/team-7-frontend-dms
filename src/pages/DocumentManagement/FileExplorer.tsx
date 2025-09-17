@@ -50,6 +50,7 @@ type FolderResponse = {
 type DocForZip = {
   url: string;
   name: string;
+  path: string;
 };
 
 // Maximum folder depth to walk when building breadcrumb paths.
@@ -473,7 +474,7 @@ export default function FileExplorer(): JSX.Element {
     const docsHere = await Promise.all(
       (folder.documents || []).map(async (d) => {
         const { url, name } = await api.downloadDocument(d.id);
-        return { url, name: `${prefix}/${name}` };
+        return { url, name, path: prefix };
       })
     );
     const nested: DocForZip[] = [];
@@ -1042,7 +1043,7 @@ export default function FileExplorer(): JSX.Element {
             for (const item of selectedItems) {
               if (isDoc(item)) {
                 const { url, name } = await api.downloadDocument(item.id);
-                docsForZip.push({ url, name });
+                docsForZip.push({ url, name, path: '' });
               } else if (item.itemType === 'folder') {
                 const nested = await collectDocsFromFolderWithPaths(
                   item.id,
