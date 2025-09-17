@@ -295,7 +295,7 @@ export default function createMockApi() {
     return {
       url,
       name: doc.name,
-      type: doc.type ?? 'application/octet-stream',  
+      type: doc.type ?? 'application/octet-stream',
     };
   }
 

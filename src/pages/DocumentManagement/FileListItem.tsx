@@ -174,13 +174,13 @@ const FileListItem: React.FC<Props> = ({
         }
       />
       <Box onClick={(e) => e.stopPropagation()}>
-      <FileItemActions
-        itemId={item.id}
-        itemName={item.name}
-        onRename={() => onRename(item.id)}
-        onDelete={() => onDelete(item.id)}
-        onDownload={() => onDownload(item.id)}
-      />
+        <FileItemActions
+          itemId={item.id}
+          itemName={item.name}
+          onRename={() => onRename(item.id)}
+          onDelete={() => onDelete(item.id)}
+          onDownload={() => onDownload(item.id)}
+        />
       </Box>
     </ListItem>
   );
