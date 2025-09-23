@@ -577,7 +577,12 @@ export default function FileExplorer(): JSX.Element {
     <Box
       role="region"
       aria-labelledby="file-explorer-title"
-      sx={{ overflow: 'auto' }}
+      sx={{ 
+        overflow: 'auto',
+        maxHeight: 'calc(100vh - 200px)', // Reserve space for header and other UI elements
+        display: 'flex',
+        flexDirection: 'column'
+      }}
     >
       <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
         {t('documentManagement.files', 'Files')}
