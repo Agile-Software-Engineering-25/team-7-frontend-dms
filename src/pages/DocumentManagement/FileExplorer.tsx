@@ -552,6 +552,29 @@ export default function FileExplorer(): JSX.Element {
   }, [handleMove]);
 
   // Provide per-row drop handler by cloning items into a wrapper that accepts drops
+  const handleItemDrop = React.useCallback(
+    (targetItemId: string) => (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      try {
+        const data = e.dataTransfer?.getData('application/x-dms-item');
+        if (!data) return;
+        const parsed = JSON.parse(data) as { id: string; type: string };
+        if (parsed.id && parsed.type) {
+          handleMove(parsed.id, parsed.type, targetItemId);
+        }
+      } catch {
+        // ignore invalid drag data
+      }
+    },
+    [handleMove]
+  );
+
+  const handleItemDragOver = React.useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault(); // Allow drop
+    },
+    []
+  );
 
   const handleNavigatePath = (id: string) => {
     setCurrentPath((p) => {
@@ -612,6 +635,12 @@ export default function FileExplorer(): JSX.Element {
             onRename={handleOpenRename}
             onDelete={handleOpenDelete}
             onOpen={handleOpenFolder}
+            onDrop={
+              item.itemType === 'folder' ? handleItemDrop(item.id) : undefined
+            }
+            onDragOver={
+              item.itemType === 'folder' ? handleItemDragOver : undefined
+            }
           />
         ))}
       </List>
