@@ -24,9 +24,7 @@ type Props = {
   item: Item;
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
-  onDownload: (id: string) => void;
   onOpen?: (id: string) => void;
-  onPreview?: (id: string) => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
@@ -57,10 +55,8 @@ const FileListItem: React.FC<Props> = ({
   onRename,
   onDelete,
   onOpen,
-  onPreview,
   onDrop,
   onDragOver,
-  onDownload,
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const dragCounter = React.useRef(0);
