@@ -29,8 +29,10 @@ const FileItemActions: React.FC<Props> = ({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) =>
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
     setAnchorEl(e.currentTarget);
+  };
   const handleClose = () => setAnchorEl(null);
 
   return (

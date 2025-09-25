@@ -82,20 +82,13 @@ const FileListItem: React.FC<Props> = ({
       divider
       role="listitem"
       draggable
-      onClick={() => {
-        if (item.itemType === 'folder') {
-          onOpen?.(item.id);
-        } else {
-          onPreview?.(item.id);
-        }
-      }}
       onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(
             'application/x-dms-item',
             JSON.stringify({ id: item.id, type: item.itemType })
           );
-          // show copy/move effect
+          // show copy/move/copy effect
           if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
         } catch {
           // ignore
@@ -148,6 +141,7 @@ const FileListItem: React.FC<Props> = ({
               }}
               role={item.itemType === 'folder' ? 'button' : undefined}
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
+              onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
               onKeyDown={(e) => {
                 if (
                   item.itemType === 'folder' &&
