@@ -137,11 +137,8 @@ const FileListItem: React.FC<Props> = ({
               }}
               role={item.itemType === 'folder' ? 'button' : undefined}
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
-              onClick={
-                item.itemType === 'folder'
-                  ? () => onOpen?.(item.id)
-                  : undefined
-              }
+<<<<<<< HEAD
+              onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
               onKeyDown={(e) => {
                 if (
                   item.itemType === 'folder' &&
