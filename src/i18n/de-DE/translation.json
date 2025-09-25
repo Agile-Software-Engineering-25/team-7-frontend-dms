@@ -30,6 +30,20 @@
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
+    "downloadDocument": {
+      "button": "Dokumente herunterladen",
+      "download": "Herunterladen",
+      "description": "Lädt jedes Dokument innerhalb des jetzigen Ordners herunter",
+      "title": "Dokumente herunterladen",
+      "allDocs": "Alle Dokumente herunterladen",
+      "selectedDocs": "Dokumente auswählen",
+      "confirm": "Herunterladen",
+      "cancel": "Abbrechen"
+    },
+    "fileViewer": {
+      "download": "Herunterladen",
+      "close": "Schließen"
+  },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -76,6 +90,12 @@
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei {{duplicateName}} existiert bereits",
+      "downloaded": "Download gestartet",
+      "downloadFailed": "Download fehlgeschlagen",
+      "noDocsInFolder": "Es gibt keine Dokumente oder Ordner im aktuellen Verzeichnis",
+      "noSelection": "Keine Auswahl",
+      "noDocsInSelection": "Keine Dokumente in der Auswahl",
+      "previewFailed": "Vorschau fehlgeschlagen",
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",
       "moveFailed": "Verschieben fehlgeschlagen",

@@ -1,6 +1,8 @@
 import useAxiosInstance from '@hooks/useAxiosInstance';
 import { BACKEND_BASE_URL } from '@/config';
 import { useCallback, useMemo } from 'react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 type FolderResponse = {
   folders: {
@@ -86,6 +88,54 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const downloadDocument = useCallback(
+    async (id: string) => {
+      const response = await axiosInstance.get(`/dms/v1/documents/${id}`, {
+        responseType: 'blob',
+      });
+
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `document-${id}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match?.[1]) filename = match[1];
+      }
+
+      const mimeType =
+        response.headers['Content-type'] ?? 'application/octet-stream';
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], { type: mimeType })
+      );
+      return { url, name: filename, type: mimeType };
+    },
+    [axiosInstance]
+  );
+
+  const downloadAsZip = useCallback(
+    async (
+      docs: { url: string; name: string; path: string }[],
+      folderName?: string
+    ) => {
+      if (!docs || docs.length === 0) {
+        throw new Error('No documents to zip');
+      }
+      const zip = new JSZip();
+
+      for (const doc of docs) {
+        const response = await fetch(doc.url);
+        const blob = await response.blob();
+        const fullPath = doc.path ? `${doc.path}/${doc.name}` : doc.name;
+        zip.file(fullPath, blob);
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const folder = folderName || 'documents';
+      saveAs(content, `${folder}.zip`);
+    },
+    []
+  );
+
   const createFolder = useCallback(
     async (name: string, parentId?: string) => {
       const response = await axiosInstance.post('/dms/v1/folders', {
@@ -127,6 +177,8 @@ const useDmsApi = () => {
       deleteDocument,
       deleteFolder,
       uploadDocument,
+      downloadDocument,
+      downloadAsZip,
       createFolder,
       moveDocument,
       moveFolder,
@@ -138,6 +190,8 @@ const useDmsApi = () => {
       deleteDocument,
       deleteFolder,
       uploadDocument,
+      downloadDocument,
+      downloadAsZip,
       createFolder,
       moveDocument,
       moveFolder,
