@@ -19,6 +19,7 @@
     "actionsNote": "Verwalte Dateien unten",
     "files": "Dateien",
     "rename": "Umbenennen",
+    "move": "Verschieben",
     "delete": "Löschen",
     "uploadDocument": {
       "button": "Dokument hochladen",
@@ -64,6 +65,14 @@
       "label": "Ordnername",
       "create": "Erstellen"
     },
+    "moveDialog": {
+      "title": "Element verschieben",
+      "instruction": "Wählen Sie einen Zielordner aus. Sie können in übergeordnete Ordner oder Unterordner des aktuellen Verzeichnisses verschieben.",
+      "currentFolder": "aktueller Ordner",
+      "selectedFolder": "Ausgewählt:",
+      "cancel": "Abbrechen",
+      "confirm": "Verschieben"
+    },
     "type": {
       "folder": "Ordner",
       "document": "Dokument",
@@ -87,9 +96,12 @@
       "noSelection": "Keine Auswahl",
       "noDocsInSelection": "Keine Dokumente in der Auswahl",
       "previewFailed": "Vorschau fehlgeschlagen",
-  "createFailed": "Erstellung fehlgeschlagen",
-  "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
-  "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."
+      "createFailed": "Erstellung fehlgeschlagen",
+      "moved": "Verschoben",
+      "moveFailed": "Verschieben fehlgeschlagen",
+      "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden.",
+      "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
+      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."
     },
     "root": "Startseite",
     "fileExplorer": "Datei-Explorer"

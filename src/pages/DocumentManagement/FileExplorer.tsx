@@ -19,6 +19,7 @@ import FileListItem from './FileListItem';
 import FileViewer from './FileViewer';
 import BreadcrumbBar from './BreadcrumbBar';
 import DownloadDialog from './DownloadDialog';
+import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import Button from '@shared-components/Button/Button';
@@ -667,6 +668,29 @@ export default function FileExplorer(): JSX.Element {
   }, [handleMove]);
 
   // Provide per-row drop handler by cloning items into a wrapper that accepts drops
+  const handleItemDrop = React.useCallback(
+    (targetItemId: string) => (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      try {
+        const data = e.dataTransfer?.getData('application/x-dms-item');
+        if (!data) return;
+        const parsed = JSON.parse(data) as { id: string; type: string };
+        if (parsed.id && parsed.type) {
+          handleMove(parsed.id, parsed.type, targetItemId);
+        }
+      } catch {
+        // ignore invalid drag data
+      }
+    },
+    [handleMove]
+  );
+
+  const handleItemDragOver = React.useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault(); // Allow drop
+    },
+    []
+  );
 
   const handleNavigatePath = (id: string) => {
     setCurrentPath((p) => {
@@ -760,7 +784,6 @@ export default function FileExplorer(): JSX.Element {
         {t('documentManagement.downloadDocument.button', 'Download documents')}
       </Button>
       <List aria-label="file list">
-        {items.map((item) => (
           <FileListItem
             key={item.id}
             item={item}
@@ -771,22 +794,13 @@ export default function FileExplorer(): JSX.Element {
             onPreview={
               item.itemType !== 'folder' ? handleOpenViewer : undefined
             }
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              try {
-                const raw = e.dataTransfer?.getData('application/x-dms-item');
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                // If dropped onto a folder, move into that folder
-                if (item.itemType === 'folder') {
-                  handleMove(parsed.id, parsed.type, item.id);
-                }
-              } catch {
-                // ignore
-              }
-            }}
+            onDrop={
+              item.itemType === 'folder' ? handleItemDrop(item.id) : undefined
+            }
+            onDragOver={
+              item.itemType === 'folder' ? handleItemDragOver : undefined
+            }
           />
-        ))}
       </List>
 
       {/* File viewer dialog */}
@@ -797,50 +811,22 @@ export default function FileExplorer(): JSX.Element {
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}
       />
-      {/* Move chooser dialog (keyboard fallback). Simple: pick one of the current breadcrumb entries as destination */}
-      <Dialog
+
+      {/* Enhanced Move Dialog with folder tree */}
+      <MoveDialog
         open={Boolean(moveChooserOpen && moveSourceId)}
         onClose={() => {
           setMoveChooserOpen(false);
           setMoveSourceId(null);
         }}
-        aria-labelledby="move-dialog-title"
-      >
-        <DialogTitle id="move-dialog-title">
-          {t('documentManagement.moveDialog.title', 'Move item')}
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {t(
-              'documentManagement.moveDialog.select',
-              'Select destination folder from the current path'
-            )}
-          </Typography>
-          {currentPath.map((p) => (
-            <Box key={p.id} sx={{ mb: 1 }}>
-              <Button
-                variant="soft"
-                onClick={() =>
-                  moveSourceId &&
-                  handleMove(moveSourceId, moveSourceType ?? 'document', p.id)
-                }
-              >
-                {p.name}
-              </Button>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setMoveChooserOpen(false);
-              setMoveSourceId(null);
-            }}
-          >
-            {t('documentManagement.moveDialog.cancel', 'Cancel')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onMove={(targetFolderId: string) =>
+          moveSourceId &&
+          handleMove(moveSourceId, moveSourceType ?? 'document', targetFolderId)
+        }
+        currentFolderId={currentFolderIdRef.current}
+        currentPath={currentPath}
+        api={api}
+      />
 
       <Dialog
         open={renameOpen}
