@@ -1,3 +1,6 @@
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+
 type Doc = {
   id: string;
   name: string;
@@ -205,6 +208,58 @@ export default function createMockApi() {
     }
   });
 
+  // sample docs from public/
+  const dPdf: Doc = {
+    id: 'pdf-1',
+    name: 'Example PDF.pdf',
+    size: 12345,
+    createdDate: nowIso(),
+    type: 'application/pdf',
+    parentId: 'root',
+  };
+
+  const dSvg: Doc = {
+    id: 'svg-1',
+    name: 'Vector Graphic.svg',
+    size: 2345,
+    createdDate: nowIso(),
+    type: 'image/svg+xml',
+    parentId: 'root',
+  };
+
+  const dPng: Doc = {
+    id: 'png-1',
+    name: 'Picture.png',
+    size: 54321,
+    createdDate: nowIso(),
+    type: 'image/png',
+    parentId: 'root',
+  };
+
+  const dJpg: Doc = {
+    id: 'jpg-1',
+    name: 'Photo.jpg',
+    size: 65432,
+    createdDate: nowIso(),
+    type: 'image/jpeg',
+    parentId: 'root',
+  };
+
+  const dTxt: Doc = {
+    id: 'txt-1',
+    name: 'Notes.txt',
+    size: 1024,
+    createdDate: nowIso(),
+    type: 'text/plain',
+    parentId: 'root',
+  };
+  documents.set(dPdf.id, dPdf);
+  documents.set(dSvg.id, dSvg);
+  documents.set(dPng.id, dPng);
+  documents.set(dJpg.id, dJpg);
+  documents.set(dTxt.id, dTxt);
+  root.documents.push(dPdf.id, dSvg.id, dPng.id, dJpg.id, dTxt.id);
+
   async function getFolder(id: string) {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
@@ -320,6 +375,78 @@ export default function createMockApi() {
     return { id: d.id, name: d.name, size: d.size, createdDate: d.createdDate };
   }
 
+  async function downloadDocument(id: string) {
+    const doc = documents.get(id);
+    if (!doc) throw new Error('Document not found');
+
+    // public/mock-files
+    const publicBase = '/mock-files';
+    if (id === 'pdf-1')
+      return {
+        url: `${publicBase}/example.pdf`,
+        name: doc.name,
+        type: 'application/pdf',
+      };
+    if (id === 'svg-1')
+      return {
+        url: `${publicBase}/example.svg`,
+        name: doc.name,
+        type: 'image/svg+xml',
+      };
+    if (id === 'png-1')
+      return {
+        url: `${publicBase}/example.png`,
+        name: doc.name,
+        type: 'image/png',
+      };
+    if (id === 'jpg-1')
+      return {
+        url: `${publicBase}/example.jpg`,
+        name: doc.name,
+        type: 'image/jpeg',
+      };
+    if (id === 'txt-1')
+      return {
+        url: `${publicBase}/example.txt`,
+        name: doc.name,
+        type: 'text/plain',
+      };
+
+    // fallback: create dummy blob
+    const content = `Mock file content for ${doc.name}`;
+    const blob = new Blob([content], {
+      type: doc.type ?? 'application/octet-stream',
+    });
+    const url = URL.createObjectURL(blob);
+
+    return {
+      url,
+      name: doc.name,
+      type: doc.type ?? 'application/octet-stream',
+    };
+  }
+
+  async function downloadAsZip(
+    docs: { url: string; name: string; path: string }[],
+    folderName?: string
+  ) {
+    if (!docs || docs.length === 0) {
+      throw new Error('No documents to zip');
+    }
+    const zip = new JSZip();
+
+    for (const doc of docs) {
+      const response = await fetch(doc.url);
+      const blob = await response.blob();
+      const fullPath = doc.path ? `${doc.path}/${doc.name}` : doc.name;
+      zip.file(fullPath, blob);
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const folder = folderName || 'mock-folder';
+    saveAs(content, `${folder}.zip`);
+  }
+
   async function moveDocument(id: string, parentId?: string) {
     const d = documents.get(id);
     if (!d) throw new Error('Document not found');
@@ -357,6 +484,8 @@ export default function createMockApi() {
     deleteDocument,
     deleteFolder,
     uploadDocument,
+    downloadDocument,
+    downloadAsZip,
     createFolder,
     moveDocument,
     moveFolder,

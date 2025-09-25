@@ -15,6 +15,7 @@ type Props = {
   itemName: string;
   onRename: () => void;
   onDelete: () => void;
+  onDownload: () => void;
 };
 
 const FileItemActions: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const FileItemActions: React.FC<Props> = ({
   itemName,
   onRename,
   onDelete,
+  onDownload,
 }) => {
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -70,6 +72,14 @@ const FileItemActions: React.FC<Props> = ({
           }}
         >
           {t('documentManagement.move', 'Move')}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            onDownload();
+          }}
+        >
+          {t('documentManagement.downloadDocument.download', 'Download')}
         </MenuItem>
         <MenuItem
           onClick={() => {

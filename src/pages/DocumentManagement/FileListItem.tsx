@@ -12,7 +12,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FileItemActions from './FileItemActions';
 
-type Item = {
+export type Item = {
   id: string;
   name: string;
   size: number;
@@ -24,7 +24,9 @@ type Props = {
   item: Item;
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
+  onDownload: (id: string) => void;
   onOpen?: (id: string) => void;
+  onPreview?: (id: string) => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
@@ -55,8 +57,10 @@ const FileListItem: React.FC<Props> = ({
   onRename,
   onDelete,
   onOpen,
+  onPreview,
   onDrop,
   onDragOver,
+  onDownload,
 }) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const dragCounter = React.useRef(0);
@@ -84,7 +88,7 @@ const FileListItem: React.FC<Props> = ({
             'application/x-dms-item',
             JSON.stringify({ id: item.id, type: item.itemType })
           );
-          // show copy/move effect
+          // show copy/move/copy effect
           if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
         } catch {
           // ignore
@@ -137,6 +141,7 @@ const FileListItem: React.FC<Props> = ({
               }}
               role={item.itemType === 'folder' ? 'button' : undefined}
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
+<<<<<<< HEAD
               onClick={() => item.itemType === 'folder' && onOpen?.(item.id)}
               onKeyDown={(e) => {
                 if (
@@ -169,6 +174,7 @@ const FileListItem: React.FC<Props> = ({
           itemName={item.name}
           onRename={() => onRename(item.id)}
           onDelete={() => onDelete(item.id)}
+          onDownload={() => onDownload(item.id)}
         />
       </Box>
     </ListItem>
