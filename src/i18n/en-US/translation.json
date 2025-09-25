@@ -19,6 +19,7 @@
     "actionsNote": "Manage files below",
     "files": "Files",
     "rename": "Rename",
+    "move": "Move",
     "delete": "Delete",
     "uploadDocument": {
       "button": "Upload Document",
@@ -50,6 +51,14 @@
       "label": "Folder name",
       "create": "Create"
     },
+    "moveDialog": {
+      "title": "Move item",
+      "instruction": "Select a destination folder. You can move to parent folders or subfolders of the current directory.",
+      "currentFolder": "current folder",
+      "selectedFolder": "Selected:",
+      "cancel": "Cancel",
+      "confirm": "Move"
+    },
     "type": {
       "folder": "Folder",
       "document": "Document",
@@ -67,9 +76,12 @@
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
       "duplicate": "File {{duplicateName}} already existing",
-  "createFailed": "Create failed",
-  "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
-  "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
+      "createFailed": "Create failed",
+      "moved": "Moved",
+      "moveFailed": "Move failed",
+      "invalidMove": "Cannot move a folder into itself or its descendant.",
+      "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
+      "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
     },
     "root": "Home",
     "fileExplorer": "File Explorer"
