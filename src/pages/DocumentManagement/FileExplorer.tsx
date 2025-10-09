@@ -692,7 +692,7 @@ export default function FileExplorer(): JSX.Element {
     <Box
       role="region"
       aria-labelledby="file-explorer-title"
-      sx={{ overflow: 'auto' }}
+      sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
       <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
         {t('documentManagement.files', 'Files')}
@@ -708,86 +708,100 @@ export default function FileExplorer(): JSX.Element {
           <CreateNewFolderIcon fontSize="small" aria-hidden />
         </IconButton>
       </Box>
-      <Button
-        aria-label={t(
-          'documentManagement.uploadDocuemnt.button',
-          'Upload document'
-        )}
-        aria-describedby={t(
-          'documentManagement.uploadDocument.maxSize',
-          'Max size of a file: X MB'
-        )}
-        variant="solid"
-        sx={{
-          backgroundColor: '#2f3b52',
-          color: '#fff',
-          '&:hover': { backgroundColor: '#47566eff' },
-        }}
-        onClick={() => setUploadOpen(true)}
-      >
-        {t('documentManagement.uploadDocument.button', 'Upload document')}
-      </Button>
-      <Button
-        aria-label={t(
-          'documentManagement.downloadDocument.button',
-          'Download documents'
-        )}
-        aria-describedby={t(
-          'documentManagement.downloadDocument.description',
-          'Downloads every document in current directory'
-        )}
-        variant="solid"
-        sx={{
-          backgroundColor: '#2f3b52',
-          color: '#fff',
-          margin: 1,
-          '&:hover': { backgroundColor: '#47566eff' },
-        }}
-        onClick={() => {
-          if (!hasAnyDownloadableDocs()) {
-            showSnack(
-              t(
-                'documentManagement.snack.noDocsInFolder',
-                'No documents or folders in current directory'
-              ),
-              'error'
-            );
-            return;
-          }
-          setDownloadDialogOpen(true);
-        }}
-      >
-        {t('documentManagement.downloadDocument.button', 'Download documents')}
-      </Button>
-      <List aria-label="file list">
-        {items.map((item) => (
-          <FileListItem
-            key={item.id}
-            item={item}
-            onRename={handleOpenRename}
-            onDelete={handleOpenDelete}
-            onOpen={handleOpenFolder}
-            onDownload={handleDownload}
-            onPreview={
-              item.itemType !== 'folder' ? handleOpenViewer : undefined
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Button
+          aria-label={t(
+            'documentManagement.uploadDocuemnt.button',
+            'Upload document'
+          )}
+          aria-describedby={t(
+            'documentManagement.uploadDocument.maxSize',
+            'Max size of a file: X MB'
+          )}
+          variant="solid"
+          sx={{
+            backgroundColor: '#2f3b52',
+            color: '#fff',
+            '&:hover': { backgroundColor: '#47566eff' },
+            flex: 1,
+          }}
+          onClick={() => setUploadOpen(true)}
+        >
+          {t('documentManagement.uploadDocument.button', 'Upload document')}
+        </Button>
+        <Button
+          aria-label={t(
+            'documentManagement.downloadDocument.button',
+            'Download documents'
+          )}
+          aria-describedby={t(
+            'documentManagement.downloadDocument.description',
+            'Downloads every document in current directory'
+          )}
+          variant="solid"
+          sx={{
+            backgroundColor: '#2f3b52',
+            color: '#fff',
+            '&:hover': { backgroundColor: '#47566eff' },
+            flex: 1,
+          }}
+          onClick={() => {
+            if (!hasAnyDownloadableDocs()) {
+              showSnack(
+                t(
+                  'documentManagement.snack.noDocsInFolder',
+                  'No documents or folders in current directory'
+                ),
+                'error'
+              );
+              return;
             }
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              try {
-                const raw = e.dataTransfer?.getData('application/x-dms-item');
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                // If dropped onto a folder, move into that folder
-                if (item.itemType === 'folder') {
-                  handleMove(parsed.id, parsed.type, item.id);
-                }
-              } catch {
-                // ignore
+            setDownloadDialogOpen(true);
+          }}
+        >
+          {t('documentManagement.downloadDocument.button', 'Download documents')}
+        </Button>
+      </Box>
+      <Box 
+        sx={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          minHeight: 0,
+          maxHeight: '500px',
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px'
+        }}
+      >
+        <List aria-label="file list" sx={{ padding: 0 }}>
+          {items.map((item) => (
+            <FileListItem
+              key={item.id}
+              item={item}
+              onRename={handleOpenRename}
+              onDelete={handleOpenDelete}
+              onOpen={handleOpenFolder}
+              onDownload={handleDownload}
+              onPreview={
+                item.itemType !== 'folder' ? handleOpenViewer : undefined
               }
-            }}
-          />
-        ))}
-      </List>
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                try {
+                  const raw = e.dataTransfer?.getData('application/x-dms-item');
+                  if (!raw) return;
+                  const parsed = JSON.parse(raw);
+                  // If dropped onto a folder, move into that folder
+                  if (item.itemType === 'folder') {
+                    handleMove(parsed.id, parsed.type, item.id);
+                  }
+                } catch {
+                  // ignore
+                }
+              }}
+            />
+          ))}
+        </List>
+      </Box>
 
       {/* File viewer dialog */}
       <FileViewer
