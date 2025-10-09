@@ -829,19 +829,27 @@ export default function FileExplorer(): JSX.Element {
             </Button>
           </Box>
           {/* Show folders in current directory */}
-          {items.filter((item) => item.itemType === 'folder' && item.id !== moveSourceId).map((folder) => (
-            <Box key={folder.id} sx={{ mb: 1 }}>
-              <Button
-                variant="soft"
-                onClick={() =>
-                  moveSourceId &&
-                  handleMove(moveSourceId, moveSourceType ?? 'document', folder.id)
-                }
-              >
-                {folder.name}
-              </Button>
-            </Box>
-          ))}
+          {items
+            .filter(
+              (item) => item.itemType === 'folder' && item.id !== moveSourceId
+            )
+            .map((folder) => (
+              <Box key={folder.id} sx={{ mb: 1 }}>
+                <Button
+                  variant="soft"
+                  onClick={() =>
+                    moveSourceId &&
+                    handleMove(
+                      moveSourceId,
+                      moveSourceType ?? 'document',
+                      folder.id
+                    )
+                  }
+                >
+                  {folder.name}
+                </Button>
+              </Box>
+            ))}
           {/* Show current path folders for navigation */}
           {currentPath.slice(1).map((p) => (
             <Box key={p.id} sx={{ mb: 1 }}>
