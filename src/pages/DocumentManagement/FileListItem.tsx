@@ -82,13 +82,20 @@ const FileListItem: React.FC<Props> = ({
       divider
       role="listitem"
       draggable
+      onClick={() => {
+        if (item.itemType === 'folder') {
+          onOpen?.(item.id);
+        } else {
+          onPreview?.(item.id);
+        }
+      }}
       onDragStart={(e: React.DragEvent<HTMLDivElement>) => {
         try {
           e.dataTransfer?.setData(
             'application/x-dms-item',
             JSON.stringify({ id: item.id, type: item.itemType })
           );
-          // show copy/move/copy effect
+          // show copy/move effect
           if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
         } catch {
           // ignore
