@@ -759,17 +759,20 @@ export default function FileExplorer(): JSX.Element {
             setDownloadDialogOpen(true);
           }}
         >
-          {t('documentManagement.downloadDocument.button', 'Download documents')}
+          {t(
+            'documentManagement.downloadDocument.button',
+            'Download documents'
+          )}
         </Button>
       </Box>
-      <Box 
-        sx={{ 
-          flex: 1, 
-          overflow: 'auto', 
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
           minHeight: 0,
           maxHeight: '500px',
           border: '1px solid #e0e0e0',
-          borderRadius: '4px'
+          borderRadius: '4px',
         }}
       >
         <List aria-label="file list" sx={{ padding: 0 }}>
