@@ -813,10 +813,45 @@ export default function FileExplorer(): JSX.Element {
           <Typography variant="body2" sx={{ mb: 1 }}>
             {t(
               'documentManagement.moveDialog.select',
-              'Select destination folder from the current path'
+              'Select destination folder'
             )}
           </Typography>
-          {currentPath.map((p) => (
+          {/* Show root folder */}
+          <Box sx={{ mb: 1 }}>
+            <Button
+              variant="soft"
+              onClick={() =>
+                moveSourceId &&
+                handleMove(moveSourceId, moveSourceType ?? 'document', 'root')
+              }
+            >
+              {t('documentManagement.root', 'Home')}
+            </Button>
+          </Box>
+          {/* Show folders in current directory */}
+          {items
+            .filter(
+              (item) => item.itemType === 'folder' && item.id !== moveSourceId
+            )
+            .map((folder) => (
+              <Box key={folder.id} sx={{ mb: 1 }}>
+                <Button
+                  variant="soft"
+                  onClick={() =>
+                    moveSourceId &&
+                    handleMove(
+                      moveSourceId,
+                      moveSourceType ?? 'document',
+                      folder.id
+                    )
+                  }
+                >
+                  {folder.name}
+                </Button>
+              </Box>
+            ))}
+          {/* Show current path folders for navigation */}
+          {currentPath.slice(1).map((p) => (
             <Box key={p.id} sx={{ mb: 1 }}>
               <Button
                 variant="soft"
