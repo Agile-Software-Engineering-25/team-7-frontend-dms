@@ -48,6 +48,7 @@ type Props = {
   currentFolderId: string;
   currentPath: Array<{ id: string; name: string }>;
   api: ApiInterface;
+  moveSourceId?: string | null;
 };
 
 const MoveDialog: React.FC<Props> = ({
@@ -57,6 +58,7 @@ const MoveDialog: React.FC<Props> = ({
   currentFolderId,
   currentPath,
   api,
+  moveSourceId,
 }) => {
   const { t } = useTranslation();
   const [folderTree, setFolderTree] = React.useState<FolderNode[]>([]);
@@ -68,7 +70,7 @@ const MoveDialog: React.FC<Props> = ({
     if (open) {
       buildMoveTree();
     }
-  }, [open, currentFolderId, currentPath]);
+  }, [open, currentFolderId, currentPath, moveSourceId]);
 
   const buildMoveTree = async () => {
     setIsLoading(true);
@@ -76,7 +78,8 @@ const MoveDialog: React.FC<Props> = ({
     try {
       const availableFolders: FolderNode[] = [];
 
-      // 1. Add root if not current directory
+      // 1. Add root only if we're NOT already in root directory
+      // Do not add root as a destination if currentFolderId is 'root'
       if (currentFolderId !== 'root') {
         availableFolders.push({
           id: 'root',
@@ -86,9 +89,10 @@ const MoveDialog: React.FC<Props> = ({
       }
 
       // 2. Add parent folders (without their subfolders)
-      const parentPath = currentPath.filter(
-        (p) => p.id !== currentFolderId && p.id !== 'root'
-      );
+      // Only add parents if we're not in root, and exclude the current folder and the folder being moved
+      const parentPath = currentFolderId !== 'root' 
+        ? currentPath.filter(p => p.id !== currentFolderId && p.id !== 'root' && p.id !== moveSourceId)
+        : [];
       for (const pathItem of parentPath) {
         availableFolders.push({
           id: pathItem.id,
@@ -98,14 +102,17 @@ const MoveDialog: React.FC<Props> = ({
       }
 
       // 3. Add direct subfolders of current directory (but NOT their subfolders)
+      // Exclude the folder being moved (moveSourceId)
       try {
         const currentData = await api.getFolder(currentFolderId);
-        const directSubfolders = (currentData.subfolders || []).map((f) => ({
-          id: f.id,
-          name: f.name,
-          parentId: f.parentId,
-          children: [] as FolderNode[], // Don't load sub-subfolders
-        }));
+        const directSubfolders = (currentData.subfolders || [])
+          .filter((f) => f.id !== moveSourceId) // Don't show the folder being moved
+          .map((f) => ({
+            id: f.id,
+            name: f.name,
+            parentId: f.parentId,
+            children: [] as FolderNode[], // Don't load sub-subfolders
+          }));
 
         availableFolders.push(...directSubfolders);
       } catch {
@@ -115,9 +122,9 @@ const MoveDialog: React.FC<Props> = ({
       setFolderTree(availableFolders);
     } catch (error) {
       console.warn('Failed to build move tree:', error);
-      // Fallback: show only breadcrumb path
+      // Fallback: show only breadcrumb path, but exclude current folder, moveSourceId, and root if we're in root
       const fallbackFolders = currentPath
-        .filter((p) => p.id !== currentFolderId)
+        .filter((p) => p.id !== currentFolderId && p.id !== moveSourceId && (currentFolderId !== 'root' || p.id !== 'root'))
         .map((p) => ({
           id: p.id,
           name: p.name,
