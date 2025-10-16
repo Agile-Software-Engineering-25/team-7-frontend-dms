@@ -90,9 +90,15 @@ const MoveDialog: React.FC<Props> = ({
 
       // 2. Add parent folders (without their subfolders)
       // Only add parents if we're not in root, and exclude the current folder and the folder being moved
-      const parentPath = currentFolderId !== 'root' 
-        ? currentPath.filter(p => p.id !== currentFolderId && p.id !== 'root' && p.id !== moveSourceId)
-        : [];
+      const parentPath =
+        currentFolderId !== 'root'
+          ? currentPath.filter(
+              (p) =>
+                p.id !== currentFolderId &&
+                p.id !== 'root' &&
+                p.id !== moveSourceId
+            )
+          : [];
       for (const pathItem of parentPath) {
         availableFolders.push({
           id: pathItem.id,
@@ -124,7 +130,12 @@ const MoveDialog: React.FC<Props> = ({
       console.warn('Failed to build move tree:', error);
       // Fallback: show only breadcrumb path, but exclude current folder, moveSourceId, and root if we're in root
       const fallbackFolders = currentPath
-        .filter((p) => p.id !== currentFolderId && p.id !== moveSourceId && (currentFolderId !== 'root' || p.id !== 'root'))
+        .filter(
+          (p) =>
+            p.id !== currentFolderId &&
+            p.id !== moveSourceId &&
+            (currentFolderId !== 'root' || p.id !== 'root')
+        )
         .map((p) => ({
           id: p.id,
           name: p.name,
