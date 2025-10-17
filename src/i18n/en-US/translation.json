@@ -1,18 +1,4 @@
 {
-  "pages": {
-    "home": {
-      "title": "Home",
-      "description": "This is the frontend-template project. Here you can find the technologies and tools used in this project.",
-      "weatherButton": "WEATHER"
-    },
-    "weather": {
-      "title": "Weather",
-      "description": "This shows the weather of the Telekom office at Winterfeldtstraße 21, 10781 Berlin.",
-      "getWeatherButton": "GET WEATHER",
-      "weatherHeader": "Current Weather",
-      "temperature": "Temperature"
-    }
-  },
   "documentManagement": {
     "title": "Document Management",
     "sidebarTitle": "DMS",
