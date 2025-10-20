@@ -72,7 +72,7 @@
       "deleteFailed": "Delete failed",
       "created": "Created",
       "noFiles": "No files selected",
-      "fileTooLarge": "File exceeds maximum size",
+  "fileTooLarge": "File {{fileName}} exceeds maximum size of {{maxSize}} MB",
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
       "duplicate": "File {{duplicateName}} already existing",
