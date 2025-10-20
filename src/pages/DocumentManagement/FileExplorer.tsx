@@ -233,6 +233,15 @@ export default function FileExplorer(): JSX.Element {
     setSnack({ open: true, msg, severity });
   };
 
+  const showSnackSequence = async (messages: Array<{ msg: string; severity: 'success' | 'error' }>) => {
+    for (let i = 0; i < messages.length; i++) {
+      if (i > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      showSnack(messages[i].msg, messages[i].severity);
+    }
+  };
+
   const handleOpenRename = (id: string) => {
     setActiveId(id);
     const it = getItemById(id);
@@ -351,52 +360,103 @@ export default function FileExplorer(): JSX.Element {
       return;
     }
 
-    // check max file size
-    const tooBig = selectedFiles.find(
-      (f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024
-    );
-    if (tooBig) {
+    const maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+    // Filter valid files: not too big and not duplicates
+    const validFiles: File[] = [];
+    const oversizedFiles: File[] = [];
+    const duplicateFiles: File[] = [];
+
+    for (const file of selectedFiles) {
+      if (file.size > maxSizeBytes) {
+        oversizedFiles.push(file);
+      } else if (items.some((item) => item.name === file.name)) {
+        duplicateFiles.push(file);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    const messages: Array<{ msg: string; severity: 'success' | 'error' }> = [];
+
+    if (oversizedFiles.length > 0) {
+      for (const file of oversizedFiles) {
+        messages.push({
+          msg: t('documentManagement.snack.fileTooLarge', {
+            defaultValue:
+              'File {{fileName}} exceeds max size of {{maxSize}} MB',
+            fileName: file.name,
+            maxSize: MAX_FILE_SIZE_MB,
+          }),
+          severity: 'error',
+        });
+      }
+    }
+
+    if (duplicateFiles.length > 0) {
+      for (const file of duplicateFiles) {
+        messages.push({
+          msg: t('documentManagement.snack.duplicate', {
+            defaultValue: 'File {{duplicateName}} already exists',
+            duplicateName: file.name,
+          }),
+          severity: 'error',
+        });
+      }
+    }
+
+    if (validFiles.length === 0) {
+      if (messages.length > 0) {
+        await showSnackSequence(messages);
+      }
       handleCloseUpload();
-      showSnack(
-        t('documentManagement.snack.fileTooLarge', 'File exceeds max size'),
-        'error'
-      );
       return;
     }
 
-    // check duplicates
-    const duplicate = selectedFiles.find((file) =>
-      items.some((item) => item.name === file.name)
-    );
-    if (duplicate) {
-      setSelectedFiles([]);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      showSnack(
-        t('documentManagement.snack.duplicate', {
-          defaultValue: 'File {{duplicateName}} already existing',
-          duplicateName: duplicate.name,
-        }),
-        'error'
-      );
-      return;
-    }
+    let uploadSuccessCount = 0;
+    const failedFiles: string[] = [];
 
-    try {
-      for (const file of selectedFiles) {
+    for (const file of validFiles) {
+      try {
         await api.uploadDocument(file, currentFolderIdRef.current);
-        await refresh();
+        uploadSuccessCount++;
+      } catch {
+        failedFiles.push(file.name);
       }
-      showSnack(
-        t('documentManagement.snack.uploaded', 'Uploaded successfully'),
-        'success'
+    }
+
+    if (failedFiles.length > 0) {
+      const failedNames = failedFiles.join(', ');
+      const defaultValue =
+        uploadSuccessCount > 0
+          ? 'Uploaded partially. Failed for: {{fileNames}}'
+          : 'Upload failed for: {{fileNames}}';
+      messages.push({
+        msg: t('documentManagement.snack.uploadFailed', {
+          defaultValue,
+          fileName: failedNames,
+          fileNames: failedNames,
+        }),
+        severity: 'error',
+      });
+    }
+
+    if (uploadSuccessCount > 0) {
+      await refresh();
+      const successMessage = t(
+        'documentManagement.snack.uploaded',
+        'Uploaded successfully'
       );
-    } catch {
-      showSnack(
-        t('documentManagement.snack.uploadFailed', 'Upload failed'),
-        'error'
-      );
+      if (messages.length === 0) {
+        messages.push({ msg: successMessage, severity: 'success' });
+      } else {
+        // ensure success info appears before errors so the final message stays an error
+        messages.unshift({ msg: successMessage, severity: 'success' });
+      }
+    }
+
+    if (messages.length > 0) {
+      await showSnackSequence(messages);
     }
 
     // reset and close

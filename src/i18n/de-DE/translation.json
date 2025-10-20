@@ -72,7 +72,7 @@
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
       "noFiles": "Keine Dateien ausgewählt",
-      "fileTooLarge": "Datei überschreitet die maximale Größe",
+  "fileTooLarge": "Datei {{fileName}} überschreitet die maximale Größe von {{maxSize}} MB",
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei {{duplicateName}} existiert bereits",
