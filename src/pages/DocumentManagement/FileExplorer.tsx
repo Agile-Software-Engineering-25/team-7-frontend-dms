@@ -846,8 +846,7 @@ export default function FileExplorer(): React.ReactElement {
             '--Button-hoverBg': '#001f56',
             '--Button-activeBg': '#001a4a',
             '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow':
-              '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
             fontWeight: 600,
           }}
           onClick={() => setUploadOpen(true)}
@@ -875,8 +874,7 @@ export default function FileExplorer(): React.ReactElement {
             '--Button-hoverBg': '#001f56',
             '--Button-activeBg': '#001a4a',
             '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow':
-              '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
             fontWeight: 600,
           }}
           onClick={() => {
@@ -900,10 +898,7 @@ export default function FileExplorer(): React.ReactElement {
           )}
         </Button>
         <IconButton
-          aria-label={t(
-            'documentManagement.newFolder.title',
-            'Create folder'
-          )}
+          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
           title={t('documentManagement.newFolder.title', 'Create folder')}
           onClick={() => setNewFolderOpen(true)}
           sx={{
@@ -930,7 +925,7 @@ export default function FileExplorer(): React.ReactElement {
           overflow: 'auto',
           minHeight: 0,
           maxHeight: '500px',
-          border: '1px solid #e0e0e0',
+          border: 'none',
           borderRadius: 0,
         }}
       >
