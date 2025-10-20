@@ -22,7 +22,7 @@ import DownloadDialog from './DownloadDialog';
 import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import Button from '@shared-components/Button/Button';
+import Button from '@mui/joy/Button';
 
 type Item = {
   id: string;
@@ -58,7 +58,7 @@ type DocForZip = {
 const MAX_PATH_DEPTH = 50;
 const MAX_FILE_SIZE_MB = 5;
 
-export default function FileExplorer(): JSX.Element {
+export default function FileExplorer(): React.ReactElement {
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);

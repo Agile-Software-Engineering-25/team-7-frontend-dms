@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Card from '@shared-components/Card/Card';
 import FileExplorer from './FileExplorer';
 
 const fileExplorerCardStyles = {
   flex: 1,
   minHeight: 0,
-  padding: 3,
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
@@ -47,15 +45,17 @@ const DocumentManagement: React.FC = () => {
           {t('documentManagement.title', 'Document Management')}
         </Typography>
         {/* ActionButtons and breadcrumb rendered inside FileExplorer to access state handlers */}
-        <Card
-          title={t('documentManagement.fileExplorer', 'File Explorer')}
-          variant="outlined"
-          size="lg"
-          color="neutral"
-          sx={fileExplorerCardStyles}
-        >
-          {/* File explorer list with accessible actions */}
-          <FileExplorer />
+        <Card variant="outlined" sx={fileExplorerCardStyles}>
+          <CardHeader
+            title={t('documentManagement.fileExplorer', 'File Explorer')}
+            sx={{ px: 3, py: 2 }}
+          />
+          <CardContent
+            sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 3, pt: 0 }}
+          >
+            {/* File explorer list with accessible actions */}
+            <FileExplorer />
+          </CardContent>
         </Card>
       </Box>
     </Box>
