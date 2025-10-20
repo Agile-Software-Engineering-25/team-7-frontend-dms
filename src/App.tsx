@@ -21,7 +21,12 @@ function App({ basename }: AppProps) {
   return (
     <Provider store={store}>
       <ThemeProvider theme={{ [MATERIAL_THEME_ID]: muiTheme }}>
-        <JoyCssVarsProvider theme={joyTheme}>
+        <JoyCssVarsProvider
+          theme={joyTheme}
+          defaultMode="light"
+          modeStorageKey="joy-mode"
+          colorSchemeStorageKey="joy-color-scheme"
+        >
           {/* no frontend toggle for mock mode; control via code (window.__USE_DMS_MOCK__ or ?mock=1) */}
           <BrowserRouter basename={basename}>
             <RoutingComponent />
