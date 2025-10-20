@@ -754,13 +754,13 @@ export default function FileExplorer(): React.ReactElement {
   return (
     <Box
       role="region"
-      aria-labelledby="file-explorer-title"
+      aria-label={t(
+        'documentManagement.fileExplorerRegion',
+        'Document explorer'
+      )}
       sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
-      <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
-        {t('documentManagement.files', 'Files')}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
         <Box sx={{ flex: 1 }} />
         <IconButton
