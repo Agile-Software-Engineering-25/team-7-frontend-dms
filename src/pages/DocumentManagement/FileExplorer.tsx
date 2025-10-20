@@ -970,7 +970,7 @@ export default function FileExplorer(): JSX.Element {
             style={{ display: 'none' }}
             onChange={(e) => {
               const files = Array.from(e.target.files || []);
-              setSelectedFiles(files);
+              setSelectedFiles((prev) => [...prev, ...files]);
             }}
           />
           <label htmlFor="file-input">
