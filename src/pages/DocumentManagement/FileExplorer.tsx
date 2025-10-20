@@ -233,7 +233,9 @@ export default function FileExplorer(): JSX.Element {
     setSnack({ open: true, msg, severity });
   };
 
-  const showSnackSequence = async (messages: Array<{ msg: string; severity: 'success' | 'error' }>) => {
+  const showSnackSequence = async (
+    messages: Array<{ msg: string; severity: 'success' | 'error' }>
+  ) => {
     for (let i = 0; i < messages.length; i++) {
       if (i > 0) {
         await new Promise((resolve) => setTimeout(resolve, 500));
