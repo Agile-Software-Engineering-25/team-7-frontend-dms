@@ -751,10 +751,12 @@ export default function FileExplorer(): React.ReactElement {
     setMoveSourceId(null);
   };
 
-  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-  
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -827,7 +829,10 @@ export default function FileExplorer(): React.ReactElement {
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           InputProps={{
-            'aria-label': t('documentManagement.search.searchbar', 'searching in current folder'),
+            'aria-label': t(
+              'documentManagement.search.searchbar',
+              'searching in current folder'
+            ),
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon fontSize="small" sx={{ color: '#002E6D' }} />
