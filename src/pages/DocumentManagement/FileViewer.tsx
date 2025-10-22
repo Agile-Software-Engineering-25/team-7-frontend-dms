@@ -81,7 +81,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
       );
     }
 
-    return <p>Keine Vorschau verfügbar für {fileType}</p>;
+    return <p>{t('documentManagement.fileViewer.noPreview', 'Keine Vorschau verfügbar für')}{fileType}</p>;
   };
 
   return (

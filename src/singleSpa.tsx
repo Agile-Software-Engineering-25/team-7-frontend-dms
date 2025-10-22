@@ -46,4 +46,12 @@ export const mount = [
     await lifecycle.mount(props);
   },
 ];
-export const unmount = [cssLc.unmount, lifecycle.unmount];
+
+export const unmount = [
+  async (props: MountProps) => {
+    setGlobalUser(null);
+    
+    await cssLc.unmount(props);
+    await lifecycle.unmount(props);
+  },
+];

@@ -28,7 +28,8 @@
     },
     "fileViewer": {
       "download": "Herunterladen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "noPreview": "Keine Vorschau verfügbar für "
   },
     "renameDialog": {
       "title": "Umbenennen",
@@ -49,7 +50,8 @@
     "newFolder": {
       "title": "Ordner erstellen",
       "label": "Ordnername",
-      "create": "Erstellen"
+      "create": "Erstellen",
+      "cancel": "Abbrechen"
     },
     "moveDialog": {
       "title": "Element verschieben",
