@@ -16,6 +16,10 @@
       "cancel": "Cancel",
       "confirm": "Upload"
     },
+    "search": {
+      "searchbar": "searching in current folder",
+      "searchPlaceholder": "search"
+    },
     "downloadDocument": {
       "button": "Download documents",
       "download": "Download",

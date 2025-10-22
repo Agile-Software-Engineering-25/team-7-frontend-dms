@@ -103,6 +103,8 @@ export default function FileExplorer(): React.ReactElement {
   const [moveSourceType, setMoveSourceType] = React.useState<
     Item['itemType'] | string | null
   >(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
   // keep a ref to the latest items so event handlers don't need to be
   // re-registered whenever `items` changes.
   const itemsRef = React.useRef<Item[]>(items);
@@ -184,7 +186,9 @@ export default function FileExplorer(): React.ReactElement {
         uploadDate: f.createdDate ?? new Date().toISOString(),
         itemType: 'folder',
       }));
-      setItems([...subfolders, ...docs]);
+      const allItems = [...subfolders, ...docs];
+      setItems(allItems);
+      setFilteredItems(allItems);
     } catch {
       // ignore for now
     }
@@ -729,6 +733,21 @@ export default function FileExplorer(): React.ReactElement {
     setMoveSourceId(null);
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  
+    if (!value.trim()) {
+      setFilteredItems(items);
+      return;
+    }
+
+    const q = value.toLowerCase();
+
+    const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+
+    setFilteredItems(filtered);
+  };
+
   // keep handleMoveRef up to date so event handlers call the latest function
   React.useEffect(() => {
     handleMoveRef.current = handleMove;
@@ -777,10 +796,13 @@ export default function FileExplorer(): React.ReactElement {
         <TextField
           size="small"
           placeholder={t(
-            'documentManagement.searchPlaceholder',
-            'Suche (in Kürze verfügbar)'
+            'documentManagement.search.searchPlaceholder',
+            'search'
           )}
+          value={searchQuery}
+          onChange={(e) => handleSearch(e.target.value)}
           InputProps={{
+            'aria-label': t('documentManagement.search.searchbar', 'searching in current folder'),
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon fontSize="small" sx={{ color: '#002E6D' }} />
@@ -930,7 +952,7 @@ export default function FileExplorer(): React.ReactElement {
         }}
       >
         <List aria-label="file list" sx={{ padding: 0 }}>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <FileListItem
               key={item.id}
               item={item}

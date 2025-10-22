@@ -16,6 +16,10 @@
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
+    "search": {
+      "searchbar": "Suche im aktuellen Ordner",
+      "searchPlaceholder": "Suche"
+    },
     "downloadDocument": {
       "button": "Dokumente herunterladen",
       "download": "Herunterladen",
