@@ -112,6 +112,23 @@ export default function FileExplorer(): React.ReactElement {
     itemsRef.current = items;
   }, [items]);
 
+  // correctly move, create and upload effect because of debounce from searchbar
+  React.useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredItems(items);
+    } else {
+      const q = searchQuery.toLowerCase();
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+      setFilteredItems(filtered);
+    }
+  }, [items]);
+
+  // clear searchbar after switching folder
+  React.useEffect(() => {
+    setSearchQuery('');
+    setFilteredItems(items);
+  }, [currentFolderIdRef.current]);
+
   // We'll also keep a ref for `handleMove` so breadcrumb-drop handlers can
   // invoke it without the listener needing to be re-registered.
   const handleMoveRef = React.useRef<
