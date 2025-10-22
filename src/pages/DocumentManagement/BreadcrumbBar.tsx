@@ -3,6 +3,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
+import { useCanAccess } from '@/lib/permissions';
 
 const chipShadow = '0px 6px 12px rgba(47, 59, 82, 0.15)';
 
@@ -30,12 +31,14 @@ const chipActiveSx = {
   },
 };
 
+
 type PathItem = { id: string; name: string };
 
 const BreadcrumbBar: React.FC<{
   path: PathItem[];
   onNavigate: (id: string) => void;
 }> = ({ path, onNavigate }) => {
+  const { canAccess } = useCanAccess();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const lastItemRef = React.useRef<HTMLButtonElement | null>(null);
   const liveRef = React.useRef<HTMLDivElement | null>(null);
@@ -98,6 +101,7 @@ const BreadcrumbBar: React.FC<{
                 setDragOverId((v) => (v === item.id ? null : v))
               }
               onDrop={(e) => {
+                if (!canAccess('manageDocuments')) return;
                 const parsed = parseDragData(e.dataTransfer);
                 if (!parsed) return;
                 emitDropOnBreadcrumb(parsed, item.id);

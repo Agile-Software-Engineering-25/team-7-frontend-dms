@@ -9,7 +9,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
 import { emitRequestMove } from '../../lib/dmsEvents';
-import { useUser } from '@/hooks/useUser';
+import { useCanAccess } from '@/lib/permissions';
 
 type Props = {
   itemId: string;
@@ -26,7 +26,7 @@ const FileItemActions: React.FC<Props> = ({
   onDelete,
   onDownload,
 }) => {
-  const { hasRole } = useUser();
+  const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -68,7 +68,7 @@ const FileItemActions: React.FC<Props> = ({
         onClose={handleClose}
         MenuListProps={{ role: 'menu' }}
       >
-        {(hasRole('staff') || hasRole('admin')) && (
+        {(canAccess('manageDocuments')) && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -78,7 +78,7 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.rename', 'Rename')}
           </MenuItem>
         )}
-        {(hasRole('staff') || hasRole('admin')) && (
+        {(canAccess('manageDocuments')) && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -88,6 +88,7 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.move', 'Move')}
           </MenuItem>
         )}
+        {(canAccess('downloadDocuments')) && (
         <MenuItem
           onClick={() => {
             handleClose();
@@ -96,7 +97,8 @@ const FileItemActions: React.FC<Props> = ({
         >
           {t('documentManagement.downloadDocument.download', 'Download')}
         </MenuItem>
-        {(hasRole('staff') || hasRole('admin')) && (
+        )}
+        {(canAccess('manageDocuments')) && (
           <MenuItem
             onClick={() => {
               handleClose();

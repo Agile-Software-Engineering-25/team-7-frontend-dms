@@ -29,6 +29,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
 import Button from '@mui/joy/Button';
 import { useUser } from '@/hooks/useUser';
+import { useCanAccess } from '@/lib/permissions';
 
 type Item = {
   id: string;
@@ -879,6 +880,8 @@ export default function FileExplorer(): React.ReactElement {
           {t('documentManagement.filterButton', 'Filter (bald)')}
         </Button>
         <Box sx={{ flexGrow: 1 }} />
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {(canAccess('uploadDocuments')) && (
         <Button
           size="sm"
           aria-label={t(
@@ -907,6 +910,9 @@ export default function FileExplorer(): React.ReactElement {
         >
           {t('documentManagement.uploadDocument.button', 'Upload document')}
         </Button>
+        )}
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {(canAccess('downloadDocuments')) && (
         <Button
           size="sm"
           aria-label={t(
@@ -950,6 +956,8 @@ export default function FileExplorer(): React.ReactElement {
             'Download documents'
           )}
         </Button>
+        )}
+        {(canAccess('manageDocuments')) && (
         <IconButton
           aria-label={t('documentManagement.newFolder.title', 'Create folder')}
           title={t('documentManagement.newFolder.title', 'Create folder')}
@@ -968,6 +976,7 @@ export default function FileExplorer(): React.ReactElement {
         >
           <CreateNewFolderIcon fontSize="small" aria-hidden />
         </IconButton>
+        )}
       </Box>
       <Box sx={{ mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
@@ -1010,20 +1019,24 @@ export default function FileExplorer(): React.ReactElement {
                 onPreview={
                   item.itemType !== 'folder' ? handleOpenViewer : undefined
                 }
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  try {
-                    const raw = e.dataTransfer?.getData('application/x-dms-item');
-                    if (!raw) return;
-                    const parsed = JSON.parse(raw);
-                    // If dropped onto a folder, move into that folder
-                    if (item.itemType === 'folder') {
-                      handleMove(parsed.id, parsed.type, item.id);
-                    }
-                  } catch {
-                    // ignore
-                  }
+                onDragOver={(e) => {
+                  if (canAccess('manageDocuments')) e.preventDefault();
                 }}
+                onDrop={(e) => {
+                  if (!canAccess('manageDocuments')) return;
+                    try {
+                      const raw = e.dataTransfer?.getData('application/x-dms-item');
+                      if (!raw) return;
+                      const parsed = JSON.parse(raw);
+                      // If dropped onto a folder, move into that folder
+                      if (item.itemType === 'folder') {
+                        handleMove(parsed.id, parsed.type, item.id);
+                      }
+                    } catch {
+                      // ignore
+                    }
+                  }
+                }
               />
             ))}
           </List>
@@ -1160,11 +1173,11 @@ export default function FileExplorer(): React.ReactElement {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setNewFolderOpen(false)} variant="solid">
-            {t('documentManagement.newFolder.cancel', 'Cancel')}
-          </Button>
           <Button onClick={handleCreateFolder} variant="solid">
             {t('documentManagement.newFolder.create', 'Create')}
+          </Button>
+          <Button onClick={() => setNewFolderOpen(false)} variant="solid">
+            {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>

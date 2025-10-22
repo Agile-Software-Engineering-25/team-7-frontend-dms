@@ -34,7 +34,8 @@
     },
     "fileViewer": {
       "download": "Download",
-      "close": "Close"
+      "close": "Close",
+      "noPreview": "No preview available for "
     },
     "renameDialog": {
       "title": "Rename",
@@ -55,7 +56,8 @@
     "newFolder": {
       "title": "Create folder",
       "label": "Folder name",
-      "create": "Create"
+      "create": "Create",
+      "cancel": "Cancel"
     },
     "moveDialog": {
       "title": "Move item",
