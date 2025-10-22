@@ -189,6 +189,7 @@ export default function FileExplorer(): React.ReactElement {
       const allItems = [...subfolders, ...docs];
       setItems(allItems);
       setFilteredItems(allItems);
+      setSearchQuery('');
     } catch {
       // ignore for now
     }
@@ -733,19 +734,26 @@ export default function FileExplorer(): React.ReactElement {
     setMoveSourceId(null);
   };
 
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleSearch = (value: string) => {
     setSearchQuery(value);
   
-    if (!value.trim()) {
-      setFilteredItems(items);
-      return;
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    const q = value.toLowerCase();
+    searchTimeoutRef.current = setTimeout(() => {
+      if (!value.trim()) {
+        setFilteredItems(items);
+        return;
+      }
 
-    const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+      const q = value.toLowerCase();
 
-    setFilteredItems(filtered);
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+
+      setFilteredItems(filtered);
+    }, 300);
   };
 
   // keep handleMoveRef up to date so event handlers call the latest function
