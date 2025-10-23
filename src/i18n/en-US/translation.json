@@ -18,7 +18,9 @@
     },
     "search": {
       "searchbar": "searching in current folder",
-      "searchPlaceholder": "search"
+      "searchPlaceholder": "search",
+      "noResults": "no results found",
+      "queryPrefix": "for"
     },
     "downloadDocument": {
       "button": "Download documents",

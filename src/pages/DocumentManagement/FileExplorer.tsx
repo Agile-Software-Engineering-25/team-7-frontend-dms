@@ -971,46 +971,63 @@ export default function FileExplorer(): React.ReactElement {
       <Box sx={{ mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
       </Box>
-      <Box
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          minHeight: 0,
-          maxHeight: '500px',
-          border: 'none',
-          borderRadius: 0,
-        }}
-      >
-        <List aria-label="file list" sx={{ padding: 0 }}>
-          {filteredItems.map((item) => (
-            <FileListItem
-              key={item.id}
-              item={item}
-              onRename={handleOpenRename}
-              onDelete={handleOpenDelete}
-              onOpen={handleOpenFolder}
-              onDownload={handleDownload}
-              onPreview={
-                item.itemType !== 'folder' ? handleOpenViewer : undefined
-              }
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                try {
-                  const raw = e.dataTransfer?.getData('application/x-dms-item');
-                  if (!raw) return;
-                  const parsed = JSON.parse(raw);
-                  // If dropped onto a folder, move into that folder
-                  if (item.itemType === 'folder') {
-                    handleMove(parsed.id, parsed.type, item.id);
-                  }
-                } catch {
-                  // ignore
+      {searchQuery.trim() && filteredItems.length === 0 ? (
+        <Box
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            color: 'error.main',
+            fontSize: '1.25rem',
+            fontWeight: '500',
+          }}
+          role="status"
+          aria-live="polite"
+          >
+            {t('documentManagement.search.noResults', 'no results found')}{' '}
+            {t('documentManagement.search.queryPrefix', 'for')} „{searchQuery}“
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'auto',
+            minHeight: 0,
+            maxHeight: '500px',
+            border: 'none',
+            borderRadius: 0,
+          }}
+        >
+          <List aria-label="file list" sx={{ padding: 0 }}>
+            {filteredItems.map((item) => (
+              <FileListItem
+                key={item.id}
+                item={item}
+                onRename={handleOpenRename}
+                onDelete={handleOpenDelete}
+                onOpen={handleOpenFolder}
+                onDownload={handleDownload}
+                onPreview={
+                  item.itemType !== 'folder' ? handleOpenViewer : undefined
                 }
-              }}
-            />
-          ))}
-        </List>
-      </Box>
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  try {
+                    const raw = e.dataTransfer?.getData('application/x-dms-item');
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    // If dropped onto a folder, move into that folder
+                    if (item.itemType === 'folder') {
+                      handleMove(parsed.id, parsed.type, item.id);
+                    }
+                  } catch {
+                    // ignore
+                  }
+                }}
+              />
+            ))}
+          </List>
+        </Box>
+      )}
 
       {/* File viewer dialog */}
       <FileViewer

@@ -18,7 +18,9 @@
     },
     "search": {
       "searchbar": "Suche im aktuellen Ordner",
-      "searchPlaceholder": "Suche"
+      "searchPlaceholder": "Suche",
+      "noResults": "Keine Ergebnisse gefunden",
+      "queryPrefix": "für"
     },
     "downloadDocument": {
       "button": "Dokumente herunterladen",
