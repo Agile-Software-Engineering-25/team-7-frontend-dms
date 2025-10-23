@@ -804,7 +804,6 @@ export default function FileExplorer(): React.ReactElement {
           variant="outlined"
           startDecorator={<FilterListIcon fontSize="small" />}
           sx={{
-            '--Button-radius': '999px',
             '--Button-borderWidth': '1px',
             '--Button-color': '#002E6D',
             '--Button-borderColor': '#002E6D',
@@ -838,7 +837,6 @@ export default function FileExplorer(): React.ReactElement {
           )}
           variant="solid"
           sx={{
-            '--Button-radius': '999px',
             '--Button-minHeight': '34px',
             '--Button-paddingInline': '16px',
             '--Button-bg': '#002E6D',
@@ -866,7 +864,6 @@ export default function FileExplorer(): React.ReactElement {
           )}
           variant="solid"
           sx={{
-            '--Button-radius': '999px',
             '--Button-minHeight': '34px',
             '--Button-paddingInline': '16px',
             '--Button-bg': '#002E6D',
@@ -1001,6 +998,11 @@ export default function FileExplorer(): React.ReactElement {
             fullWidth
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleRename();
+              }
+            }}
           />
         </DialogContent>
         <DialogActions>
@@ -1087,6 +1089,11 @@ export default function FileExplorer(): React.ReactElement {
             fullWidth
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleCreateFolder();
+              }
+            }}
           />
         </DialogContent>
         <DialogActions>
@@ -1127,7 +1134,7 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
           <label htmlFor="file-input">
-            <Button component="span" variant="soft">
+            <Button variant="soft">
               {t(
                 'documentManagement.uploadDocument.selectFiles',
                 'Select files:'
