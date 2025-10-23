@@ -25,8 +25,7 @@
       "@custom-types/*": ["src/@custom-types/*"],
       "@hooks/*": ["src/hooks/*"],
       "@assets/*": ["src/assets/*"],
-      "@stores/*": ["src/stores/*"],
-      "@shared-components/*": ["shared-components/src/components/*"]
+  "@stores/*": ["src/stores/*"]
     },
 
     /* Linting */

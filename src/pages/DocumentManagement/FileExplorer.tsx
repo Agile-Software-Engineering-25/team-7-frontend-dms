@@ -11,6 +11,7 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  InputAdornment,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -22,7 +23,11 @@ import DownloadDialog from './DownloadDialog';
 import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import Button from '@shared-components/Button/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import UploadIcon from '@mui/icons-material/Upload';
+import DownloadIcon from '@mui/icons-material/FileDownload';
+import Button from '@mui/joy/Button';
 
 type Item = {
   id: string;
@@ -58,7 +63,7 @@ type DocForZip = {
 const MAX_PATH_DEPTH = 50;
 const MAX_FILE_SIZE_MB = 5;
 
-export default function FileExplorer(): JSX.Element {
+export default function FileExplorer(): React.ReactElement {
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
@@ -91,7 +96,7 @@ export default function FileExplorer(): JSX.Element {
   const [snack, setSnack] = React.useState<{
     open: boolean;
     msg?: string | null;
-    severity: 'success' | 'error';
+    severity: 'success' | 'error' | 'info';
   }>({ open: false, msg: null, severity: 'success' });
   const [moveChooserOpen, setMoveChooserOpen] = React.useState(false);
   const [moveSourceId, setMoveSourceId] = React.useState<string | null>(null);
@@ -228,13 +233,13 @@ export default function FileExplorer(): JSX.Element {
 
   const showSnack = (
     msg: string,
-    severity: 'success' | 'error' = 'success'
+    severity: 'success' | 'error' | 'info' = 'success'
   ) => {
     setSnack({ open: true, msg, severity });
   };
 
   const showSnackSequence = async (
-    messages: Array<{ msg: string; severity: 'success' | 'error' }>
+    messages: Array<{ msg: string; severity: 'success' | 'error' | 'info' }>
   ) => {
     for (let i = 0; i < messages.length; i++) {
       if (i > 0) {
@@ -754,25 +759,75 @@ export default function FileExplorer(): JSX.Element {
   return (
     <Box
       role="region"
-      aria-labelledby="file-explorer-title"
+      aria-label={t(
+        'documentManagement.fileExplorerRegion',
+        'Document explorer'
+      )}
       sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
-      <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
-        {t('documentManagement.files', 'Files')}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-        <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
-        <Box sx={{ flex: 1 }} />
-        <IconButton
-          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
-          title={t('documentManagement.newFolder.title', 'Create folder')}
-          onClick={() => setNewFolderOpen(true)}
-        >
-          <CreateNewFolderIcon fontSize="small" aria-hidden />
-        </IconButton>
-      </Box>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          mb: 2,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
+        }}
+      >
+        <TextField
+          size="small"
+          placeholder={t(
+            'documentManagement.searchPlaceholder',
+            'Suche (in Kürze verfügbar)'
+          )}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" sx={{ color: '#002E6D' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            minWidth: { xs: '100%', md: 240 },
+            maxWidth: { xs: '100%', md: 320 },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '999px',
+              backgroundColor: '#ffffff',
+              '& fieldset': { borderColor: '#d1d9e6' },
+              '&:hover fieldset': { borderColor: '#002E6D' },
+              '&.Mui-focused fieldset': { borderColor: '#002E6D' },
+            },
+          }}
+        />
         <Button
+          size="sm"
+          variant="outlined"
+          startDecorator={<FilterListIcon fontSize="small" />}
+          sx={{
+            '--Button-radius': '999px',
+            '--Button-borderWidth': '1px',
+            '--Button-color': '#002E6D',
+            '--Button-borderColor': '#002E6D',
+            '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
+            '--Button-hoverBorderColor': '#001f56',
+            '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
+            fontWeight: 600,
+          }}
+          onClick={() =>
+            showSnack(
+              t(
+                'documentManagement.filterPlaceholder',
+                'Filterfunktion folgt in Kürze'
+              ),
+              'info'
+            )
+          }
+        >
+          {t('documentManagement.filterButton', 'Filter (bald)')}
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button
+          size="sm"
           aria-label={t(
             'documentManagement.uploadDocuemnt.button',
             'Upload document'
@@ -783,16 +838,24 @@ export default function FileExplorer(): JSX.Element {
           )}
           variant="solid"
           sx={{
-            backgroundColor: '#2f3b52',
-            color: '#fff',
-            '&:hover': { backgroundColor: '#47566eff' },
-            flex: 1,
+            '--Button-radius': '999px',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
+            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            fontWeight: 600,
           }}
           onClick={() => setUploadOpen(true)}
+          startDecorator={<UploadIcon fontSize="small" />}
         >
           {t('documentManagement.uploadDocument.button', 'Upload document')}
         </Button>
         <Button
+          size="sm"
           aria-label={t(
             'documentManagement.downloadDocument.button',
             'Download documents'
@@ -803,10 +866,16 @@ export default function FileExplorer(): JSX.Element {
           )}
           variant="solid"
           sx={{
-            backgroundColor: '#2f3b52',
-            color: '#fff',
-            '&:hover': { backgroundColor: '#47566eff' },
-            flex: 1,
+            '--Button-radius': '999px',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
+            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            fontWeight: 600,
           }}
           onClick={() => {
             if (!hasAnyDownloadableDocs()) {
@@ -821,12 +890,34 @@ export default function FileExplorer(): JSX.Element {
             }
             setDownloadDialogOpen(true);
           }}
+          startDecorator={<DownloadIcon fontSize="small" />}
         >
           {t(
             'documentManagement.downloadDocument.button',
             'Download documents'
           )}
         </Button>
+        <IconButton
+          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
+          title={t('documentManagement.newFolder.title', 'Create folder')}
+          onClick={() => setNewFolderOpen(true)}
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: '#002E6D',
+            color: '#ffffff',
+            boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
+            '&:hover': {
+              backgroundColor: '#001f56',
+            },
+          }}
+        >
+          <CreateNewFolderIcon fontSize="small" aria-hidden />
+        </IconButton>
+      </Box>
+      <Box sx={{ mb: 2 }}>
+        <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
       </Box>
       <Box
         sx={{
@@ -834,8 +925,8 @@ export default function FileExplorer(): JSX.Element {
           overflow: 'auto',
           minHeight: 0,
           maxHeight: '500px',
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
+          border: 'none',
+          borderRadius: 0,
         }}
       >
         <List aria-label="file list" sx={{ padding: 0 }}>
