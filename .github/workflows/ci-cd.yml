@@ -27,11 +27,6 @@ jobs:
           rm -rf ./shared-components/*
           rm -rf ./shared-components/.[!.]* ./shared-components/..?* || true
 
-      - name: Build shared components
-        run: |
-          cd shared-components
-          npm run build
-
       - name: Build application
         run: npm run build
         env:
