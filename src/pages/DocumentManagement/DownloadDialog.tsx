@@ -135,10 +135,35 @@ const DownloadDialog: React.FC<DownloadDialogProps> = ({
           onClick={handleConfirm}
           variant="solid"
           disabled={mode === 'select' && selected.length === 0}
+          sx={{
+            '--Button-radius': '999px',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
+            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            fontWeight: 600,
+          }}
         >
           {t('documentManagement.downloadDocument.confirm', 'Confirm')}
         </Button>
-        <Button onClick={onClose} variant="solid">
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{
+            '--Button-radius': '999px',
+            '--Button-borderWidth': '1px',
+            '--Button-color': '#002E6D',
+            '--Button-borderColor': '#002E6D',
+            '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
+            '--Button-hoverBorderColor': '#001f56',
+            '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
+            fontWeight: 600,
+          }}
+        >
           {t('documentManagement.downloadDocument.cancel', 'Cancel')}
         </Button>
       </DialogActions>
