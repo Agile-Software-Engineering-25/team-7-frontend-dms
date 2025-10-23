@@ -1,28 +1,17 @@
 import * as React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardHeader } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Card from '@shared-components/Card/Card';
 import FileExplorer from './FileExplorer';
 
 const fileExplorerCardStyles = {
   flex: 1,
   minHeight: 0,
-  padding: 3,
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-};
-
-const Sidebar: React.FC = () => {
-  const { t } = useTranslation();
-  return (
-    <Box sx={{ width: 240, background: '#2f3b52', color: '#fff', padding: 2 }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        {t('documentManagement.sidebarTitle', 'DMS')}
-      </Typography>
-      {/* Add sidebar navigation here */}
-    </Box>
-  );
+  borderRadius: 12,
+  backgroundColor: '#eef3f9',
+  boxShadow: '0px 12px 24px rgba(0, 46, 109, 0.08)',
 };
 
 // Action buttons are rendered inside the FileExplorer for local handlers
@@ -33,7 +22,6 @@ const DocumentManagement: React.FC = () => {
   const { t } = useTranslation();
   return (
     <Box sx={{ display: 'flex', height: '100vh', background: '#f4f6fa' }}>
-      <Sidebar />
       <Box
         sx={{
           flex: 1,
@@ -43,19 +31,32 @@ const DocumentManagement: React.FC = () => {
           minHeight: 0,
         }}
       >
-        <Typography variant="h4" sx={{ marginBottom: 4 }}>
-          {t('documentManagement.title', 'Document Management')}
-        </Typography>
         {/* ActionButtons and breadcrumb rendered inside FileExplorer to access state handlers */}
-        <Card
-          title={t('documentManagement.fileExplorer', 'File Explorer')}
-          variant="outlined"
-          size="lg"
-          color="neutral"
-          sx={fileExplorerCardStyles}
-        >
-          {/* File explorer list with accessible actions */}
-          <FileExplorer />
+        <Card variant="outlined" sx={fileExplorerCardStyles}>
+          <CardHeader
+            titleTypographyProps={{
+              variant: 'h4',
+              sx: {
+                fontWeight: 700,
+                color: '#000000',
+              },
+            }}
+            title={t('documentManagement.title', 'Document Management')}
+            sx={{ px: 4, pt: 4, pb: 2, mb: 1 }}
+          />
+          <CardContent
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              px: 4,
+              pb: 3,
+              pt: 0,
+            }}
+          >
+            {/* File explorer list with accessible actions */}
+            <FileExplorer />
+          </CardContent>
         </Card>
       </Box>
     </Box>

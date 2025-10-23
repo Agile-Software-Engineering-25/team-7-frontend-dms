@@ -45,8 +45,17 @@ const FileItemActions: React.FC<Props> = ({
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
           onClick={handleOpen}
+          size="small"
+          disableRipple
+          sx={{
+            color: '#002E6D',
+            padding: 0.5,
+            '&:hover': {
+              backgroundColor: 'rgba(0, 46, 109, 0.08)',
+            },
+          }}
         >
-          <MoreVertIcon aria-hidden />
+          <MoreVertIcon aria-hidden sx={{ fontSize: 22 }} />
         </IconButton>
       </Tooltip>
 

@@ -16,7 +16,7 @@ import {
   ListItemButton,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Button from '@shared-components/Button/Button';
+import Button from '@mui/joy/Button';
 import type { Item } from './FileListItem';
 
 type DownloadDialogProps = {

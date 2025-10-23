@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Dialog, DialogContent, DialogActions } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Button from '@shared-components/Button/Button';
+import Button from '@mui/joy/Button';
 
 type FileViewerProps = {
   open: boolean;
