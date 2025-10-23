@@ -905,7 +905,33 @@ export default function FileExplorer(): React.ReactElement {
           )}
         </Button>
         )}
+        {(canAccess('manageDocuments')) && (
+        <IconButton
+          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
+          title={t('documentManagement.newFolder.title', 'Create folder')}
+          onClick={() => setNewFolderOpen(true)}
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: '#002E6D',
+            color: '#ffffff',
+            boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
+            '&:hover': {
+              backgroundColor: '#001f56',
+            },
+          }}
+        >
+          <CreateNewFolderIcon fontSize="small" aria-hidden />
+        </IconButton>
+        )}
       </Box>
+      {(canAccess('navigateFolders')) && (
+      <Box sx={{ mb: 2 }}>
+        <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
+      </Box>
+      )}
+      {(canAccess('viewDocuments')) && (
       <Box
         sx={{
           flex: 1,
@@ -923,6 +949,7 @@ export default function FileExplorer(): React.ReactElement {
               item={item}
               onRename={handleOpenRename}
               onDelete={handleOpenDelete}
+              
               onOpen={handleOpenFolder}
               onDownload={handleDownload}
               onPreview={
@@ -950,6 +977,7 @@ export default function FileExplorer(): React.ReactElement {
           ))}
         </List>
       </Box>
+      )}
 
       {/* File viewer dialog */}
       <FileViewer
