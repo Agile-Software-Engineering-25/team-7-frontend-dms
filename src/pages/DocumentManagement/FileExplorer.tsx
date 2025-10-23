@@ -28,7 +28,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
 import Button from '@mui/joy/Button';
-import { useUser } from '@/hooks/useUser';
+import { useCanAccess } from '@/lib/permissions';
 
 type Item = {
   id: string;
@@ -65,6 +65,7 @@ const MAX_PATH_DEPTH = 50;
 const MAX_FILE_SIZE_MB = 5;
 
 export default function FileExplorer(): React.ReactElement {
+  const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
