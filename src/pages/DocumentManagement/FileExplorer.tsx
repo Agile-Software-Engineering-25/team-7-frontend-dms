@@ -1008,17 +1008,8 @@ export default function FileExplorer(): React.ReactElement {
         <DialogActions>
           <Button
             onClick={() => setRenameOpen(false)}
-            variant="outlined"
-            sx={{
-              '--Button-radius': '999px',
-              '--Button-borderWidth': '1px',
-              '--Button-color': '#002E6D',
-              '--Button-borderColor': '#002E6D',
-              '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-              '--Button-hoverBorderColor': '#001f56',
-              '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-              fontWeight: 600,
-            }}
+            variant="plain"
+            color="primary"
           >
             {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
@@ -1061,17 +1052,8 @@ export default function FileExplorer(): React.ReactElement {
         <DialogActions>
           <Button
             onClick={() => setDeleteConfirmOpen(false)}
-            variant="outlined"
-            sx={{
-              '--Button-radius': '999px',
-              '--Button-borderWidth': '1px',
-              '--Button-color': '#002E6D',
-              '--Button-borderColor': '#002E6D',
-              '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-              '--Button-hoverBorderColor': '#001f56',
-              '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-              fontWeight: 600,
-            }}
+            variant="plain"
+            color="primary"
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1115,17 +1097,8 @@ export default function FileExplorer(): React.ReactElement {
         <DialogActions>
           <Button
             onClick={() => setDeleteFolderConfirmOpen(false)}
-            variant="outlined"
-            sx={{
-              '--Button-radius': '999px',
-              '--Button-borderWidth': '1px',
-              '--Button-color': '#002E6D',
-              '--Button-borderColor': '#002E6D',
-              '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-              '--Button-hoverBorderColor': '#001f56',
-              '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-              fontWeight: 600,
-            }}
+            variant="plain"
+            color="primary"
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1178,17 +1151,8 @@ export default function FileExplorer(): React.ReactElement {
         <DialogActions>
           <Button
             onClick={() => setNewFolderOpen(false)}
-            variant="outlined"
-            sx={{
-              '--Button-radius': '999px',
-              '--Button-borderWidth': '1px',
-              '--Button-color': '#002E6D',
-              '--Button-borderColor': '#002E6D',
-              '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-              '--Button-hoverBorderColor': '#001f56',
-              '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-              fontWeight: 600,
-            }}
+            variant="plain"
+            color="primary"
           >
             {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
@@ -1289,17 +1253,8 @@ export default function FileExplorer(): React.ReactElement {
           </Button>
           <Button
             onClick={handleCloseUpload}
-            variant="outlined"
-            sx={{
-              '--Button-radius': '999px',
-              '--Button-borderWidth': '1px',
-              '--Button-color': '#002E6D',
-              '--Button-borderColor': '#002E6D',
-              '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-              '--Button-hoverBorderColor': '#001f56',
-              '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-              fontWeight: 600,
-            }}
+            variant="plain"
+            color="primary"
           >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>

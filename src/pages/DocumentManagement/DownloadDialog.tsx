@@ -152,17 +152,8 @@ const DownloadDialog: React.FC<DownloadDialogProps> = ({
         </Button>
         <Button
           onClick={onClose}
-          variant="outlined"
-          sx={{
-            '--Button-radius': '999px',
-            '--Button-borderWidth': '1px',
-            '--Button-color': '#002E6D',
-            '--Button-borderColor': '#002E6D',
-            '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-            '--Button-hoverBorderColor': '#001f56',
-            '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-            fontWeight: 600,
-          }}
+          variant="plain"
+          color="primary"
         >
           {t('documentManagement.downloadDocument.cancel', 'Cancel')}
         </Button>

@@ -244,7 +244,7 @@ const MoveDialog: React.FC<Props> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="soft">
+        <Button onClick={onClose} variant="plain" color="primary">
           {t('documentManagement.moveDialog.cancel', 'Abbrechen')}
         </Button>
         <Button

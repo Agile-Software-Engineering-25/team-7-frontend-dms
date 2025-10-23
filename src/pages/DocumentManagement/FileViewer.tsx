@@ -91,7 +91,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
         <Button onClick={handleDownload}>
           {t('documentManagement.fileViewer.download', 'Download')}
         </Button>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} variant="plain" color="primary">
           {t('documentManagement.fileViewer.close', 'Close')}
         </Button>
       </DialogActions>
