@@ -136,15 +136,15 @@ const DownloadDialog: React.FC<DownloadDialogProps> = ({
           variant="solid"
           disabled={mode === 'select' && selected.length === 0}
           sx={{
-            '--Button-radius': '999px',
+            '--Button-radius': '8px',
             '--Button-minHeight': '34px',
             '--Button-paddingInline': '16px',
             '--Button-bg': '#002E6D',
             '--Button-color': '#ffffff',
             '--Button-hoverBg': '#001f56',
             '--Button-activeBg': '#001a4a',
-            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
             fontWeight: 600,
           }}
         >
@@ -154,6 +154,7 @@ const DownloadDialog: React.FC<DownloadDialogProps> = ({
           onClick={onClose}
           variant="plain"
           color="primary"
+          sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
         >
           {t('documentManagement.downloadDocument.cancel', 'Cancel')}
         </Button>

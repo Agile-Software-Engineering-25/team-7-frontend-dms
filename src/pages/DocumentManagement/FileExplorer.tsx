@@ -804,6 +804,9 @@ export default function FileExplorer(): React.ReactElement {
           variant="outlined"
           startDecorator={<FilterListIcon fontSize="small" />}
           sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
             '--Button-borderWidth': '1px',
             '--Button-color': '#002E6D',
             '--Button-borderColor': '#002E6D',
@@ -837,14 +840,15 @@ export default function FileExplorer(): React.ReactElement {
           )}
           variant="solid"
           sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
             '--Button-minHeight': '34px',
             '--Button-paddingInline': '16px',
             '--Button-bg': '#002E6D',
             '--Button-color': '#ffffff',
             '--Button-hoverBg': '#001f56',
             '--Button-activeBg': '#001a4a',
-            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
             fontWeight: 600,
           }}
           onClick={() => setUploadOpen(true)}
@@ -864,14 +868,15 @@ export default function FileExplorer(): React.ReactElement {
           )}
           variant="solid"
           sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
             '--Button-minHeight': '34px',
             '--Button-paddingInline': '16px',
             '--Button-bg': '#002E6D',
             '--Button-color': '#ffffff',
             '--Button-hoverBg': '#001f56',
             '--Button-activeBg': '#001a4a',
-            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
             fontWeight: 600,
           }}
           onClick={() => {
@@ -1010,6 +1015,7 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setRenameOpen(false)}
             variant="plain"
             color="primary"
+            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
           >
             {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
@@ -1017,15 +1023,15 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleRename}
             variant="solid"
             sx={{
-              '--Button-radius': '999px',
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
               '--Button-minHeight': '34px',
               '--Button-paddingInline': '16px',
               '--Button-bg': '#002E6D',
               '--Button-color': '#ffffff',
               '--Button-hoverBg': '#001f56',
               '--Button-activeBg': '#001a4a',
-              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
           >
@@ -1054,6 +1060,7 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteConfirmOpen(false)}
             variant="plain"
             color="primary"
+            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1062,15 +1069,15 @@ export default function FileExplorer(): React.ReactElement {
             variant="solid"
             color="danger"
             sx={{
-              '--Button-radius': '999px',
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
               '--Button-minHeight': '34px',
               '--Button-paddingInline': '16px',
               '--Button-bg': '#002E6D',
               '--Button-color': '#ffffff',
               '--Button-hoverBg': '#001f56',
               '--Button-activeBg': '#001a4a',
-              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
           >
@@ -1099,6 +1106,7 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteFolderConfirmOpen(false)}
             variant="plain"
             color="primary"
+            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1107,15 +1115,15 @@ export default function FileExplorer(): React.ReactElement {
             variant="solid"
             color="danger"
             sx={{
-              '--Button-radius': '999px',
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
               '--Button-minHeight': '34px',
               '--Button-paddingInline': '16px',
               '--Button-bg': '#002E6D',
               '--Button-color': '#ffffff',
               '--Button-hoverBg': '#001f56',
               '--Button-activeBg': '#001a4a',
-              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
           >
@@ -1153,6 +1161,7 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setNewFolderOpen(false)}
             variant="plain"
             color="primary"
+            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
           >
             {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
@@ -1160,15 +1169,15 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleCreateFolder}
             variant="solid"
             sx={{
-              '--Button-radius': '999px',
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
               '--Button-minHeight': '34px',
               '--Button-paddingInline': '16px',
               '--Button-bg': '#002E6D',
               '--Button-color': '#ffffff',
               '--Button-hoverBg': '#001f56',
               '--Button-activeBg': '#001a4a',
-              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
           >
@@ -1205,7 +1214,7 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
           <label htmlFor="file-input">
-            <Button variant="soft">
+            <Button variant="soft" sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}>
               {t(
                 'documentManagement.uploadDocument.selectFiles',
                 'Select files:'
@@ -1237,15 +1246,15 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleUploadDocument}
             variant="solid"
             sx={{
-              '--Button-radius': '999px',
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
               '--Button-minHeight': '34px',
               '--Button-paddingInline': '16px',
               '--Button-bg': '#002E6D',
               '--Button-color': '#ffffff',
               '--Button-hoverBg': '#001f56',
               '--Button-activeBg': '#001a4a',
-              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
           >
@@ -1255,6 +1264,7 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleCloseUpload}
             variant="plain"
             color="primary"
+            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
           >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>
