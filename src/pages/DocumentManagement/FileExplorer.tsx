@@ -1015,7 +1015,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setRenameOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
@@ -1060,7 +1064,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteConfirmOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1106,7 +1114,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteFolderConfirmOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1161,7 +1173,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setNewFolderOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
@@ -1214,7 +1230,14 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
           <label htmlFor="file-input">
-            <Button variant="soft" sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}>
+            <Button
+              variant="soft"
+              sx={{
+                '--Button-radius': '8px',
+                '--Button-shadow': 'none',
+                '--Button-hoverShadow': 'none',
+              }}
+            >
               {t(
                 'documentManagement.uploadDocument.selectFiles',
                 'Select files:'
@@ -1264,7 +1287,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleCloseUpload}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>
