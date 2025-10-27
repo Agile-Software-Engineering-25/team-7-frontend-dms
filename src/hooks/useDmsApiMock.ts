@@ -25,7 +25,7 @@ type Folder = {
 // token to test role functionality
 const fakePayload = {
   realm_access: {
-    roles: ['user'],
+    roles: ['admin'],
   },
 };
 // JWT consists of header.payload.signature - all base64 encoded
