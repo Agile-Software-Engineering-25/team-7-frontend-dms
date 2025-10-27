@@ -12,6 +12,9 @@ import {
   Alert,
   IconButton,
   InputAdornment,
+  ListItemText,
+  ListItem,
+  Tooltip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -27,6 +30,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/joy/Button';
 
 type Item = {
@@ -120,6 +124,10 @@ export default function FileExplorer(): React.ReactElement {
       ) => Promise<void>)
     | null
   >(null);
+
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // handle DOM custom events from FileItemActions or breadcrumb drops.
   // Register listeners once and read the latest values via refs.
@@ -1202,49 +1210,81 @@ export default function FileExplorer(): React.ReactElement {
               max: MAX_FILE_SIZE_MB,
             })}
           </Typography>
-          <input
-            id="file-input"
-            type="file"
-            multiple
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              setSelectedFiles((prev) => [...prev, ...files]);
-            }}
-          />
-          <label htmlFor="file-input">
-            <Button variant="soft" sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}>
+            <Button
+              component="label"
+              variant="soft" 
+              sx={{
+                '--Button-radius': '8px',
+                '--Button-shadow': 'none',
+                '--Button-hoverShadow': 'none' 
+                }}
+              >
               {t(
                 'documentManagement.uploadDocument.selectFiles',
                 'Select files:'
               )}
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                hidden
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  setSelectedFiles((prev) => [...prev, ...files]);
+                }}
+              />
             </Button>
-          </label>
-
-          {/* Show selected files */}
-          {selectedFiles.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2">
-                {t(
-                  'documentMangement.uploadDocument.selected',
-                  'Selected files:'
-                )}
-              </Typography>
-              <ul>
-                {selectedFiles.map((file) => (
-                  <li key={file.name}>
-                    {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                  </li>
-                ))}
-              </ul>
-            </Box>
-          )}
+          <List
+            dense
+            aria-label={t('documentManagement.uploadDocument.selected', 'selected files:')}
+          >
+            {selectedFiles.length === 0 ? (
+              <ListItem>
+                <ListItemText
+                  primary={t('documentManagement.uploadDocument.noFiles', 'no files selected')}
+                />
+              </ListItem>
+            ) : (
+              selectedFiles.map((file, idx) => (
+                <ListItem
+                  key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
+                  secondaryAction={
+                    <Tooltip
+                      title={t('documentManagement.uploadDocument.removeFile', {
+                        defaultValue: 'remove {{file}}',
+                        file: file.name,
+                      })}
+                    >
+                      <IconButton
+                        edge="end"
+                        aria-label={t('documentManagement.uploadDocument.removeFile', {
+                          defaultValue: 'remove {{file}}',
+                          file: file.name
+                        })}
+                        onClick={() => handleRemoveSelectedFile(idx)}
+                        color="error"
+                        size="small"
+                      >
+                        <CloseIcon fontSize="small" aria-hidden />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                >
+                  <ListItemText
+                    primary={file.name}
+                    secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                  />
+                </ListItem>
+              ))
+            )}
+          </List>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={handleUploadDocument}
             variant="solid"
+            disabled={selectedFiles.length === 0}
+            aria-disabled={selectedFiles.length === 0 ? 'true' : undefined}
             sx={{
               '--Button-radius': '8px',
               '--Button-shadow': 'none',

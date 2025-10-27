@@ -13,6 +13,8 @@
       "maxSize": "Maximal {{max}} MB pro Datei",
       "selectFiles": "Dateien auswählen",
       "selected": "Ausgewählte Dateien:",
+      "noFiles": "Keine Dateien ausgewählt",
+      "removeFile": "{{file}} entfernen",
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
