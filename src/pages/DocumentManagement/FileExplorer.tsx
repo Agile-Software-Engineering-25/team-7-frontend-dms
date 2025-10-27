@@ -1090,11 +1090,11 @@ export default function FileExplorer(): React.ReactElement {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setRenameOpen(false)} variant="solid">
-            {t('documentManagement.renameDialog.cancel', 'Cancel')}
-          </Button>
           <Button onClick={handleRename} variant="solid">
             {t('documentManagement.renameDialog.confirm', 'Rename')}
+          </Button>
+          <Button onClick={() => setRenameOpen(false)} variant="solid">
+            {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1115,11 +1115,11 @@ export default function FileExplorer(): React.ReactElement {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)} variant="solid">
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
           <Button onClick={handleDelete} variant="solid" color="danger">
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button onClick={() => setDeleteConfirmOpen(false)} variant="solid">
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1141,17 +1141,17 @@ export default function FileExplorer(): React.ReactElement {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setDeleteFolderConfirmOpen(false)}
-            variant="solid"
-          >
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
-          <Button
             onClick={handleDeleteFolderConfirmed}
             variant="solid"
             color="danger"
           >
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button
+            onClick={() => setDeleteFolderConfirmOpen(false)}
+            variant="solid"
+          >
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>

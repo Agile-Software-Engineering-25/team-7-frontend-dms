@@ -244,15 +244,15 @@ const MoveDialog: React.FC<Props> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="soft">
-          {t('documentManagement.moveDialog.cancel', 'Abbrechen')}
-        </Button>
         <Button
           onClick={handleMove}
           variant="solid"
           disabled={!selectedFolderId || selectedFolderId === currentFolderId}
         >
           {t('documentManagement.moveDialog.confirm', 'Verschieben')}
+        </Button>
+        <Button onClick={onClose} variant="soft">
+          {t('documentManagement.moveDialog.cancel', 'Abbrechen')}
         </Button>
       </DialogActions>
     </Dialog>
