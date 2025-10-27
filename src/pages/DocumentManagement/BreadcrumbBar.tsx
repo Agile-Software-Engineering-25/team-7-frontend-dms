@@ -31,7 +31,6 @@ const chipActiveSx = {
   },
 };
 
-
 type PathItem = { id: string; name: string };
 
 const BreadcrumbBar: React.FC<{

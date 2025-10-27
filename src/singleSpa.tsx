@@ -50,7 +50,7 @@ export const mount = [
 export const unmount = [
   async (props: MountProps) => {
     setGlobalUser(null);
-    
+
     await cssLc.unmount(props);
     await lifecycle.unmount(props);
   },

@@ -88,11 +88,10 @@ const FileListItem: React.FC<Props> = ({
         if (item.itemType === 'folder' && canAccess('navigateFolders')) {
           onOpen?.(item.id);
         } else if (
-          item.itemType === 'document' || 
-          item.itemType === 'pdf' || 
-          item.itemType === 'other' 
-          && canAccess('viewDocuments')
-          ) {
+          item.itemType === 'document' ||
+          item.itemType === 'pdf' ||
+          (item.itemType === 'other' && canAccess('viewDocuments'))
+        ) {
           onPreview?.(item.id);
         }
       }}

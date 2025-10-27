@@ -68,7 +68,7 @@ const FileItemActions: React.FC<Props> = ({
         onClose={handleClose}
         MenuListProps={{ role: 'menu' }}
       >
-        {(canAccess('manageDocuments')) && (
+        {canAccess('manageDocuments') && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -78,7 +78,7 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.rename', 'Rename')}
           </MenuItem>
         )}
-        {(canAccess('manageDocuments')) && (
+        {canAccess('manageDocuments') && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -88,17 +88,17 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.move', 'Move')}
           </MenuItem>
         )}
-        {(canAccess('downloadDocuments')) && (
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            onDownload();
-          }}
-        >
-          {t('documentManagement.downloadDocument.download', 'Download')}
-        </MenuItem>
+        {canAccess('downloadDocuments') && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onDownload();
+            }}
+          >
+            {t('documentManagement.downloadDocument.download', 'Download')}
+          </MenuItem>
         )}
-        {(canAccess('manageDocuments')) && (
+        {canAccess('manageDocuments') && (
           <MenuItem
             onClick={() => {
               handleClose();

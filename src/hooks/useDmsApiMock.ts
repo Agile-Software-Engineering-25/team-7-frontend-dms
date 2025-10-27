@@ -2,7 +2,6 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { setGlobalUser } from './useUser';
 import { User } from 'oidc-client-ts';
-import { useCanAccess } from '@/lib/permissions';
 
 type Doc = {
   id: string;
@@ -73,7 +72,6 @@ export default function createMockApi() {
   // Neue Mock-Struktur: Informatik Studiengänge (Telekom) > BIN-T22/T23/T24 > F1-F4/F3
   const folders = new Map<string, Folder>();
   const documents = new Map<string, Doc>();
-  const { canAccess } = useCanAccess();
 
   // Root-Ordner
   const root: Folder = {
@@ -298,9 +296,6 @@ export default function createMockApi() {
   root.documents.push(dPdf.id, dSvg.id, dPng.id, dJpg.id, dTxt.id);
 
   async function getFolder(id: string) {
-    if (!canAccess('navigateFolders')) {
-      throw new Error('Access denied: missing permission to navigate');
-    }
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     return {
@@ -332,9 +327,6 @@ export default function createMockApi() {
   }
 
   async function createFolder(name: string, parentId?: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to create folder');
-    }
     const id = genId();
     const folder: Folder = {
       id,
@@ -355,9 +347,6 @@ export default function createMockApi() {
   }
 
   async function renameFolder(id: string, name: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to rename');
-    }
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     f.name = name;
@@ -365,9 +354,6 @@ export default function createMockApi() {
   }
 
   async function deleteFolder(id: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to delete');
-    }
     // recursive deletion
     const toDelete: string[] = [];
     function gather(fid: string) {
@@ -395,9 +381,6 @@ export default function createMockApi() {
   }
 
   async function renameDocument(id: string, name: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to rename');
-    }
     const d = documents.get(id);
     if (!d) throw new Error('Document not found');
     d.name = name;
@@ -405,9 +388,6 @@ export default function createMockApi() {
   }
 
   async function deleteDocument(id: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to delete');
-    }
     documents.delete(id);
     for (const [, folder] of folders) {
       folder.documents = folder.documents.filter((d) => d !== id);
@@ -415,9 +395,6 @@ export default function createMockApi() {
   }
 
   async function uploadDocument(file: File, folderId: string) {
-    if (!canAccess('uploadDocuments')) {
-      throw new Error('Access denied: missing permission to upload');
-    }
     const id = genId();
     const d: Doc = {
       id,
@@ -434,9 +411,6 @@ export default function createMockApi() {
   }
 
   async function downloadDocument(id: string) {
-    if (!canAccess('downloadDocuments')) {
-      throw new Error('Access denied: missing permission to download');
-    }
     const doc = documents.get(id);
     if (!doc) throw new Error('Document not found');
 
@@ -491,9 +465,6 @@ export default function createMockApi() {
     docs: { url: string; name: string; path: string }[],
     folderName?: string
   ) {
-    if (!canAccess('downloadDocuments')) {
-      throw new Error('Access denied: missing permission to download');
-    }
     if (!docs || docs.length === 0) {
       throw new Error('No documents to zip');
     }
@@ -512,9 +483,6 @@ export default function createMockApi() {
   }
 
   async function moveDocument(id: string, parentId?: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to move document');
-    }
     const d = documents.get(id);
     if (!d) throw new Error('Document not found');
     // remove from old parent
@@ -530,9 +498,6 @@ export default function createMockApi() {
   }
 
   async function moveFolder(id: string, parentId?: string) {
-    if (!canAccess('manageDocuments')) {
-      throw new Error('Access denied: missing permission to move folder');
-    }
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     // remove from old parent

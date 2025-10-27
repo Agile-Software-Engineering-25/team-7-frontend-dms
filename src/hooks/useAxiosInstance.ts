@@ -3,7 +3,6 @@ import axios from 'axios';
 import useUser from '@/hooks/useUser';
 
 const useAxiosInstance = (baseUrl: string) => {
-
   const { getAccessToken } = useUser();
   const token = getAccessToken();
 

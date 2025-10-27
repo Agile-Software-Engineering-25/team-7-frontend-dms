@@ -882,35 +882,35 @@ export default function FileExplorer(): React.ReactElement {
         </Button>
         <Box sx={{ flexGrow: 1 }} />
         {/* Button only visible for userrole 'admin' and 'staff' */}
-        {(canAccess('uploadDocuments')) && (
-        <Button
-          size="sm"
-          aria-label={t(
-            'documentManagement.uploadDocuemnt.button',
-            'Upload document'
-          )}
-          aria-describedby={t(
-            'documentManagement.uploadDocument.maxSize',
-            'Max size of a file: X MB'
-          )}
-          variant="solid"
-          sx={{
-            '--Button-radius': '999px',
-            '--Button-minHeight': '34px',
-            '--Button-paddingInline': '16px',
-            '--Button-bg': '#002E6D',
-            '--Button-color': '#ffffff',
-            '--Button-hoverBg': '#001f56',
-            '--Button-activeBg': '#001a4a',
-            '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
-            '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
-            fontWeight: 600,
-          }}
-          onClick={() => setUploadOpen(true)}
-          startDecorator={<UploadIcon fontSize="small" />}
-        >
-          {t('documentManagement.uploadDocument.button', 'Upload document')}
-        </Button>
+        {canAccess('uploadDocuments') && (
+          <Button
+            size="sm"
+            aria-label={t(
+              'documentManagement.uploadDocuemnt.button',
+              'Upload document'
+            )}
+            aria-describedby={t(
+              'documentManagement.uploadDocument.maxSize',
+              'Max size of a file: X MB'
+            )}
+            variant="solid"
+            sx={{
+              '--Button-radius': '999px',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              '--Button-shadow': '0px 8px 16px rgba(0, 46, 109, 0.2)',
+              '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
+              fontWeight: 600,
+            }}
+            onClick={() => setUploadOpen(true)}
+            startDecorator={<UploadIcon fontSize="small" />}
+          >
+            {t('documentManagement.uploadDocument.button', 'Upload document')}
+          </Button>
         )}
         <Button
           size="sm"
@@ -956,32 +956,35 @@ export default function FileExplorer(): React.ReactElement {
           )}
         </Button>
         {/* Button only visible for userrole 'admin' and 'staff' */}
-        {(canAccess('manageDocuments')) && (
-        <IconButton
-          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
-          title={t('documentManagement.newFolder.title', 'Create folder')}
-          onClick={() => setNewFolderOpen(true)}
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            backgroundColor: '#002E6D',
-            color: '#ffffff',
-            boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
-            '&:hover': {
-              backgroundColor: '#001f56',
-            },
-          }}
-        >
-          <CreateNewFolderIcon fontSize="small" aria-hidden />
-        </IconButton>
+        {canAccess('manageDocuments') && (
+          <IconButton
+            aria-label={t(
+              'documentManagement.newFolder.title',
+              'Create folder'
+            )}
+            title={t('documentManagement.newFolder.title', 'Create folder')}
+            onClick={() => setNewFolderOpen(true)}
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              backgroundColor: '#002E6D',
+              color: '#ffffff',
+              boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
+              '&:hover': {
+                backgroundColor: '#001f56',
+              },
+            }}
+          >
+            <CreateNewFolderIcon fontSize="small" aria-hidden />
+          </IconButton>
         )}
       </Box>
       <Box sx={{ mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
       </Box>
       {searchQuery.trim() && filteredItems.length === 0 ? (
-          <Box
+        <Box
           sx={{
             p: 3,
             textAlign: 'center',
@@ -991,9 +994,9 @@ export default function FileExplorer(): React.ReactElement {
           }}
           role="status"
           aria-live="polite"
-          >
-            {t('documentManagement.search.noResults', 'no results found')}{' '}
-            {t('documentManagement.search.queryPrefix', 'for')} „{searchQuery}“
+        >
+          {t('documentManagement.search.noResults', 'no results found')}{' '}
+          {t('documentManagement.search.queryPrefix', 'for')} „{searchQuery}“
         </Box>
       ) : (
         <Box
@@ -1013,7 +1016,6 @@ export default function FileExplorer(): React.ReactElement {
                 item={item}
                 onRename={handleOpenRename}
                 onDelete={handleOpenDelete}
-                
                 onOpen={handleOpenFolder}
                 onDownload={handleDownload}
                 onPreview={
@@ -1024,23 +1026,24 @@ export default function FileExplorer(): React.ReactElement {
                 }}
                 onDrop={(e) => {
                   if (!canAccess('manageDocuments')) return;
-                    try {
-                      const raw = e.dataTransfer?.getData('application/x-dms-item');
-                      if (!raw) return;
-                      const parsed = JSON.parse(raw);
-                      // If dropped onto a folder, move into that folder
-                      if (item.itemType === 'folder') {
-                        handleMove(parsed.id, parsed.type, item.id);
-                      }
-                    } catch {
-                      // ignore
+                  try {
+                    const raw = e.dataTransfer?.getData(
+                      'application/x-dms-item'
+                    );
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    // If dropped onto a folder, move into that folder
+                    if (item.itemType === 'folder') {
+                      handleMove(parsed.id, parsed.type, item.id);
                     }
+                  } catch {
+                    // ignore
                   }
-                }
+                }}
               />
             ))}
-        </List>
-      </Box>
+          </List>
+        </Box>
       )}
 
       {/* File viewer dialog */}
