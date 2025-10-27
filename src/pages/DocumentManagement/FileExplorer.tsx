@@ -908,8 +908,8 @@ export default function FileExplorer(): React.ReactElement {
             }}
             onClick={() => {
               if (!canAccess('uploadDocuments')) return;
-                setUploadOpen(true);
-              }}
+              setUploadOpen(true);
+            }}
             startDecorator={<UploadIcon fontSize="small" />}
           >
             {t('documentManagement.uploadDocument.button', 'Upload document')}
@@ -968,7 +968,7 @@ export default function FileExplorer(): React.ReactElement {
             title={t('documentManagement.newFolder.title', 'Create folder')}
             onClick={() => {
               if (!canAccess('manageDocuments')) return;
-                setNewFolderOpen(true);
+              setNewFolderOpen(true);
             }}
             sx={{
               width: 40,
