@@ -3,7 +3,6 @@ import { BACKEND_BASE_URL } from '@/config';
 import { useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { useCanAccess } from '@/lib/permissions';
 
 type FolderResponse = {
   folders: {
@@ -31,13 +30,9 @@ type FolderResponse = {
 
 const useDmsApi = () => {
   const axiosInstance = useAxiosInstance(BACKEND_BASE_URL);
-  const { canAccess } = useCanAccess();
 
   const getFolder = useCallback(
     async (id: string) => {
-      if (!canAccess('navigateFolders')) {
-        throw new Error('Access denied: missing permission to navigate');
-      }
       const response = await axiosInstance.get<FolderResponse>(
         `/dms/v1/folders/${id}`
       );
@@ -48,9 +43,6 @@ const useDmsApi = () => {
 
   const renameDocument = useCallback(
     async (id: string, name: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to rename');
-      }
       const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
         name,
       });
@@ -61,9 +53,6 @@ const useDmsApi = () => {
 
   const renameFolder = useCallback(
     async (id: string, name: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to rename');
-      }
       const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
         name,
       });
@@ -74,9 +63,6 @@ const useDmsApi = () => {
 
   const deleteDocument = useCallback(
     async (id: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to delete');
-      }
       await axiosInstance.delete(`/dms/v1/documents/${id}`);
     },
     [axiosInstance]
@@ -84,9 +70,6 @@ const useDmsApi = () => {
 
   const deleteFolder = useCallback(
     async (id: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to delete');
-      }
       await axiosInstance.delete(`/dms/v1/folders/${id}`);
     },
     [axiosInstance]
@@ -94,9 +77,6 @@ const useDmsApi = () => {
 
   const uploadDocument = useCallback(
     async (file: File, folderId: string) => {
-      if (!canAccess('uploadDocuments')) {
-        throw new Error('Access denied: missing permission to upload');
-      }
       const form = new FormData();
       form.append('file', file, file.name);
       form.append('folderId', folderId);
@@ -110,9 +90,6 @@ const useDmsApi = () => {
 
   const downloadDocument = useCallback(
     async (id: string) => {
-      if (!canAccess('downloadDocuments')) {
-        throw new Error('Access denied: missing permission to download');
-      }
       const response = await axiosInstance.get(`/dms/v1/documents/${id}`, {
         responseType: 'blob',
       });
@@ -140,9 +117,6 @@ const useDmsApi = () => {
       docs: { url: string; name: string; path: string }[],
       folderName?: string
     ) => {
-      if (!canAccess('downloadDocuments')) {
-        throw new Error('Access denied: missing permission to download');
-      }
       if (!docs || docs.length === 0) {
         throw new Error('No documents to zip');
       }
@@ -164,9 +138,6 @@ const useDmsApi = () => {
 
   const createFolder = useCallback(
     async (name: string, parentId?: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to create folder');
-      }
       const response = await axiosInstance.post('/dms/v1/folders', {
         name,
         parentId,
@@ -178,9 +149,6 @@ const useDmsApi = () => {
 
   const moveDocument = useCallback(
     async (id: string, parentId?: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to move document');
-      }
       // PATCH document to update its parent folder. Backend may support other move semantics.
       const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
         parentId,
@@ -192,9 +160,6 @@ const useDmsApi = () => {
 
   const moveFolder = useCallback(
     async (id: string, parentId?: string) => {
-      if (!canAccess('manageDocuments')) {
-        throw new Error('Access denied: missing permission to move folder');
-      }
       // PATCH folder to update its parent folder.
       const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
         parentId,
