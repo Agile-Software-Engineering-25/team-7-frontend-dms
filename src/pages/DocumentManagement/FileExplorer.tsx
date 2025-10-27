@@ -484,7 +484,7 @@ export default function FileExplorer(): React.ReactElement {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      if (doc.itemType === 'document') {
+      if (doc.itemType === 'document' || doc.itemType === 'pdf') {
         const { url, name } = await api.downloadDocument(docId);
 
         const link = document.createElement('a');
