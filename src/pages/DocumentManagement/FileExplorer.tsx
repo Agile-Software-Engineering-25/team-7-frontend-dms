@@ -906,7 +906,10 @@ export default function FileExplorer(): React.ReactElement {
               '--Button-hoverShadow': '0px 10px 20px rgba(0, 46, 109, 0.25)',
               fontWeight: 600,
             }}
-            onClick={() => setUploadOpen(true)}
+            onClick={() => {
+              if (!canAccess('uploadDocuments')) return;
+                setUploadOpen(true);
+              }}
             startDecorator={<UploadIcon fontSize="small" />}
           >
             {t('documentManagement.uploadDocument.button', 'Upload document')}
@@ -963,7 +966,10 @@ export default function FileExplorer(): React.ReactElement {
               'Create folder'
             )}
             title={t('documentManagement.newFolder.title', 'Create folder')}
-            onClick={() => setNewFolderOpen(true)}
+            onClick={() => {
+              if (!canAccess('manageDocuments')) return;
+                setNewFolderOpen(true);
+            }}
             sx={{
               width: 40,
               height: 40,
