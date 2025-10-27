@@ -129,6 +129,10 @@ export default function FileExplorer(): React.ReactElement {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const isTooLarge = (file: File): boolean =>
+    file.size > MAX_FILE_SIZE_MB * 1024 * 1024;
+
+  const hasInvalidFiles = selectedFiles.some(isTooLarge);
   // handle DOM custom events from FileItemActions or breadcrumb drops.
   // Register listeners once and read the latest values via refs.
   React.useEffect(() => {
@@ -1023,7 +1027,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setRenameOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
@@ -1068,7 +1076,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteConfirmOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1114,7 +1126,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setDeleteFolderConfirmOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
@@ -1169,7 +1185,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={() => setNewFolderOpen(false)}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
@@ -1210,57 +1230,70 @@ export default function FileExplorer(): React.ReactElement {
               max: MAX_FILE_SIZE_MB,
             })}
           </Typography>
-            <Button
-              component="label"
-              variant="soft" 
-              sx={{
-                '--Button-radius': '8px',
-                '--Button-shadow': 'none',
-                '--Button-hoverShadow': 'none' 
-                }}
-              >
-              {t(
-                'documentManagement.uploadDocument.selectFiles',
-                'Select files:'
-              )}
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                hidden
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  setSelectedFiles((prev) => [...prev, ...files]);
-                }}
-              />
-            </Button>
+          <Button
+            component="label"
+            variant="soft"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t(
+              'documentManagement.uploadDocument.selectFiles',
+              'Select files:'
+            )}
+            <input
+              type="file"
+              multiple
+              ref={fileInputRef}
+              hidden
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                setSelectedFiles((prev) => [...prev, ...files]);
+              }}
+            />
+          </Button>
           <List
             dense
-            aria-label={t('documentManagement.uploadDocument.selected', 'selected files:')}
+            aria-label={t(
+              'documentManagement.uploadDocument.selected',
+              'selected files:'
+            )}
           >
             {selectedFiles.length === 0 ? (
               <ListItem>
                 <ListItemText
-                  primary={t('documentManagement.uploadDocument.noFiles', 'no files selected')}
+                  primary={t(
+                    'documentManagement.uploadDocument.noFiles',
+                    'no files selected'
+                  )}
                 />
               </ListItem>
             ) : (
               selectedFiles.map((file, idx) => (
                 <ListItem
                   key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
+                  aria-invalid={isTooLarge(file) ? 'true' : undefined}
                   secondaryAction={
                     <Tooltip
                       title={t('documentManagement.uploadDocument.removeFile', {
                         defaultValue: 'remove {{file}}',
                         file: file.name,
                       })}
+                      sx={{
+                        backgroundColor: '#ffe5e5',
+                      }}
                     >
                       <IconButton
                         edge="end"
-                        aria-label={t('documentManagement.uploadDocument.removeFile', {
-                          defaultValue: 'remove {{file}}',
-                          file: file.name
-                        })}
+                        aria-label={t(
+                          'documentManagement.uploadDocument.removeFile',
+                          {
+                            defaultValue: 'remove {{file}}',
+                            file: file.name,
+                          }
+                        )}
                         onClick={() => handleRemoveSelectedFile(idx)}
                         color="error"
                         size="small"
@@ -1272,7 +1305,34 @@ export default function FileExplorer(): React.ReactElement {
                 >
                   <ListItemText
                     primary={file.name}
-                    secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                    primaryTypographyProps={{
+                      sx: {
+                        ...(isTooLarge(file) && {
+                          color: 'error.main',
+                          fontweight: 'bold',
+                        }),
+                      },
+                    }}
+                    secondary={
+                      <>
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                        {isTooLarge(file) && (
+                          <Typography
+                            variant="caption"
+                            color="error"
+                            sx={{ fontWeight: 500, ml: 1 }}
+                            role="alert"
+                          >
+                            {t(
+                              'documentManagement.uploadDocument.fileTooLarge',
+                              {
+                                defaultValue: 'too large',
+                              }
+                            )}
+                          </Typography>
+                        )}
+                      </>
+                    }
                   />
                 </ListItem>
               ))
@@ -1283,8 +1343,10 @@ export default function FileExplorer(): React.ReactElement {
           <Button
             onClick={handleUploadDocument}
             variant="solid"
-            disabled={selectedFiles.length === 0}
-            aria-disabled={selectedFiles.length === 0 ? 'true' : undefined}
+            disabled={selectedFiles.length === 0 || hasInvalidFiles}
+            aria-disabled={
+              selectedFiles.length === 0 || hasInvalidFiles ? 'true' : undefined
+            }
             sx={{
               '--Button-radius': '8px',
               '--Button-shadow': 'none',
@@ -1304,7 +1366,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleCloseUpload}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>

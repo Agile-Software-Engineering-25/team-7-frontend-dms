@@ -15,6 +15,7 @@
       "selected": "Ausgewählte Dateien:",
       "noFiles": "Keine Dateien ausgewählt",
       "removeFile": "{{file}} entfernen",
+      "fileTooLarge": "zu groß",
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
