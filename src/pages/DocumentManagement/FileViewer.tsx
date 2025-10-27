@@ -96,10 +96,26 @@ const FileViewer: React.FC<FileViewerProps> = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogContent>{renderPreview()}</DialogContent>
       <DialogActions>
-        <Button onClick={handleDownload}>
+        <Button
+          onClick={handleDownload}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+          }}
+        >
           {t('documentManagement.fileViewer.download', 'Download')}
         </Button>
-        <Button onClick={onClose} color="primary">
+        <Button
+          onClick={onClose}
+          variant="plain"
+          color="primary"
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+          }}
+        >
           {t('documentManagement.fileViewer.close', 'Close')}
         </Button>
       </DialogActions>
