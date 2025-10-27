@@ -912,8 +912,6 @@ export default function FileExplorer(): React.ReactElement {
           {t('documentManagement.uploadDocument.button', 'Upload document')}
         </Button>
         )}
-        {/* Button only visible for userrole 'admin' and 'staff' */}
-        {(canAccess('downloadDocuments')) && (
         <Button
           size="sm"
           aria-label={t(
@@ -957,7 +955,7 @@ export default function FileExplorer(): React.ReactElement {
             'Download documents'
           )}
         </Button>
-        )}
+        {/* Button only visible for userrole 'admin' and 'staff' */}
         {(canAccess('manageDocuments')) && (
         <IconButton
           aria-label={t('documentManagement.newFolder.title', 'Create folder')}
@@ -979,13 +977,10 @@ export default function FileExplorer(): React.ReactElement {
         </IconButton>
         )}
       </Box>
-      {(canAccess('navigateFolders')) && (
       <Box sx={{ mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
       </Box>
-      )}
-      {(canAccess('viewDocuments') && canAccess('searchDocuments')) && (
-        searchQuery.trim() && filteredItems.length === 0 ? (
+      {searchQuery.trim() && filteredItems.length === 0 ? (
           <Box
           sx={{
             p: 3,
@@ -1046,7 +1041,7 @@ export default function FileExplorer(): React.ReactElement {
             ))}
         </List>
       </Box>
-      ))}
+      )}
 
       {/* File viewer dialog */}
       <FileViewer
