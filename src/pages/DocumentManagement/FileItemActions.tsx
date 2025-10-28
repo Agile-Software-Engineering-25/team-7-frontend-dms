@@ -9,6 +9,7 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
 import { emitRequestMove } from '../../lib/dmsEvents';
+import { useCanAccess } from '@/lib/permissions';
 
 type Props = {
   itemId: string;
@@ -25,6 +26,7 @@ const FileItemActions: React.FC<Props> = ({
   onDelete,
   onDownload,
 }) => {
+  const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -66,38 +68,46 @@ const FileItemActions: React.FC<Props> = ({
         onClose={handleClose}
         MenuListProps={{ role: 'menu' }}
       >
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            onRename();
-          }}
-        >
-          {t('documentManagement.rename', 'Rename')}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            emitRequestMove(itemId);
-          }}
-        >
-          {t('documentManagement.move', 'Move')}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            onDownload();
-          }}
-        >
-          {t('documentManagement.downloadDocument.download', 'Download')}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleClose();
-            onDelete();
-          }}
-        >
-          {t('documentManagement.delete', 'Delete')}
-        </MenuItem>
+        {canAccess('manageDocuments') && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onRename();
+            }}
+          >
+            {t('documentManagement.rename', 'Rename')}
+          </MenuItem>
+        )}
+        {canAccess('manageDocuments') && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              emitRequestMove(itemId);
+            }}
+          >
+            {t('documentManagement.move', 'Move')}
+          </MenuItem>
+        )}
+        {canAccess('downloadDocuments') && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onDownload();
+            }}
+          >
+            {t('documentManagement.downloadDocument.download', 'Download')}
+          </MenuItem>
+        )}
+        {canAccess('manageDocuments') && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onDelete();
+            }}
+          >
+            {t('documentManagement.delete', 'Delete')}
+          </MenuItem>
+        )}
       </Menu>
     </ListItemSecondaryAction>
   );

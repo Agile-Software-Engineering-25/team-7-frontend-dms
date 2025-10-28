@@ -2,6 +2,14 @@ import React from 'react';
 import ReactDOMClient from 'react-dom/client';
 import singleSpaReact from 'single-spa-react';
 import { cssLifecycleFactory } from 'vite-plugin-single-spa/ex';
+import { setGlobalUser } from './hooks/useUser';
+import { User } from 'oidc-client-ts';
+import type { AppProps } from 'single-spa';
+
+interface MountProps extends AppProps {
+  user?: User | null;
+  [key: string]: unknown;
+}
 
 const lifecycle = singleSpaReact({
   React,
@@ -24,5 +32,26 @@ const lifecycle = singleSpaReact({
 // must be passed to the call to cssLifecycleFactory.
 const cssLc = cssLifecycleFactory('singleSpa' /* optional factory options */);
 export const bootstrap = [cssLc.bootstrap, lifecycle.bootstrap];
-export const mount = [cssLc.mount, lifecycle.mount];
-export const unmount = [cssLc.unmount, lifecycle.unmount];
+export const mount = [
+  async (props: MountProps) => {
+    const user: User | null = props?.user ?? null;
+
+    if (user) {
+      setGlobalUser(user);
+    } else {
+      console.warn('[DMS] No user within mount props! Use default user');
+    }
+
+    await cssLc.mount(props);
+    await lifecycle.mount(props);
+  },
+];
+
+export const unmount = [
+  async (props: MountProps) => {
+    setGlobalUser(null);
+
+    await cssLc.unmount(props);
+    await lifecycle.unmount(props);
+  },
+];

@@ -28,6 +28,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
 import Button from '@mui/joy/Button';
+import { useCanAccess } from '@/lib/permissions';
 
 type Item = {
   id: string;
@@ -64,6 +65,7 @@ const MAX_PATH_DEPTH = 50;
 const MAX_FILE_SIZE_MB = 5;
 
 export default function FileExplorer(): React.ReactElement {
+  const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
@@ -103,12 +105,31 @@ export default function FileExplorer(): React.ReactElement {
   const [moveSourceType, setMoveSourceType] = React.useState<
     Item['itemType'] | string | null
   >(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
   // keep a ref to the latest items so event handlers don't need to be
   // re-registered whenever `items` changes.
   const itemsRef = React.useRef<Item[]>(items);
   React.useEffect(() => {
     itemsRef.current = items;
   }, [items]);
+
+  // correctly move, create and upload effect because of debounce from searchbar
+  React.useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredItems(items);
+    } else {
+      const q = searchQuery.toLowerCase();
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+      setFilteredItems(filtered);
+    }
+  }, [items]);
+
+  // clear searchbar after switching folder
+  React.useEffect(() => {
+    setSearchQuery('');
+    setFilteredItems(items);
+  }, [currentFolderIdRef.current]);
 
   // We'll also keep a ref for `handleMove` so breadcrumb-drop handlers can
   // invoke it without the listener needing to be re-registered.
@@ -184,7 +205,10 @@ export default function FileExplorer(): React.ReactElement {
         uploadDate: f.createdDate ?? new Date().toISOString(),
         itemType: 'folder',
       }));
-      setItems([...subfolders, ...docs]);
+      const allItems = [...subfolders, ...docs];
+      setItems(allItems);
+      setFilteredItems(allItems);
+      setSearchQuery('');
     } catch {
       // ignore for now
     }
@@ -469,6 +493,7 @@ export default function FileExplorer(): React.ReactElement {
     // reset and close
     setUploadOpen(false);
     setSelectedFiles([]);
+    await refresh();
   };
 
   const handleCloseUpload = () => {
@@ -729,6 +754,30 @@ export default function FileExplorer(): React.ReactElement {
     setMoveSourceId(null);
   };
 
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      if (!value.trim()) {
+        setFilteredItems(items);
+        return;
+      }
+
+      const q = value.toLowerCase();
+
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+
+      setFilteredItems(filtered);
+    }, 300);
+  };
+
   // keep handleMoveRef up to date so event handlers call the latest function
   React.useEffect(() => {
     handleMoveRef.current = handleMove;
@@ -777,10 +826,16 @@ export default function FileExplorer(): React.ReactElement {
         <TextField
           size="small"
           placeholder={t(
-            'documentManagement.searchPlaceholder',
-            'Suche (in Kürze verfügbar)'
+            'documentManagement.search.searchPlaceholder',
+            'search'
           )}
+          value={searchQuery}
+          onChange={(e) => handleSearch(e.target.value)}
           InputProps={{
+            'aria-label': t(
+              'documentManagement.search.searchbar',
+              'searching in current folder'
+            ),
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon fontSize="small" sx={{ color: '#002E6D' }} />
@@ -828,34 +883,40 @@ export default function FileExplorer(): React.ReactElement {
           {t('documentManagement.filterButton', 'Filter (bald)')}
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Button
-          size="sm"
-          aria-label={t(
-            'documentManagement.uploadDocuemnt.button',
-            'Upload document'
-          )}
-          aria-describedby={t(
-            'documentManagement.uploadDocument.maxSize',
-            'Max size of a file: X MB'
-          )}
-          variant="solid"
-          sx={{
-            '--Button-radius': '8px',
-            '--Button-shadow': 'none',
-            '--Button-hoverShadow': 'none',
-            '--Button-minHeight': '34px',
-            '--Button-paddingInline': '16px',
-            '--Button-bg': '#002E6D',
-            '--Button-color': '#ffffff',
-            '--Button-hoverBg': '#001f56',
-            '--Button-activeBg': '#001a4a',
-            fontWeight: 600,
-          }}
-          onClick={() => setUploadOpen(true)}
-          startDecorator={<UploadIcon fontSize="small" />}
-        >
-          {t('documentManagement.uploadDocument.button', 'Upload document')}
-        </Button>
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {canAccess('uploadDocuments') && (
+          <Button
+            size="sm"
+            aria-label={t(
+              'documentManagement.uploadDocuemnt.button',
+              'Upload document'
+            )}
+            aria-describedby={t(
+              'documentManagement.uploadDocument.maxSize',
+              'Max size of a file: X MB'
+            )}
+            variant="solid"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
+            onClick={() => {
+              if (!canAccess('uploadDocuments')) return;
+              setUploadOpen(true);
+            }}
+            startDecorator={<UploadIcon fontSize="small" />}
+          >
+            {t('documentManagement.uploadDocument.button', 'Upload document')}
+          </Button>
+        )}
         <Button
           size="sm"
           aria-label={t(
@@ -899,68 +960,99 @@ export default function FileExplorer(): React.ReactElement {
             'Download documents'
           )}
         </Button>
-        <IconButton
-          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
-          title={t('documentManagement.newFolder.title', 'Create folder')}
-          onClick={() => setNewFolderOpen(true)}
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            backgroundColor: '#002E6D',
-            color: '#ffffff',
-            boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
-            '&:hover': {
-              backgroundColor: '#001f56',
-            },
-          }}
-        >
-          <CreateNewFolderIcon fontSize="small" aria-hidden />
-        </IconButton>
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {canAccess('manageDocuments') && (
+          <IconButton
+            aria-label={t(
+              'documentManagement.newFolder.title',
+              'Create folder'
+            )}
+            title={t('documentManagement.newFolder.title', 'Create folder')}
+            onClick={() => {
+              if (!canAccess('manageDocuments')) return;
+              setNewFolderOpen(true);
+            }}
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              backgroundColor: '#002E6D',
+              color: '#ffffff',
+              boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
+              '&:hover': {
+                backgroundColor: '#001f56',
+              },
+            }}
+          >
+            <CreateNewFolderIcon fontSize="small" aria-hidden />
+          </IconButton>
+        )}
       </Box>
       <Box sx={{ mb: 2 }}>
         <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
       </Box>
-      <Box
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          minHeight: 0,
-          maxHeight: '500px',
-          border: 'none',
-          borderRadius: 0,
-        }}
-      >
-        <List aria-label="file list" sx={{ padding: 0 }}>
-          {items.map((item) => (
-            <FileListItem
-              key={item.id}
-              item={item}
-              onRename={handleOpenRename}
-              onDelete={handleOpenDelete}
-              onOpen={handleOpenFolder}
-              onDownload={handleDownload}
-              onPreview={
-                item.itemType !== 'folder' ? handleOpenViewer : undefined
-              }
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                try {
-                  const raw = e.dataTransfer?.getData('application/x-dms-item');
-                  if (!raw) return;
-                  const parsed = JSON.parse(raw);
-                  // If dropped onto a folder, move into that folder
-                  if (item.itemType === 'folder') {
-                    handleMove(parsed.id, parsed.type, item.id);
-                  }
-                } catch {
-                  // ignore
+      {searchQuery.trim() && filteredItems.length === 0 ? (
+        <Box
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            color: 'error.main',
+            fontSize: '1.25rem',
+            fontWeight: '500',
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          {t('documentManagement.search.noResults', 'no results found')}{' '}
+          {t('documentManagement.search.queryPrefix', 'for')} „{searchQuery}“
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'auto',
+            minHeight: 0,
+            maxHeight: '500px',
+            border: 'none',
+            borderRadius: 0,
+          }}
+        >
+          <List aria-label="file list" sx={{ padding: 0 }}>
+            {filteredItems.map((item) => (
+              <FileListItem
+                key={item.id}
+                item={item}
+                onRename={handleOpenRename}
+                onDelete={handleOpenDelete}
+                onOpen={handleOpenFolder}
+                onDownload={handleDownload}
+                onPreview={
+                  item.itemType !== 'folder' ? handleOpenViewer : undefined
                 }
-              }}
-            />
-          ))}
-        </List>
-      </Box>
+                onDragOver={(e) => {
+                  if (canAccess('manageDocuments')) e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  if (!canAccess('manageDocuments')) return;
+                  try {
+                    const raw = e.dataTransfer?.getData(
+                      'application/x-dms-item'
+                    );
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    // If dropped onto a folder, move into that folder
+                    if (item.itemType === 'folder') {
+                      handleMove(parsed.id, parsed.type, item.id);
+                    }
+                  } catch {
+                    // ignore
+                  }
+                }}
+              />
+            ))}
+          </List>
+        </Box>
+      )}
 
       {/* File viewer dialog */}
       <FileViewer
@@ -1012,14 +1104,6 @@ export default function FileExplorer(): React.ReactElement {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setRenameOpen(false)}
-            variant="plain"
-            color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
-          >
-            {t('documentManagement.renameDialog.cancel', 'Cancel')}
-          </Button>
-          <Button
             onClick={handleRename}
             variant="solid"
             sx={{
@@ -1036,6 +1120,18 @@ export default function FileExplorer(): React.ReactElement {
             }}
           >
             {t('documentManagement.renameDialog.confirm', 'Rename')}
+          </Button>
+          <Button
+            onClick={() => setRenameOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1057,14 +1153,6 @@ export default function FileExplorer(): React.ReactElement {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setDeleteConfirmOpen(false)}
-            variant="plain"
-            color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
-          >
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
-          <Button
             onClick={handleDelete}
             variant="solid"
             color="danger"
@@ -1082,6 +1170,18 @@ export default function FileExplorer(): React.ReactElement {
             }}
           >
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button
+            onClick={() => setDeleteConfirmOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1103,14 +1203,6 @@ export default function FileExplorer(): React.ReactElement {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setDeleteFolderConfirmOpen(false)}
-            variant="plain"
-            color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
-          >
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
-          <Button
             onClick={handleDeleteFolderConfirmed}
             variant="solid"
             color="danger"
@@ -1128,6 +1220,18 @@ export default function FileExplorer(): React.ReactElement {
             }}
           >
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button
+            onClick={() => setDeleteFolderConfirmOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1158,14 +1262,6 @@ export default function FileExplorer(): React.ReactElement {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setNewFolderOpen(false)}
-            variant="plain"
-            color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
-          >
-            {t('documentManagement.newFolder.cancel', 'Cancel')}
-          </Button>
-          <Button
             onClick={handleCreateFolder}
             variant="solid"
             sx={{
@@ -1182,6 +1278,18 @@ export default function FileExplorer(): React.ReactElement {
             }}
           >
             {t('documentManagement.newFolder.create', 'Create')}
+          </Button>
+          <Button
+            onClick={() => setNewFolderOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1214,7 +1322,14 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
           <label htmlFor="file-input">
-            <Button variant="soft" sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}>
+            <Button
+              variant="soft"
+              sx={{
+                '--Button-radius': '8px',
+                '--Button-shadow': 'none',
+                '--Button-hoverShadow': 'none',
+              }}
+            >
               {t(
                 'documentManagement.uploadDocument.selectFiles',
                 'Select files:'
@@ -1264,7 +1379,11 @@ export default function FileExplorer(): React.ReactElement {
             onClick={handleCloseUpload}
             variant="plain"
             color="primary"
-            sx={{ '--Button-radius': '8px', '--Button-shadow': 'none', '--Button-hoverShadow': 'none' }}
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
           >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>

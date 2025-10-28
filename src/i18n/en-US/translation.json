@@ -16,6 +16,12 @@
       "cancel": "Cancel",
       "confirm": "Upload"
     },
+    "search": {
+      "searchbar": "searching in current folder",
+      "searchPlaceholder": "search",
+      "noResults": "no results found",
+      "queryPrefix": "for"
+    },
     "downloadDocument": {
       "button": "Download documents",
       "download": "Download",
@@ -28,7 +34,8 @@
     },
     "fileViewer": {
       "download": "Download",
-      "close": "Close"
+      "close": "Close",
+      "noPreview": "No preview available for "
     },
     "renameDialog": {
       "title": "Rename",
@@ -49,7 +56,8 @@
     "newFolder": {
       "title": "Create folder",
       "label": "Folder name",
-      "create": "Create"
+      "create": "Create",
+      "cancel": "Cancel"
     },
     "moveDialog": {
       "title": "Move item",

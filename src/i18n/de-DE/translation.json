@@ -16,6 +16,12 @@
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
     },
+    "search": {
+      "searchbar": "Suche im aktuellen Ordner",
+      "searchPlaceholder": "Suche",
+      "noResults": "Keine Ergebnisse gefunden",
+      "queryPrefix": "für"
+    },
     "downloadDocument": {
       "button": "Dokumente herunterladen",
       "download": "Herunterladen",
@@ -28,7 +34,8 @@
     },
     "fileViewer": {
       "download": "Herunterladen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "noPreview": "Keine Vorschau verfügbar für "
   },
     "renameDialog": {
       "title": "Umbenennen",
@@ -49,7 +56,8 @@
     "newFolder": {
       "title": "Ordner erstellen",
       "label": "Ordnername",
-      "create": "Erstellen"
+      "create": "Erstellen",
+      "cancel": "Abbrechen"
     },
     "moveDialog": {
       "title": "Element verschieben",
