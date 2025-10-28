@@ -5,8 +5,6 @@ import Box from '@mui/material/Box';
 import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
 import { useCanAccess } from '@/lib/permissions';
 
-const chipShadow = '0px 6px 12px rgba(47, 59, 82, 0.15)';
-
 const chipBaseSx = {
   borderRadius: '999px',
   backgroundColor: '#ffffff',
@@ -14,11 +12,9 @@ const chipBaseSx = {
   fontWeight: 600,
   px: 1.5,
   height: 36,
-  boxShadow: chipShadow,
   '&.MuiChip-clickable:hover': {
     backgroundColor: '#e9f1ff',
     color: '#002E6D',
-    boxShadow: '0px 8px 16px rgba(47, 59, 82, 0.2)',
   },
 };
 
@@ -110,9 +106,7 @@ const BreadcrumbBar: React.FC<{
                 ...chipBaseSx,
                 ...(isCurrent ? chipActiveSx : {}),
                 ...(isDragOver
-                  ? {
-                      boxShadow: `${chipShadow}, 0 0 0 2px rgba(0, 46, 109, 0.35)`,
-                    }
+                  ? { border: '2px solid rgba(0, 46, 109, 0.35)' }
                   : {}),
               }}
             />
