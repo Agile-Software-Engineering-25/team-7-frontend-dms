@@ -21,7 +21,7 @@ const fileExplorerCardStyles = {
 const DocumentManagement: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <Box sx={{ display: 'flex', height: '100vh', background: '#f4f6fa' }}>
+    <Box sx={{ display: 'flex', height: '100vh', background: 'white' }}>
       <Box
         sx={{
           flex: 1,

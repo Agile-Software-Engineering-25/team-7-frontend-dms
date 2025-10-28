@@ -8,8 +8,8 @@
     "move": "Verschieben",
     "delete": "Löschen",
     "uploadDocument": {
-      "button": "Dokument hochladen",
-      "title": "Dokument hochladen",
+      "button": "Datei hochladen",
+      "title": "Datei hochladen",
       "maxSize": "Maximal {{max}} MB pro Datei",
       "selectFiles": "Dateien auswählen",
       "selected": "Ausgewählte Dateien:",
@@ -26,12 +26,12 @@
       "queryPrefix": "für"
     },
     "downloadDocument": {
-      "button": "Dokumente herunterladen",
+      "button": "Dateien herunterladen",
       "download": "Herunterladen",
-      "description": "Lädt jedes Dokument innerhalb des jetzigen Ordners herunter",
-      "title": "Dokumente herunterladen",
-      "allDocs": "Alle Dokumente herunterladen",
-      "selectedDocs": "Dokumente auswählen",
+      "description": "Lädt jede Datei innerhalb des jetzigen Ordners herunter",
+      "title": "Dateien herunterladen",
+      "allDocs": "Alle Dateien herunterladen",
+      "selectedDocs": "Dateien auswählen",
       "confirm": "Herunterladen",
       "cancel": "Abbrechen"
     },
@@ -54,7 +54,7 @@
     },
     "deleteFolderDialog": {
       "title": "Ordner löschen",
-      "message": "Beim Löschen dieses Ordners werden auch alle enthaltenen Dokumente gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+      "message": "Beim Löschen dieses Ordners werden auch alle enthaltenen Dateien gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "newFolder": {
       "title": "Ordner erstellen",
@@ -72,7 +72,7 @@
     },
     "type": {
       "folder": "Ordner",
-      "document": "Dokument",
+      "document": "Datei",
       "pdf": "PDF"
     },
     "moreActions": "Mehr Aktionen",
@@ -89,9 +89,9 @@
       "duplicate": "Datei {{duplicateName}} existiert bereits",
       "downloaded": "Download gestartet",
       "downloadFailed": "Download fehlgeschlagen",
-      "noDocsInFolder": "Es gibt keine Dokumente oder Ordner im aktuellen Verzeichnis",
+      "noDocsInFolder": "Es gibt keine Dateien oder Ordner im aktuellen Verzeichnis",
       "noSelection": "Keine Auswahl",
-      "noDocsInSelection": "Keine Dokumente in der Auswahl",
+      "noDocsInSelection": "Keine Dateien in der Auswahl",
       "previewFailed": "Vorschau fehlgeschlagen",
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",

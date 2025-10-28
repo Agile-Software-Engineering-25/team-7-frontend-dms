@@ -8,8 +8,8 @@
     "move": "Move",
     "delete": "Delete",
     "uploadDocument": {
-      "button": "Upload Document",
-      "title": "Upload Document",
+      "button": "Upload File",
+      "title": "Upload File",
       "maxSize": "Maximum {{max}} MB per file",
       "selectFiles": "Select Files",
       "selected": "Selected files:",
@@ -26,12 +26,12 @@
       "queryPrefix": "for"
     },
     "downloadDocument": {
-      "button": "Download documents",
+      "button": "Download files",
       "download": "Download",
-      "description": "Downloads every document in current directory",
-      "title": "Download documents",
-      "allDocs": "Download all documents",
-      "selectedDocs": "Choose documents",
+      "description": "Downloads every file in current directory",
+      "title": "Download files",
+      "allDocs": "Download all files",
+      "selectedDocs": "Choose files",
       "confirm": "Confirm",
       "cancel": "Cancel"
     },
@@ -54,7 +54,7 @@
     },
     "deleteFolderDialog": {
       "title": "Delete folder",
-      "message": "Deleting this folder will also delete all contained documents. This action cannot be undone."
+      "message": "Deleting this folder will also delete all contained files. This action cannot be undone."
     },
     "newFolder": {
       "title": "Create folder",
@@ -72,7 +72,7 @@
     },
     "type": {
       "folder": "Folder",
-      "document": "Document",
+      "document": "File",
       "pdf": "PDF"
     },
     "moreActions": "More actions",
@@ -89,9 +89,9 @@
       "duplicate": "File {{duplicateName}} already existing",
       "downloaded": "Download started",
       "downloadFailed": "Download failed",
-      "noDocsInFolder": "No documents or folders in current directory",
+      "noDocsInFolder": "No files or folders in current directory",
       "noSelection": "No selection",
-      "noDocsInSelection": "No documents in selection",
+      "noDocsInSelection": "No files in selection",
       "previewFailed": "Preview failed",
       "createFailed": "Create failed",
       "moved": "Moved",

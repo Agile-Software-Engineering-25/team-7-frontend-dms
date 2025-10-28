@@ -569,8 +569,6 @@ export default function FileExplorer(): React.ReactElement {
     [items]
   );
 
-  const isDoc = (i: Item) => i.itemType === 'document' || i.itemType === 'pdf';
-
   const collectDocsFromFolderWithPaths = async (
     folderId: string,
     prefix: string
@@ -836,7 +834,7 @@ export default function FileExplorer(): React.ReactElement {
         }}
       >
         <TextField
-          size="small"
+          size="medium"
           placeholder={t(
             'documentManagement.search.searchPlaceholder',
             'search'
@@ -850,7 +848,7 @@ export default function FileExplorer(): React.ReactElement {
             ),
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon fontSize="small" sx={{ color: '#002E6D' }} />
+                <SearchIcon fontSize="medium" sx={{ color: '#002E6D' }} />
               </InputAdornment>
             ),
           }}
@@ -860,6 +858,8 @@ export default function FileExplorer(): React.ReactElement {
             '& .MuiOutlinedInput-root': {
               borderRadius: '999px',
               backgroundColor: '#ffffff',
+              minHeight: 40,
+              alignItems: 'center',
               '& fieldset': { borderColor: '#d1d9e6' },
               '&:hover fieldset': { borderColor: '#002E6D' },
               '&.Mui-focused fieldset': { borderColor: '#002E6D' },
@@ -867,9 +867,9 @@ export default function FileExplorer(): React.ReactElement {
           }}
         />
         <Button
-          size="sm"
+          size="md"
           variant="outlined"
-          startDecorator={<FilterListIcon fontSize="small" />}
+          startDecorator={<FilterListIcon fontSize="medium" />}
           sx={{
             '--Button-radius': '8px',
             '--Button-shadow': 'none',
@@ -880,6 +880,7 @@ export default function FileExplorer(): React.ReactElement {
             '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
             '--Button-hoverBorderColor': '#001f56',
             '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
+            '--Button-minHeight': '40px',
             fontWeight: 600,
           }}
           onClick={() =>
@@ -1114,7 +1115,7 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleRename}
             variant="solid"
@@ -1163,7 +1164,7 @@ export default function FileExplorer(): React.ReactElement {
             'Are you sure you want to delete this item?'
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleDelete}
             variant="solid"
@@ -1213,7 +1214,7 @@ export default function FileExplorer(): React.ReactElement {
             'Deleting this folder will also delete all contained documents. This action cannot be undone.'
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleDeleteFolderConfirmed}
             variant="solid"
@@ -1272,7 +1273,7 @@ export default function FileExplorer(): React.ReactElement {
             }}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleCreateFolder}
             variant="solid"
@@ -1431,7 +1432,7 @@ export default function FileExplorer(): React.ReactElement {
             )}
           </List>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleUploadDocument}
             variant="solid"
@@ -1468,40 +1469,36 @@ export default function FileExplorer(): React.ReactElement {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* Download dialog */}
+
       <DownloadDialog
         open={downloadDialogOpen}
         onClose={() => setDownloadDialogOpen(false)}
         items={items}
-        onConfirm={async (selectedIds) => {
+        onConfirm={async (selectedIds: string[]) => {
           try {
-            if (!selectedIds || selectedIds.length === 0) {
-              showSnack(
-                t('documentManagement.snack.noSelecttion', 'No Selection'),
-                'error'
-              );
-              return;
-            }
-
-            const idSet = new Set(selectedIds);
-            const selectedItems = items.filter((i) => idSet.has(i.id));
-
             const docsForZip: DocForZip[] = [];
-
-            for (const item of selectedItems) {
-              if (isDoc(item)) {
-                const { url, name } = await api.downloadDocument(item.id);
-                docsForZip.push({ url, name, path: '' });
-              } else if (item.itemType === 'folder') {
-                const nested = await collectDocsFromFolderWithPaths(
-                  item.id,
-                  item.name
-                );
-                docsForZip.push(...nested);
+            for (const id of selectedIds) {
+              const item = items.find((i) => i.id === id);
+              if (item) {
+                if (item.itemType === 'document' || item.itemType === 'pdf') {
+                  const { url, name } = await api.downloadDocument(id);
+                  docsForZip.push({ url, name, path: name });
+                } else if (item.itemType === 'folder') {
+                  const folderDocs = await collectDocsFromFolderWithPaths(
+                    id,
+                    item.name
+                  );
+                  docsForZip.push(...folderDocs);
+                }
               }
             }
-
-            if (docsForZip.length === 0) {
+            if (docsForZip.length > 0) {
+              await api.downloadAsZip(docsForZip, currentFolderName);
+              showSnack(
+                t('documentManagement.snack.downloaded', 'Download started'),
+                'success'
+              );
+            } else {
               showSnack(
                 t(
                   'documentManagement.snack.noDocsInSelection',
@@ -1509,30 +1506,10 @@ export default function FileExplorer(): React.ReactElement {
                 ),
                 'error'
               );
-              return;
             }
-
-            if (docsForZip.length === 1) {
-              const { url, name } = docsForZip[0];
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = name;
-              a.click();
-              showSnack(
-                t('documentManagement.snack.downloaded', 'Download started'),
-                'success'
-              );
-              setDownloadDialogOpen(false);
-              return;
-            } else {
-              await api.downloadAsZip(docsForZip, currentFolderName);
-              showSnack(
-                t('documentManagement.snack.downloaded', 'Download started'),
-                'success'
-              );
-              setDownloadDialogOpen(false);
-            }
-          } catch {
+            setDownloadDialogOpen(false);
+          } catch (error) {
+            console.error('Download failed:', error);
             showSnack(
               t('documentManagement.snack.downloadFailed', 'Download failed'),
               'error'
