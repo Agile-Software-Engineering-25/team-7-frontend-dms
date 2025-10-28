@@ -13,6 +13,9 @@
       "maxSize": "Maximum {{max}} MB per file",
       "selectFiles": "Select Files",
       "selected": "Selected files:",
+      "noFiles": "No files selected",
+      "removeFile": "remove {{file}}",
+      "fileTooLarge": "too large",
       "cancel": "Cancel",
       "confirm": "Upload"
     },

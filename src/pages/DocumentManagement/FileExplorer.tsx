@@ -12,6 +12,9 @@ import {
   Alert,
   IconButton,
   InputAdornment,
+  ListItemText,
+  ListItem,
+  Tooltip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -27,6 +30,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/joy/Button';
 import { useCanAccess } from '@/lib/permissions';
 
@@ -142,6 +146,14 @@ export default function FileExplorer(): React.ReactElement {
     | null
   >(null);
 
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const isTooLarge = (file: File): boolean =>
+    file.size > MAX_FILE_SIZE_MB * 1024 * 1024;
+
+  const hasInvalidFiles = selectedFiles.some(isTooLarge);
   // handle DOM custom events from FileItemActions or breadcrumb drops.
   // Register listeners once and read the latest values via refs.
   React.useEffect(() => {
@@ -1310,56 +1322,123 @@ export default function FileExplorer(): React.ReactElement {
               max: MAX_FILE_SIZE_MB,
             })}
           </Typography>
-          <input
-            id="file-input"
-            type="file"
-            multiple
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              setSelectedFiles((prev) => [...prev, ...files]);
+          <Button
+            component="label"
+            variant="soft"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
             }}
-          />
-          <label htmlFor="file-input">
-            <Button
-              variant="soft"
-              sx={{
-                '--Button-radius': '8px',
-                '--Button-shadow': 'none',
-                '--Button-hoverShadow': 'none',
+          >
+            {t(
+              'documentManagement.uploadDocument.selectFiles',
+              'Select files:'
+            )}
+            <input
+              type="file"
+              multiple
+              ref={fileInputRef}
+              hidden
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                setSelectedFiles((prev) => [...prev, ...files]);
               }}
-            >
-              {t(
-                'documentManagement.uploadDocument.selectFiles',
-                'Select files:'
-              )}
-            </Button>
-          </label>
-
-          {/* Show selected files */}
-          {selectedFiles.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2">
-                {t(
-                  'documentMangement.uploadDocument.selected',
-                  'Selected files:'
-                )}
-              </Typography>
-              <ul>
-                {selectedFiles.map((file) => (
-                  <li key={file.name}>
-                    {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                  </li>
-                ))}
-              </ul>
-            </Box>
-          )}
+            />
+          </Button>
+          <List
+            dense
+            aria-label={t(
+              'documentManagement.uploadDocument.selected',
+              'selected files:'
+            )}
+          >
+            {selectedFiles.length === 0 ? (
+              <ListItem>
+                <ListItemText
+                  primary={t(
+                    'documentManagement.uploadDocument.noFiles',
+                    'no files selected'
+                  )}
+                />
+              </ListItem>
+            ) : (
+              selectedFiles.map((file, idx) => (
+                <ListItem
+                  key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
+                  aria-invalid={isTooLarge(file) ? 'true' : undefined}
+                  secondaryAction={
+                    <Tooltip
+                      title={t('documentManagement.uploadDocument.removeFile', {
+                        defaultValue: 'remove {{file}}',
+                        file: file.name,
+                      })}
+                      sx={{
+                        backgroundColor: '#ffe5e5',
+                      }}
+                    >
+                      <IconButton
+                        edge="end"
+                        aria-label={t(
+                          'documentManagement.uploadDocument.removeFile',
+                          {
+                            defaultValue: 'remove {{file}}',
+                            file: file.name,
+                          }
+                        )}
+                        onClick={() => handleRemoveSelectedFile(idx)}
+                        color="error"
+                        size="small"
+                      >
+                        <CloseIcon fontSize="small" aria-hidden />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                >
+                  <ListItemText
+                    primary={file.name}
+                    primaryTypographyProps={{
+                      sx: {
+                        ...(isTooLarge(file) && {
+                          color: 'error.main',
+                          fontweight: 'bold',
+                        }),
+                      },
+                    }}
+                    secondary={
+                      <>
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                        {isTooLarge(file) && (
+                          <Typography
+                            variant="caption"
+                            color="error"
+                            sx={{ fontWeight: 500, ml: 1 }}
+                            role="alert"
+                          >
+                            {t(
+                              'documentManagement.uploadDocument.fileTooLarge',
+                              {
+                                defaultValue: 'too large',
+                              }
+                            )}
+                          </Typography>
+                        )}
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))
+            )}
+          </List>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={handleUploadDocument}
             variant="solid"
+            disabled={selectedFiles.length === 0 || hasInvalidFiles}
+            aria-disabled={
+              selectedFiles.length === 0 || hasInvalidFiles ? 'true' : undefined
+            }
             sx={{
               '--Button-radius': '8px',
               '--Button-shadow': 'none',
