@@ -95,7 +95,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogContent>{renderPreview()}</DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           onClick={handleDownload}
           sx={{

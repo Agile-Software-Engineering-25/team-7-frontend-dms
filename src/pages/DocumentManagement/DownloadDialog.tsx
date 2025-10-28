@@ -130,7 +130,7 @@ const DownloadDialog: React.FC<DownloadDialogProps> = ({
           </List>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           onClick={handleConfirm}
           variant="solid"

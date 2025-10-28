@@ -243,12 +243,23 @@ const MoveDialog: React.FC<Props> = ({
           </Typography>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           onClick={handleMove}
           variant="solid"
           disabled={!selectedFolderId || selectedFolderId === currentFolderId}
-          sx={{ '--Button-radius': '0px' }}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            fontWeight: 600,
+          }}
         >
           {t('documentManagement.moveDialog.confirm', 'Verschieben')}
         </Button>
@@ -256,7 +267,11 @@ const MoveDialog: React.FC<Props> = ({
           onClick={onClose}
           variant="plain"
           color="primary"
-          sx={{ '--Button-radius': '0px' }}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+          }}
         >
           {t('documentManagement.moveDialog.cancel', 'Abbrechen')}
         </Button>
