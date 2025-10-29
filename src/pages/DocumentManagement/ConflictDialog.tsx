@@ -8,7 +8,7 @@ import {
   Box,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/joy'
+import { Button } from '@mui/joy';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 export type ConflictAction = 'overwrite' | 'rename' | 'cancel';
