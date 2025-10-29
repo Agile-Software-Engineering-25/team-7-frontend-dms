@@ -8,7 +8,7 @@ type Doc = {
   createdDate?: string;
   type?: string;
   parentId?: string;
-  blob?: Blob; 
+  blob?: Blob;
 };
 
 type Folder = {

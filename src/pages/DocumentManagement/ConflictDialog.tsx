@@ -63,11 +63,11 @@ const ConflictDialog: React.FC<ConflictDialogProps> = ({
           )}
         </Typography>
       </DialogContent>
-      <DialogActions 
-        sx={{ 
-          flexDirection: 'column', 
-          gap: 1.5, 
-          p: 2, 
+      <DialogActions
+        sx={{
+          flexDirection: 'column',
+          gap: 1.5,
+          p: 2,
           pt: 0,
           alignItems: 'stretch',
           '& > *': {
@@ -86,17 +86,16 @@ const ConflictDialog: React.FC<ConflictDialogProps> = ({
             py: 1,
           }}
         >
-          {t(
-            'documentManagement.conflictDialog.overwrite',
-            'Überschreiben'
-          )}
+        {t(
+          'documentManagement.conflictDialog.overwrite', 'Überschreiben'
+        )}
         </Button>
         <Button
           onClick={() => onAction('rename')}
           variant="solid"
           color="primary"
           fullWidth
-          sx={{ 
+          sx={{
             textAlign: 'center',
             px: 2,
             py: 1,
@@ -111,7 +110,7 @@ const ConflictDialog: React.FC<ConflictDialogProps> = ({
           onClick={() => onAction('cancel')}
           variant="outlined"
           fullWidth
-          sx={{ 
+          sx={{
             textAlign: 'center',
             px: 2,
             py: 1,
