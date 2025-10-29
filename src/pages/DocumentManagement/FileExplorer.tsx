@@ -383,10 +383,8 @@ export default function FileExplorer(): JSX.Element {
       // Show conflict dialog instead of error
       setConflictName(duplicate.name);
       setConflictType('file');
-      
       // Find the existing item with the same name
       const existingItem = items.find((item) => item.name === duplicate.name);
-      
       setConflictPendingAction({
         overwrite: async () => {
           try {
@@ -394,13 +392,11 @@ export default function FileExplorer(): JSX.Element {
             if (existingItem) {
               await api.deleteDocument(existingItem.id);
             }
-            
             // Upload all selected files
             for (const file of selectedFiles) {
               await api.uploadDocument(file, currentFolderIdRef.current);
             }
             await refresh();
-   
             showSnack(
               t('documentManagement.snack.uploaded', 'Uploaded successfully'),
               'success'
@@ -416,10 +412,10 @@ export default function FileExplorer(): JSX.Element {
         },
         rename: async () => {
           try {
-              // Upload remaining files (if any)
-              for (const file of selectedFiles) {    
-                await api.uploadDocument(file, currentFolderIdRef.current);
-              } 
+            // Upload remaining files (if any)
+            for (const file of selectedFiles) {
+              await api.uploadDocument(file, currentFolderIdRef.current);
+            }
             await refresh();
             showSnack(
               t('documentManagement.snack.uploaded', 'Uploaded successfully'),
@@ -561,15 +557,12 @@ export default function FileExplorer(): JSX.Element {
           try {
             // For folders, delete the existing one first
             await api.deleteFolder(duplicate.id);
-            
+
             // Then create the new folder with the same name
-            await api.createFolder(
-              name,
-              currentFolderIdRef.current
-            );
-            
+            await api.createFolder(name, currentFolderIdRef.current);
+
             await refresh();
-            
+
             showSnack(
               t('documentManagement.snack.created', 'Created'),
               'success'
@@ -589,20 +582,21 @@ export default function FileExplorer(): JSX.Element {
             // Find the next available increment
             let counter = 1;
             let newName = `${name} (${counter})`;
-            
-            while (items.some((item) => item.itemType === 'folder' && item.name === newName)) {
+
+            while (
+              items.some(
+                (item) => item.itemType === 'folder' && item.name === newName
+              )
+            ) {
               counter++;
               newName = `${name} (${counter})`;
             }
-            
+
             // Create folder with the new name
-            await api.createFolder(
-              newName,
-              currentFolderIdRef.current
-            );
-            
+            await api.createFolder(newName, currentFolderIdRef.current);
+
             await refresh();
-            
+
             showSnack(
               t('documentManagement.snack.created', 'Created'),
               'success'
@@ -754,9 +748,13 @@ export default function FileExplorer(): JSX.Element {
         }
 
         // Check for name conflict in target folder
-        const targetFolderData = (await api.getFolder(targetFolderId)) as FolderResponse;
+        const targetFolderData = (await api.getFolder(
+          targetFolderId
+        )) as FolderResponse;
         const targetSubfolders = targetFolderData.subfolders || [];
-        const sourceFolderData = (await api.getFolder(sourceId)) as FolderResponse;
+        const sourceFolderData = (await api.getFolder(
+          sourceId
+        )) as FolderResponse;
         const sourceMeta = parseFolderMetadata(sourceFolderData, sourceId);
         const sourceFolderName = sourceMeta.name;
         const existingFolder = targetSubfolders.find(
@@ -776,7 +774,10 @@ export default function FileExplorer(): JSX.Element {
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
-              showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
             },
             rename: async () => {
               // Generate a new name with increment
@@ -786,10 +787,10 @@ export default function FileExplorer(): JSX.Element {
                 counter++;
                 newName = `${sourceFolderName} (${counter})`;
               }
-              
+
               // First rename the folder
               await api.renameFolder(sourceId, newName);
-              
+
               // Then move it to the target folder
               await api.moveFolder(
                 sourceId,
@@ -797,7 +798,10 @@ export default function FileExplorer(): JSX.Element {
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
-              showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
             },
           });
           setConflictDialogOpen(true);
@@ -853,7 +857,9 @@ export default function FileExplorer(): JSX.Element {
         }
 
         // Check for name conflict in target folder
-        const targetFolderData = (await api.getFolder(targetFolderId)) as FolderResponse;
+        const targetFolderData = (await api.getFolder(
+          targetFolderId
+        )) as FolderResponse;
         const targetDocuments = targetFolderData.documents || [];
         const sourceDocument = items.find((it) => it.id === sourceId);
         const sourceDocumentName = sourceDocument?.name || '';
@@ -874,28 +880,33 @@ export default function FileExplorer(): JSX.Element {
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
-              showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
             },
             rename: async () => {
               // Generate a new name with increment (preserving file extension)
               const lastDotIndex = sourceDocumentName.lastIndexOf('.');
-              const baseName = lastDotIndex > 0 
-                ? sourceDocumentName.substring(0, lastDotIndex)
-                : sourceDocumentName;
-              const extension = lastDotIndex > 0 
-                ? sourceDocumentName.substring(lastDotIndex)
-                : '';
-              
+              const baseName =
+                lastDotIndex > 0
+                  ? sourceDocumentName.substring(0, lastDotIndex)
+                  : sourceDocumentName;
+              const extension =
+                lastDotIndex > 0
+                  ? sourceDocumentName.substring(lastDotIndex)
+                  : '';
+
               let counter = 1;
               let newName = `${baseName} (${counter})${extension}`;
               while (targetDocuments.some((d) => d.name === newName)) {
                 counter++;
                 newName = `${baseName} (${counter})${extension}`;
               }
-              
+
               // First rename the document
               await api.renameDocument(sourceId, newName);
-              
+
               // Then move it to the target folder
               await api.moveDocument(
                 sourceId,
@@ -903,7 +914,10 @@ export default function FileExplorer(): JSX.Element {
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
-              showSnack(t('documentManagement.snack.moved', 'Moved'), 'success');
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
             },
           });
           setConflictDialogOpen(true);

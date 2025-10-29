@@ -80,15 +80,13 @@ const ConflictDialog: React.FC<ConflictDialogProps> = ({
           variant="solid"
           color="danger"
           fullWidth
-          sx={{ 
+          sx={{
             textAlign: 'center',
             px: 2,
             py: 1,
           }}
         >
-        {t(
-          'documentManagement.conflictDialog.overwrite', 'Überschreiben'
-        )}
+          {t('documentManagement.conflictDialog.overwrite', 'Überschreiben')}
         </Button>
         <Button
           onClick={() => onAction('rename')}
