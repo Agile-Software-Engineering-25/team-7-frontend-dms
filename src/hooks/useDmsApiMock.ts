@@ -24,7 +24,7 @@ type Folder = {
 // token to test role functionality
 const fakePayload = {
   realm_access: {
-    roles: ['area-2-team-7-read'], // either 'area-2-team-7-readwriteupdate-documents' or 'area-2-team-7-read'
+    roles: ['Area-2.Team-7.ReadUpdateDelete.readwrite-document'], // either 'Area-2.Team-7.ReadUpdateDelete.readwrite-document' or 'Area-2.Team-7.Read.read-document'
   },
 };
 // JWT consists of header.payload.signature - all base64 encoded
