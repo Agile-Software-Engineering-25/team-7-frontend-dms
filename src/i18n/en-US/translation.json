@@ -1,18 +1,4 @@
 {
-  "pages": {
-    "home": {
-      "title": "Home",
-      "description": "This is the frontend-template project. Here you can find the technologies and tools used in this project.",
-      "weatherButton": "WEATHER"
-    },
-    "weather": {
-      "title": "Weather",
-      "description": "This shows the weather of the Telekom office at Winterfeldtstraße 21, 10781 Berlin.",
-      "getWeatherButton": "GET WEATHER",
-      "weatherHeader": "Current Weather",
-      "temperature": "Temperature"
-    }
-  },
   "documentManagement": {
     "title": "Document Management",
     "sidebarTitle": "DMS",
@@ -22,27 +8,37 @@
     "move": "Move",
     "delete": "Delete",
     "uploadDocument": {
-      "button": "Upload Document",
-      "title": "Upload Document",
+      "button": "Upload File",
+      "title": "Upload File",
       "maxSize": "Maximum {{max}} MB per file",
       "selectFiles": "Select Files",
       "selected": "Selected files:",
+      "noFiles": "No files selected",
+      "removeFile": "remove {{file}}",
+      "fileTooLarge": "too large",
       "cancel": "Cancel",
       "confirm": "Upload"
     },
+    "search": {
+      "searchbar": "searching in current folder",
+      "searchPlaceholder": "search",
+      "noResults": "no results found",
+      "queryPrefix": "for"
+    },
     "downloadDocument": {
-      "button": "Download documents",
+      "button": "Download files",
       "download": "Download",
-      "description": "Downloads every document in current directory",
-      "title": "Download documents",
-      "allDocs": "Download all documents",
-      "selectedDocs": "Choose documents",
+      "description": "Downloads every file in current directory",
+      "title": "Download files",
+      "allDocs": "Download all files",
+      "selectedDocs": "Choose files",
       "confirm": "Confirm",
       "cancel": "Cancel"
     },
     "fileViewer": {
       "download": "Download",
-      "close": "Close"
+      "close": "Close",
+      "noPreview": "No preview available for "
     },
     "renameDialog": {
       "title": "Rename",
@@ -58,12 +54,13 @@
     },
     "deleteFolderDialog": {
       "title": "Delete folder",
-      "message": "Deleting this folder will also delete all contained documents. This action cannot be undone."
+      "message": "Deleting this folder will also delete all contained files. This action cannot be undone."
     },
     "newFolder": {
       "title": "Create folder",
       "label": "Folder name",
-      "create": "Create"
+      "create": "Create",
+      "cancel": "Cancel"
     },
     "moveDialog": {
       "title": "Move item",
@@ -84,7 +81,7 @@
     },
     "type": {
       "folder": "Folder",
-      "document": "Document",
+      "document": "File",
       "pdf": "PDF"
     },
     "moreActions": "More actions",
@@ -95,15 +92,15 @@
       "deleteFailed": "Delete failed",
       "created": "Created",
       "noFiles": "No files selected",
-      "fileTooLarge": "File exceeds maximum size",
+  "fileTooLarge": "File {{fileName}} exceeds maximum size of {{maxSize}} MB",
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
       "duplicate": "File {{duplicateName}} already existing",
       "downloaded": "Download started",
       "downloadFailed": "Download failed",
-      "noDocsInFolder": "No documents or folders in current directory",
+      "noDocsInFolder": "No files or folders in current directory",
       "noSelection": "No selection",
-      "noDocsInSelection": "No documents in selection",
+      "noDocsInSelection": "No files in selection",
       "previewFailed": "Preview failed",
       "createFailed": "Create failed",
       "moved": "Moved",

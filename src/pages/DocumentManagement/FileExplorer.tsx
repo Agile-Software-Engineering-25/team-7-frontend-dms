@@ -11,6 +11,10 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  InputAdornment,
+  ListItemText,
+  ListItem,
+  Tooltip,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -21,9 +25,16 @@ import BreadcrumbBar from './BreadcrumbBar';
 import DownloadDialog from './DownloadDialog';
 import ConflictDialog from './ConflictDialog';
 import type { ConflictAction } from './ConflictDialog';
+import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import Button from '@shared-components/Button/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import UploadIcon from '@mui/icons-material/Upload';
+import DownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
+import Button from '@mui/joy/Button';
+import { useCanAccess } from '@/lib/permissions';
 
 type Item = {
   id: string;
@@ -59,7 +70,8 @@ type DocForZip = {
 const MAX_PATH_DEPTH = 50;
 const MAX_FILE_SIZE_MB = 5;
 
-export default function FileExplorer(): JSX.Element {
+export default function FileExplorer(): React.ReactElement {
+  const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
@@ -92,7 +104,7 @@ export default function FileExplorer(): JSX.Element {
   const [snack, setSnack] = React.useState<{
     open: boolean;
     msg?: string | null;
-    severity: 'success' | 'error';
+    severity: 'success' | 'error' | 'info';
   }>({ open: false, msg: null, severity: 'success' });
   const [moveChooserOpen, setMoveChooserOpen] = React.useState(false);
   const [moveSourceId, setMoveSourceId] = React.useState<string | null>(null);
@@ -109,12 +121,31 @@ export default function FileExplorer(): JSX.Element {
     overwrite: () => Promise<void>;
     rename: () => Promise<void>;
   } | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
   // keep a ref to the latest items so event handlers don't need to be
   // re-registered whenever `items` changes.
   const itemsRef = React.useRef<Item[]>(items);
   React.useEffect(() => {
     itemsRef.current = items;
   }, [items]);
+
+  // correctly move, create and upload effect because of debounce from searchbar
+  React.useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredItems(items);
+    } else {
+      const q = searchQuery.toLowerCase();
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+      setFilteredItems(filtered);
+    }
+  }, [items]);
+
+  // clear searchbar after switching folder
+  React.useEffect(() => {
+    setSearchQuery('');
+    setFilteredItems(items);
+  }, [currentFolderIdRef.current]);
 
   // We'll also keep a ref for `handleMove` so breadcrumb-drop handlers can
   // invoke it without the listener needing to be re-registered.
@@ -127,6 +158,14 @@ export default function FileExplorer(): JSX.Element {
     | null
   >(null);
 
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const isTooLarge = (file: File): boolean =>
+    file.size > MAX_FILE_SIZE_MB * 1024 * 1024;
+
+  const hasInvalidFiles = selectedFiles.some(isTooLarge);
   // handle DOM custom events from FileItemActions or breadcrumb drops.
   // Register listeners once and read the latest values via refs.
   React.useEffect(() => {
@@ -190,7 +229,10 @@ export default function FileExplorer(): JSX.Element {
         uploadDate: f.createdDate ?? new Date().toISOString(),
         itemType: 'folder',
       }));
-      setItems([...subfolders, ...docs]);
+      const allItems = [...subfolders, ...docs];
+      setItems(allItems);
+      setFilteredItems(allItems);
+      setSearchQuery('');
     } catch {
       // ignore for now
     }
@@ -239,9 +281,20 @@ export default function FileExplorer(): JSX.Element {
 
   const showSnack = (
     msg: string,
-    severity: 'success' | 'error' = 'success'
+    severity: 'success' | 'error' | 'info' = 'success'
   ) => {
     setSnack({ open: true, msg, severity });
+  };
+
+  const showSnackSequence = async (
+    messages: Array<{ msg: string; severity: 'success' | 'error' | 'info' }>
+  ) => {
+    for (let i = 0; i < messages.length; i++) {
+      if (i > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      showSnack(messages[i].msg, messages[i].severity);
+    }
   };
 
   const handleOpenRename = (id: string) => {
@@ -362,17 +415,21 @@ export default function FileExplorer(): JSX.Element {
       return;
     }
 
-    // check max file size
-    const tooBig = selectedFiles.find(
-      (f) => f.size > MAX_FILE_SIZE_MB * 1024 * 1024
-    );
-    if (tooBig) {
-      handleCloseUpload();
-      showSnack(
-        t('documentManagement.snack.fileTooLarge', 'File exceeds max size'),
-        'error'
-      );
-      return;
+    const maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+    // Filter valid files: not too big and not duplicates
+    const validFiles: File[] = [];
+    const oversizedFiles: File[] = [];
+    const duplicateFiles: File[] = [];
+
+    for (const file of selectedFiles) {
+      if (file.size > maxSizeBytes) {
+        oversizedFiles.push(file);
+      } else if (items.some((item) => item.name === file.name)) {
+        duplicateFiles.push(file);
+      } else {
+        validFiles.push(file);
+      }
     }
 
     // check duplicates
@@ -435,26 +492,56 @@ export default function FileExplorer(): JSX.Element {
       return;
     }
 
-    try {
-      for (const file of selectedFiles) {
+    let uploadSuccessCount = 0;
+    const failedFiles: string[] = [];
+
+    for (const file of validFiles) {
+      try {
         await api.uploadDocument(file, currentFolderIdRef.current);
+        uploadSuccessCount++;
+      } catch {
+        failedFiles.push(file.name);
       }
+    }
+
+    if (failedFiles.length > 0) {
+      const failedNames = failedFiles.join(', ');
+      const defaultValue =
+        uploadSuccessCount > 0
+          ? 'Uploaded partially. Failed for: {{fileNames}}'
+          : 'Upload failed for: {{fileNames}}';
+      messages.push({
+        msg: t('documentManagement.snack.uploadFailed', {
+          defaultValue,
+          fileName: failedNames,
+          fileNames: failedNames,
+        }),
+        severity: 'error',
+      });
+    }
+
+    if (uploadSuccessCount > 0) {
       await refresh();
-      showSnack(
-        t('documentManagement.snack.uploaded', 'Uploaded successfully'),
-        'success'
+      const successMessage = t(
+        'documentManagement.snack.uploaded',
+        'Uploaded successfully'
       );
-    } catch (error) {
-      console.error('Upload failed:', error);
-      showSnack(
-        t('documentManagement.snack.uploadFailed', 'Upload failed'),
-        'error'
-      );
+      if (messages.length === 0) {
+        messages.push({ msg: successMessage, severity: 'success' });
+      } else {
+        // ensure success info appears before errors so the final message stays an error
+        messages.unshift({ msg: successMessage, severity: 'success' });
+      }
+    }
+
+    if (messages.length > 0) {
+      await showSnackSequence(messages);
     }
 
     // reset and close
     setUploadOpen(false);
     setSelectedFiles([]);
+    await refresh();
   };
 
   const handleCloseUpload = () => {
@@ -470,7 +557,7 @@ export default function FileExplorer(): JSX.Element {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      if (doc.itemType === 'document') {
+      if (doc.itemType === 'document' || doc.itemType === 'pdf') {
         const { url, name } = await api.downloadDocument(docId);
 
         const link = document.createElement('a');
@@ -517,8 +604,6 @@ export default function FileExplorer(): JSX.Element {
     () => items.length > 0,
     [items]
   );
-
-  const isDoc = (i: Item) => i.itemType === 'document' || i.itemType === 'pdf';
 
   const collectDocsFromFolderWithPaths = async (
     folderId: string,
@@ -944,6 +1029,30 @@ export default function FileExplorer(): JSX.Element {
     setMoveSourceId(null);
   };
 
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      if (!value.trim()) {
+        setFilteredItems(items);
+        return;
+      }
+
+      const q = value.toLowerCase();
+
+      const filtered = items.filter((i) => i.name.toLowerCase().includes(q));
+
+      setFilteredItems(filtered);
+    }, 300);
+  };
+
   // keep handleMoveRef up to date so event handlers call the latest function
   React.useEffect(() => {
     handleMoveRef.current = handleMove;
@@ -974,103 +1083,254 @@ export default function FileExplorer(): JSX.Element {
   return (
     <Box
       role="region"
-      aria-labelledby="file-explorer-title"
-      sx={{ overflow: 'auto' }}
+      aria-label={t(
+        'documentManagement.fileExplorerRegion',
+        'Document explorer'
+      )}
+      sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
-      <Typography id="file-explorer-title" sx={{ mb: 2 }} variant="h6">
-        {t('documentManagement.files', 'Files')}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-        <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
-        <Box sx={{ flex: 1 }} />
-        <IconButton
-          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
-          title={t('documentManagement.newFolder.title', 'Create folder')}
-          onClick={() => setNewFolderOpen(true)}
-        >
-          <CreateNewFolderIcon fontSize="small" aria-hidden />
-        </IconButton>
-      </Box>
-      <Button
-        aria-label={t(
-          'documentManagement.uploadDocuemnt.button',
-          'Upload document'
-        )}
-        aria-describedby={t(
-          'documentManagement.uploadDocument.maxSize',
-          'Max size of a file: X MB'
-        )}
-        variant="solid"
+      <Box
         sx={{
-          backgroundColor: '#2f3b52',
-          color: '#fff',
-          '&:hover': { backgroundColor: '#47566eff' },
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          mb: 2,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
-        onClick={() => setUploadOpen(true)}
       >
-        {t('documentManagement.uploadDocument.button', 'Upload document')}
-      </Button>
-      <Button
-        aria-label={t(
-          'documentManagement.downloadDocument.button',
-          'Download documents'
-        )}
-        aria-describedby={t(
-          'documentManagement.downloadDocument.description',
-          'Downloads every document in current directory'
-        )}
-        variant="solid"
-        sx={{
-          backgroundColor: '#2f3b52',
-          color: '#fff',
-          margin: 1,
-          '&:hover': { backgroundColor: '#47566eff' },
-        }}
-        onClick={() => {
-          if (!hasAnyDownloadableDocs()) {
+        <TextField
+          size="medium"
+          placeholder={t(
+            'documentManagement.search.searchPlaceholder',
+            'search'
+          )}
+          value={searchQuery}
+          onChange={(e) => handleSearch(e.target.value)}
+          InputProps={{
+            'aria-label': t(
+              'documentManagement.search.searchbar',
+              'searching in current folder'
+            ),
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="medium" sx={{ color: '#002E6D' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            minWidth: { xs: '100%', md: 240 },
+            maxWidth: { xs: '100%', md: 320 },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '999px',
+              backgroundColor: '#ffffff',
+              minHeight: 40,
+              alignItems: 'center',
+              '& fieldset': { borderColor: '#d1d9e6' },
+              '&:hover fieldset': { borderColor: '#002E6D' },
+              '&.Mui-focused fieldset': { borderColor: '#002E6D' },
+            },
+          }}
+        />
+        <Button
+          size="md"
+          variant="outlined"
+          startDecorator={<FilterListIcon fontSize="medium" />}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+            '--Button-borderWidth': '1px',
+            '--Button-color': '#002E6D',
+            '--Button-borderColor': '#002E6D',
+            '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
+            '--Button-hoverBorderColor': '#001f56',
+            '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
+            '--Button-minHeight': '40px',
+            fontWeight: 600,
+          }}
+          onClick={() =>
             showSnack(
               t(
-                'documentManagement.snack.noDocsInFolder',
-                'No documents or folders in current directory'
+                'documentManagement.filterPlaceholder',
+                'Filterfunktion folgt in Kürze'
               ),
-              'error'
-            );
-            return;
+              'info'
+            )
           }
-          setDownloadDialogOpen(true);
-        }}
-      >
-        {t('documentManagement.downloadDocument.button', 'Download documents')}
-      </Button>
-      <List aria-label="file list">
-        {items.map((item) => (
-          <FileListItem
-            key={item.id}
-            item={item}
-            onRename={handleOpenRename}
-            onDelete={handleOpenDelete}
-            onOpen={handleOpenFolder}
-            onDownload={handleDownload}
-            onPreview={
-              item.itemType !== 'folder' ? handleOpenViewer : undefined
-            }
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              try {
-                const raw = e.dataTransfer?.getData('application/x-dms-item');
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                // If dropped onto a folder, move into that folder
-                if (item.itemType === 'folder') {
-                  handleMove(parsed.id, parsed.type, item.id);
-                }
-              } catch {
-                // ignore
-              }
+        >
+          {t('documentManagement.filterButton', 'Filter (bald)')}
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {canAccess('uploadDocuments') && (
+          <Button
+            size="sm"
+            aria-label={t(
+              'documentManagement.uploadDocuemnt.button',
+              'Upload document'
+            )}
+            aria-describedby={t(
+              'documentManagement.uploadDocument.maxSize',
+              'Max size of a file: X MB'
+            )}
+            variant="solid"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
             }}
-          />
-        ))}
-      </List>
+            onClick={() => {
+              if (!canAccess('uploadDocuments')) return;
+              setUploadOpen(true);
+            }}
+            startDecorator={<UploadIcon fontSize="small" />}
+          >
+            {t('documentManagement.uploadDocument.button', 'Upload document')}
+          </Button>
+        )}
+        <Button
+          size="sm"
+          aria-label={t(
+            'documentManagement.downloadDocument.button',
+            'Download documents'
+          )}
+          aria-describedby={t(
+            'documentManagement.downloadDocument.description',
+            'Downloads every document in current directory'
+          )}
+          variant="solid"
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            fontWeight: 600,
+          }}
+          onClick={() => {
+            if (!hasAnyDownloadableDocs()) {
+              showSnack(
+                t(
+                  'documentManagement.snack.noDocsInFolder',
+                  'No documents or folders in current directory'
+                ),
+                'error'
+              );
+              return;
+            }
+            setDownloadDialogOpen(true);
+          }}
+          startDecorator={<DownloadIcon fontSize="small" />}
+        >
+          {t(
+            'documentManagement.downloadDocument.button',
+            'Download documents'
+          )}
+        </Button>
+        {/* Button only visible for userrole 'admin' and 'staff' */}
+        {canAccess('manageDocuments') && (
+          <IconButton
+            aria-label={t(
+              'documentManagement.newFolder.title',
+              'Create folder'
+            )}
+            title={t('documentManagement.newFolder.title', 'Create folder')}
+            onClick={() => {
+              if (!canAccess('manageDocuments')) return;
+              setNewFolderOpen(true);
+            }}
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              backgroundColor: '#002E6D',
+              color: '#ffffff',
+              boxShadow: '0px 8px 18px rgba(0, 46, 109, 0.25)',
+              '&:hover': {
+                backgroundColor: '#001f56',
+              },
+            }}
+          >
+            <CreateNewFolderIcon fontSize="small" aria-hidden />
+          </IconButton>
+        )}
+      </Box>
+      <Box sx={{ mb: 2 }}>
+        <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
+      </Box>
+      {searchQuery.trim() && filteredItems.length === 0 ? (
+        <Box
+          sx={{
+            p: 3,
+            textAlign: 'center',
+            color: 'error.main',
+            fontSize: '1.25rem',
+            fontWeight: '500',
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          {t('documentManagement.search.noResults', 'no results found')}{' '}
+          {t('documentManagement.search.queryPrefix', 'for')} „{searchQuery}“
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            flex: 1,
+            overflow: 'auto',
+            minHeight: 0,
+            maxHeight: '500px',
+            border: 'none',
+            borderRadius: 0,
+          }}
+        >
+          <List aria-label="file list" sx={{ padding: 0 }}>
+            {filteredItems.map((item) => (
+              <FileListItem
+                key={item.id}
+                item={item}
+                onRename={handleOpenRename}
+                onDelete={handleOpenDelete}
+                onOpen={handleOpenFolder}
+                onDownload={handleDownload}
+                onPreview={
+                  item.itemType !== 'folder' ? handleOpenViewer : undefined
+                }
+                onDragOver={(e) => {
+                  if (canAccess('manageDocuments')) e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  if (!canAccess('manageDocuments')) return;
+                  try {
+                    const raw = e.dataTransfer?.getData(
+                      'application/x-dms-item'
+                    );
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    // If dropped onto a folder, move into that folder
+                    if (item.itemType === 'folder') {
+                      handleMove(parsed.id, parsed.type, item.id);
+                    }
+                  } catch {
+                    // ignore
+                  }
+                }}
+              />
+            ))}
+          </List>
+        </Box>
+      )}
 
       {/* File viewer dialog */}
       <FileViewer
@@ -1080,95 +1340,34 @@ export default function FileExplorer(): JSX.Element {
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}
       />
-      {/* Move chooser dialog (keyboard fallback). Simple: pick one of the current breadcrumb entries as destination */}
-      <Dialog
+      {/* Enhanced Move Dialog with folder tree */}
+      <MoveDialog
         open={Boolean(moveChooserOpen && moveSourceId)}
         onClose={() => {
           setMoveChooserOpen(false);
           setMoveSourceId(null);
         }}
-        aria-labelledby="move-dialog-title"
-      >
-        <DialogTitle id="move-dialog-title">
-          {t('documentManagement.moveDialog.title', 'Move item')}
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            {t(
-              'documentManagement.moveDialog.select',
-              'Select destination folder'
-            )}
-          </Typography>
-          {/* Show root folder */}
-          <Box sx={{ mb: 1 }}>
-            <Button
-              variant="soft"
-              onClick={() =>
-                moveSourceId &&
-                handleMove(moveSourceId, moveSourceType ?? 'document', 'root')
-              }
-            >
-              {t('documentManagement.root', 'Home')}
-            </Button>
-          </Box>
-          {/* Show folders in current directory */}
-          {items
-            .filter(
-              (item) => item.itemType === 'folder' && item.id !== moveSourceId
-            )
-            .map((folder) => (
-              <Box key={folder.id} sx={{ mb: 1 }}>
-                <Button
-                  variant="soft"
-                  onClick={() =>
-                    moveSourceId &&
-                    handleMove(
-                      moveSourceId,
-                      moveSourceType ?? 'document',
-                      folder.id
-                    )
-                  }
-                >
-                  {folder.name}
-                </Button>
-              </Box>
-            ))}
-          {/* Show current path folders for navigation */}
-          {currentPath.slice(1).map((p) => (
-            <Box key={p.id} sx={{ mb: 1 }}>
-              <Button
-                variant="soft"
-                onClick={() =>
-                  moveSourceId &&
-                  handleMove(moveSourceId, moveSourceType ?? 'document', p.id)
-                }
-              >
-                {p.name}
-              </Button>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setMoveChooserOpen(false);
-              setMoveSourceId(null);
-            }}
-          >
-            {t('documentManagement.moveDialog.cancel', 'Cancel')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onMove={(targetFolderId: string) =>
+          moveSourceId &&
+          handleMove(moveSourceId, moveSourceType ?? 'document', targetFolderId)
+        }
+        currentFolderId={currentFolderIdRef.current}
+        currentPath={currentPath}
+        api={api}
+        moveSourceId={moveSourceId}
+      />
 
       <Dialog
         open={renameOpen}
         onClose={() => setRenameOpen(false)}
         aria-labelledby="rename-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="rename-title">
           {t('documentManagement.renameDialog.title', 'Rename')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <TextField
             autoFocus
             margin="dense"
@@ -1176,14 +1375,43 @@ export default function FileExplorer(): JSX.Element {
             fullWidth
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleRename();
+              }
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRenameOpen(false)} variant="solid">
-            {t('documentManagement.renameDialog.cancel', 'Cancel')}
-          </Button>
-          <Button onClick={handleRename} variant="solid">
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            onClick={handleRename}
+            variant="solid"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
+          >
             {t('documentManagement.renameDialog.confirm', 'Rename')}
+          </Button>
+          <Button
+            onClick={() => setRenameOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.renameDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1193,22 +1421,49 @@ export default function FileExplorer(): JSX.Element {
         open={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
         aria-labelledby="delete-confirm-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="delete-confirm-title">
           {t('documentManagement.deleteDialog.title', 'Delete')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           {t(
             'documentManagement.deleteDialog.message',
             'Are you sure you want to delete this item?'
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)} variant="solid">
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
-          <Button onClick={handleDelete} variant="solid" color="danger">
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            onClick={handleDelete}
+            variant="solid"
+            color="danger"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
+          >
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button
+            onClick={() => setDeleteConfirmOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1218,29 +1473,51 @@ export default function FileExplorer(): JSX.Element {
         open={deleteFolderConfirmOpen}
         onClose={() => setDeleteFolderConfirmOpen(false)}
         aria-labelledby="delete-folder-confirm-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="delete-folder-confirm-title">
           {t('documentManagement.deleteFolderDialog.title', 'Delete folder')}
         </DialogTitle>
-        <DialogContent>
-          {t(
-            'documentManagement.deleteFolderDialog.message',
-            'Deleting this folder will also delete all contained documents. This action cannot be undone.'
-          )}
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ color: 'text.primary' }}>
+            {t(
+              'documentManagement.deleteFolderDialog.message',
+              'Deleting this folder will also delete all contained documents. This action cannot be undone.'
+            )}
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteFolderConfirmOpen(false)}
-            variant="solid"
-          >
-            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
-          </Button>
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
             onClick={handleDeleteFolderConfirmed}
             variant="solid"
             color="danger"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
           >
             {t('documentManagement.deleteDialog.confirm', 'Delete')}
+          </Button>
+          <Button
+            onClick={() => setDeleteFolderConfirmOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.deleteDialog.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1250,11 +1527,13 @@ export default function FileExplorer(): JSX.Element {
         open={newFolderOpen}
         onClose={() => setNewFolderOpen(false)}
         aria-labelledby="new-folder-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="new-folder-title">
           {t('documentManagement.newFolder.title', 'Create folder')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <TextField
             autoFocus
             margin="dense"
@@ -1262,14 +1541,43 @@ export default function FileExplorer(): JSX.Element {
             fullWidth
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleCreateFolder();
+              }
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setNewFolderOpen(false)} variant="solid">
-            {t('documentManagement.newFolder.cancel', 'Cancel')}
-          </Button>
-          <Button onClick={handleCreateFolder} variant="solid">
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            onClick={handleCreateFolder}
+            variant="solid"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
+          >
             {t('documentManagement.newFolder.create', 'Create')}
+          </Button>
+          <Button
+            onClick={() => setNewFolderOpen(false)}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
+            {t('documentManagement.newFolder.cancel', 'Cancel')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1279,61 +1587,176 @@ export default function FileExplorer(): JSX.Element {
         open={uploadOpen}
         onClose={handleCloseUpload}
         aria-labelledby="upload-dialog-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="upload-dialog-title">
           {t('documentManagement.uploadDocument.title', 'Upload document')}
         </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2 }}>
+        <DialogContent dividers>
+          <Typography variant="body2" sx={{ mb: 1 }}>
             {t('documentManagement.uploadDocument.maxSize', {
               defaultValue: 'Maximal {{max}} MB per file',
               max: MAX_FILE_SIZE_MB,
             })}
           </Typography>
-          <input
-            id="file-input"
-            type="file"
-            multiple
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              setSelectedFiles(files);
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100%',
             }}
-          />
-          <label htmlFor="file-input">
-            <Button component="span" variant="soft">
-              {t(
-                'documentManagement.uploadDocument.selectFiles',
-                'Select files:'
-              )}
-            </Button>
-          </label>
-
-          {/* Show selected files */}
-          {selectedFiles.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2">
+          >
+            {selectedFiles.length === 0 ? (
+              <Typography
+                variant="body2"
+                sx={{ textAlign: 'center', color: 'text.secondary', mb: 1 }}
+              >
                 {t(
-                  'documentMangement.uploadDocument.selected',
-                  'Selected files:'
+                  'documentManagement.uploadDocument.noFiles',
+                  'Keine Dateien ausgewählt'
                 )}
               </Typography>
-              <ul>
-                {selectedFiles.map((file) => (
-                  <li key={file.name}>
-                    {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                  </li>
+            ) : (
+              <List
+                dense
+                sx={{ width: '100%' }}
+                aria-label={t(
+                  'documentManagement.uploadDocument.selected',
+                  'selected files:'
+                )}
+              >
+                {selectedFiles.map((file, idx) => (
+                  <ListItem
+                    key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
+                    aria-invalid={isTooLarge(file) ? 'true' : undefined}
+                    secondaryAction={
+                      <Tooltip
+                        title={t(
+                          'documentManagement.uploadDocument.removeFile',
+                          {
+                            defaultValue: 'remove {{file}}',
+                            file: file.name,
+                          }
+                        )}
+                        sx={{
+                          backgroundColor: '#ffe5e5',
+                        }}
+                      >
+                        <IconButton
+                          edge="end"
+                          aria-label={t(
+                            'documentManagement.uploadDocument.removeFile',
+                            {
+                              defaultValue: 'remove {{file}}',
+                              file: file.name,
+                            }
+                          )}
+                          onClick={() => handleRemoveSelectedFile(idx)}
+                          color="error"
+                          size="small"
+                        >
+                          <CloseIcon fontSize="small" aria-hidden />
+                        </IconButton>
+                      </Tooltip>
+                    }
+                  >
+                    <ListItemText
+                      primary={file.name}
+                      primaryTypographyProps={{
+                        sx: {
+                          ...(isTooLarge(file) && {
+                            color: 'error.main',
+                          }),
+                        },
+                      }}
+                      secondary={
+                        <>
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                          {isTooLarge(file) && (
+                            <Typography
+                              variant="caption"
+                              color="error"
+                              sx={{ fontWeight: 500, ml: 1 }}
+                              role="alert"
+                            >
+                              {t(
+                                'documentManagement.uploadDocument.fileTooLarge',
+                                {
+                                  defaultValue: 'too large',
+                                }
+                              )}
+                            </Typography>
+                          )}
+                        </>
+                      }
+                    />
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
+            )}
+            <Box sx={{ mt: 2 }}>
+              <Button
+                component="label"
+                variant="soft"
+                sx={{
+                  '--Button-radius': '8px',
+                  '--Button-shadow': 'none',
+                  '--Button-hoverShadow': 'none',
+                }}
+              >
+                {t(
+                  'documentManagement.uploadDocument.selectFiles',
+                  'Select files:'
+                )}
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  hidden
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setSelectedFiles((prev) => [...prev, ...files]);
+                  }}
+                />
+              </Button>
             </Box>
-          )}
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleUploadDocument} variant="solid">
+        <DialogActions sx={{ justifyContent: 'flex-end' }}>
+          <Button
+            onClick={handleUploadDocument}
+            variant="solid"
+            disabled={selectedFiles.length === 0 || hasInvalidFiles}
+            aria-disabled={
+              selectedFiles.length === 0 || hasInvalidFiles ? 'true' : undefined
+            }
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+              '--Button-minHeight': '34px',
+              '--Button-paddingInline': '16px',
+              '--Button-bg': '#002E6D',
+              '--Button-color': '#ffffff',
+              '--Button-hoverBg': '#001f56',
+              '--Button-activeBg': '#001a4a',
+              fontWeight: 600,
+            }}
+          >
             {t('documentManagement.uploadDocument.confirm', 'upload')}
           </Button>
-          <Button onClick={handleCloseUpload} variant="solid">
+          <Button
+            onClick={handleCloseUpload}
+            variant="plain"
+            color="primary"
+            sx={{
+              '--Button-radius': '8px',
+              '--Button-shadow': 'none',
+              '--Button-hoverShadow': 'none',
+            }}
+          >
             {t('documentManagement.uploadDocument.cancel', 'Cancel')}
           </Button>
         </DialogActions>
@@ -1352,35 +1775,31 @@ export default function FileExplorer(): JSX.Element {
         open={downloadDialogOpen}
         onClose={() => setDownloadDialogOpen(false)}
         items={items}
-        onConfirm={async (selectedIds) => {
+        onConfirm={async (selectedIds: string[]) => {
           try {
-            if (!selectedIds || selectedIds.length === 0) {
-              showSnack(
-                t('documentManagement.snack.noSelecttion', 'No Selection'),
-                'error'
-              );
-              return;
-            }
-
-            const idSet = new Set(selectedIds);
-            const selectedItems = items.filter((i) => idSet.has(i.id));
-
             const docsForZip: DocForZip[] = [];
-
-            for (const item of selectedItems) {
-              if (isDoc(item)) {
-                const { url, name } = await api.downloadDocument(item.id);
-                docsForZip.push({ url, name, path: '' });
-              } else if (item.itemType === 'folder') {
-                const nested = await collectDocsFromFolderWithPaths(
-                  item.id,
-                  item.name
-                );
-                docsForZip.push(...nested);
+            for (const id of selectedIds) {
+              const item = items.find((i) => i.id === id);
+              if (item) {
+                if (item.itemType === 'document' || item.itemType === 'pdf') {
+                  const { url, name } = await api.downloadDocument(id);
+                  docsForZip.push({ url, name, path: name });
+                } else if (item.itemType === 'folder') {
+                  const folderDocs = await collectDocsFromFolderWithPaths(
+                    id,
+                    item.name
+                  );
+                  docsForZip.push(...folderDocs);
+                }
               }
             }
-
-            if (docsForZip.length === 0) {
+            if (docsForZip.length > 0) {
+              await api.downloadAsZip(docsForZip, currentFolderName);
+              showSnack(
+                t('documentManagement.snack.downloaded', 'Download started'),
+                'success'
+              );
+            } else {
               showSnack(
                 t(
                   'documentManagement.snack.noDocsInSelection',
@@ -1388,30 +1807,10 @@ export default function FileExplorer(): JSX.Element {
                 ),
                 'error'
               );
-              return;
             }
-
-            if (docsForZip.length === 1) {
-              const { url, name } = docsForZip[0];
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = name;
-              a.click();
-              showSnack(
-                t('documentManagement.snack.downloaded', 'Download started'),
-                'success'
-              );
-              setDownloadDialogOpen(false);
-              return;
-            } else {
-              await api.downloadAsZip(docsForZip, currentFolderName);
-              showSnack(
-                t('documentManagement.snack.downloaded', 'Download started'),
-                'success'
-              );
-              setDownloadDialogOpen(false);
-            }
-          } catch {
+            setDownloadDialogOpen(false);
+          } catch (error) {
+            console.error('Download failed:', error);
             showSnack(
               t('documentManagement.snack.downloadFailed', 'Download failed'),
               'error'

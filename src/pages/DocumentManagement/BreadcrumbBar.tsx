@@ -3,6 +3,29 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
+import { useCanAccess } from '@/lib/permissions';
+
+const chipBaseSx = {
+  borderRadius: '999px',
+  backgroundColor: '#ffffff',
+  color: '#002E6D',
+  fontWeight: 600,
+  px: 1.5,
+  height: 36,
+  '&.MuiChip-clickable:hover': {
+    backgroundColor: '#e9f1ff',
+    color: '#002E6D',
+  },
+};
+
+const chipActiveSx = {
+  backgroundColor: '#002E6D',
+  color: '#ffffff',
+  '&.MuiChip-clickable:hover': {
+    backgroundColor: '#002E6D',
+    color: '#ffffff',
+  },
+};
 
 type PathItem = { id: string; name: string };
 
@@ -10,6 +33,7 @@ const BreadcrumbBar: React.FC<{
   path: PathItem[];
   onNavigate: (id: string) => void;
 }> = ({ path, onNavigate }) => {
+  const { canAccess } = useCanAccess();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const lastItemRef = React.useRef<HTMLButtonElement | null>(null);
   const liveRef = React.useRef<HTMLDivElement | null>(null);
@@ -39,7 +63,7 @@ const BreadcrumbBar: React.FC<{
   }, [path]);
 
   return (
-    <Box sx={{ marginBottom: 2 }}>
+    <Box>
       <Breadcrumbs
         aria-label="breadcrumb"
         separator=" > "
@@ -53,35 +77,41 @@ const BreadcrumbBar: React.FC<{
         }}
         ref={containerRef}
       >
-        {path.map((item, index) => (
-          <Chip
-            key={item.id}
-            label={item.name}
-            onClick={() => onNavigate(item.id)}
-            clickable
-            component="button"
-            size="small"
-            aria-current={index === path.length - 1 ? 'page' : undefined}
-            ref={index === path.length - 1 ? lastItemRef : undefined}
-            onDragOver={(e) => e.preventDefault()}
-            onDragEnter={() => setDragOverId(item.id)}
-            onDragLeave={() => setDragOverId((v) => (v === item.id ? null : v))}
-            onDrop={(e) => {
-              const parsed = parseDragData(e.dataTransfer);
-              if (!parsed) return;
-              emitDropOnBreadcrumb(parsed, item.id);
-              setDragOverId(null);
-            }}
-            sx={
-              dragOverId === item.id
-                ? {
-                    boxShadow: (theme) =>
-                      `0 0 0 2px ${theme.palette.primary.main}55`,
-                  }
-                : undefined
-            }
-          />
-        ))}
+        {path.map((item, index) => {
+          const isCurrent = index === path.length - 1;
+          const isDragOver = dragOverId === item.id;
+          return (
+            <Chip
+              key={item.id}
+              label={item.name}
+              onClick={() => onNavigate(item.id)}
+              clickable
+              component="button"
+              size="medium"
+              aria-current={isCurrent ? 'page' : undefined}
+              ref={isCurrent ? lastItemRef : undefined}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnter={() => setDragOverId(item.id)}
+              onDragLeave={() =>
+                setDragOverId((v) => (v === item.id ? null : v))
+              }
+              onDrop={(e) => {
+                if (!canAccess('manageDocuments')) return;
+                const parsed = parseDragData(e.dataTransfer);
+                if (!parsed) return;
+                emitDropOnBreadcrumb(parsed, item.id);
+                setDragOverId(null);
+              }}
+              sx={{
+                ...chipBaseSx,
+                ...(isCurrent ? chipActiveSx : {}),
+                ...(isDragOver
+                  ? { border: '2px solid rgba(0, 46, 109, 0.35)' }
+                  : {}),
+              }}
+            />
+          );
+        })}
       </Breadcrumbs>
       <div
         aria-live="polite"

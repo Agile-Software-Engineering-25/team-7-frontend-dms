@@ -11,6 +11,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FileItemActions from './FileItemActions';
+import { useCanAccess } from '@/lib/permissions';
 
 export type Item = {
   id: string;
@@ -62,6 +63,7 @@ const FileListItem: React.FC<Props> = ({
   onDragOver,
   onDownload,
 }) => {
+  const { canAccess } = useCanAccess();
   const [isDragOver, setIsDragOver] = React.useState(false);
   const dragCounter = React.useRef(0);
 
@@ -81,11 +83,15 @@ const FileListItem: React.FC<Props> = ({
       component="div"
       divider
       role="listitem"
-      draggable
+      draggable={canAccess('manageDocuments')}
       onClick={() => {
-        if (item.itemType === 'folder') {
+        if (item.itemType === 'folder' && canAccess('navigateFolders')) {
           onOpen?.(item.id);
-        } else {
+        } else if (
+          item.itemType === 'document' ||
+          item.itemType === 'pdf' ||
+          (item.itemType === 'other' && canAccess('viewDocuments'))
+        ) {
           onPreview?.(item.id);
         }
       }}
@@ -120,13 +126,22 @@ const FileListItem: React.FC<Props> = ({
       }}
     >
       <ListItemAvatar>
-        <Avatar aria-hidden aria-label={item.itemType}>
+        <Avatar
+          aria-hidden
+          aria-label={item.itemType}
+          sx={{
+            width: 32,
+            height: 32,
+            color: '#002E6D',
+            bgcolor: 'transparent',
+          }}
+        >
           {item.itemType === 'folder' ? (
-            <FolderIcon fontSize="small" aria-hidden />
+            <FolderIcon fontSize="medium" aria-hidden />
           ) : item.itemType === 'pdf' ? (
-            <DescriptionIcon fontSize="small" aria-hidden />
+            <DescriptionIcon fontSize="medium" aria-hidden />
           ) : (
-            <InsertDriveFileIcon fontSize="small" aria-hidden />
+            <InsertDriveFileIcon fontSize="medium" aria-hidden />
           )}
         </Avatar>
       </ListItemAvatar>

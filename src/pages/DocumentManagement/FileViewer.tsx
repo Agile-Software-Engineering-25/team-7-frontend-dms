@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Dialog, DialogContent, DialogActions } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Button from '@shared-components/Button/Button';
+import Button from '@mui/joy/Button';
 
 type FileViewerProps = {
   open: boolean;
@@ -81,17 +81,48 @@ const FileViewer: React.FC<FileViewerProps> = ({
       );
     }
 
-    return <p>Keine Vorschau verfügbar für {fileType}</p>;
+    return (
+      <p>
+        {t(
+          'documentManagement.fileViewer.noPreview',
+          'Keine Vorschau verfügbar für'
+        )}
+        {fileType}
+      </p>
+    );
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogContent>{renderPreview()}</DialogContent>
-      <DialogActions>
-        <Button onClick={handleDownload}>
+      <DialogContent dividers>{renderPreview()}</DialogContent>
+      <DialogActions sx={{ justifyContent: 'flex-end' }}>
+        <Button
+          onClick={handleDownload}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            fontWeight: 600,
+          }}
+        >
           {t('documentManagement.fileViewer.download', 'Download')}
         </Button>
-        <Button onClick={onClose} color="primary">
+        <Button
+          onClick={onClose}
+          variant="plain"
+          color="primary"
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+          }}
+        >
           {t('documentManagement.fileViewer.close', 'Close')}
         </Button>
       </DialogActions>

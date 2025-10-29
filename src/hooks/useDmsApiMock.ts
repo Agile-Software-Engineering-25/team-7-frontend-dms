@@ -1,5 +1,7 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { setGlobalUser } from './useUser';
+import { User } from 'oidc-client-ts';
 
 type Doc = {
   id: string;
@@ -19,6 +21,39 @@ type Folder = {
   subfolders: string[];
   documents: string[];
 };
+
+// token to test role functionality
+const fakePayload = {
+  realm_access: {
+    roles: ['Area-2.Team-7.ReadUpdateDelete.readwrite-document'], // either 'Area-2.Team-7.ReadUpdateDelete.readwrite-document' or 'Area-2.Team-7.Read.read-document'
+  },
+};
+// JWT consists of header.payload.signature - all base64 encoded
+const fakeHeader = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+const fakeBody = btoa(JSON.stringify(fakePayload));
+const fakeSignature = 'mocksignature';
+
+const fakeToken = `${fakeHeader}.${fakeBody}.${fakeSignature}`;
+
+const mockUser: User = {
+  profile: {
+    sub: '123',
+    given_name: 'Max',
+    family_name: 'Mustermann',
+    name: 'Max Mustermann',
+    email: 'max@example.com',
+  },
+  access_token: fakeToken,
+  id_token: '',
+  session_state: '',
+  scope: '',
+  expires_in: 3600,
+  token_type: 'Bearer',
+  refresh_token: '',
+  state: '',
+} as User;
+
+setGlobalUser(mockUser);
 
 function nowIso() {
   return new Date().toISOString();
