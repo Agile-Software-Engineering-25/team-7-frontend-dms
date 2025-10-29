@@ -16,11 +16,26 @@ export type Action =
 
 const permissionsMap: Record<Action, string[]> = {
   // everyone
-  viewDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
-  filterDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
-  searchDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
-  navigateFolders: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
-  downloadDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
+  viewDocuments: [
+    'area-2-team-7-read',
+    'area-2-team-7-readwriteupdate-documents',
+  ],
+  filterDocuments: [
+    'area-2-team-7-read',
+    'area-2-team-7-readwriteupdate-documents',
+  ],
+  searchDocuments: [
+    'area-2-team-7-read',
+    'area-2-team-7-readwriteupdate-documents',
+  ],
+  navigateFolders: [
+    'area-2-team-7-read',
+    'area-2-team-7-readwriteupdate-documents',
+  ],
+  downloadDocuments: [
+    'area-2-team-7-read',
+    'area-2-team-7-readwriteupdate-documents',
+  ],
 
   // only 'staff', 'dozent' and 'admin'
   uploadDocuments: ['area-2-team-7-readwriteupdate-documents'],
