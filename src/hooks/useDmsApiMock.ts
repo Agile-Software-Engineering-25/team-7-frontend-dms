@@ -10,6 +10,7 @@ type Doc = {
   createdDate?: string;
   type?: string;
   parentId?: string;
+  blob?: Blob;
 };
 
 type Folder = {
@@ -403,6 +404,7 @@ export default function createMockApi() {
       createdDate: nowIso(),
       type: file.type || 'application/octet-stream',
       parentId: folderId,
+      blob: file, // Store the actual file blob
     };
     documents.set(id, d);
     const parent = folders.get(folderId);
@@ -414,7 +416,17 @@ export default function createMockApi() {
     const doc = documents.get(id);
     if (!doc) throw new Error('Document not found');
 
-    // public/mock-files
+    // If document has a blob (uploaded file), use it
+    if (doc.blob) {
+      const url = URL.createObjectURL(doc.blob);
+      return {
+        url,
+        name: doc.name,
+        type: doc.type || 'application/octet-stream',
+      };
+    }
+
+    // Otherwise, use example files from public/mock-files (for pre-populated data)
     const publicBase = '/mock-files';
     if (id === 'pdf-1')
       return {

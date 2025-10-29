@@ -70,6 +70,15 @@
       "cancel": "Cancel",
       "confirm": "Move"
     },
+    "conflictDialog": {
+      "title": "Name Conflict",
+      "messageFile": "A file with the name \"{{name}}\" already exists in this directory.",
+      "messageFolder": "A folder with the name \"{{name}}\" already exists in this directory.",
+      "question": "What would you like to do?",
+      "overwrite": "Overwrite",
+      "autoRename": "Automatically Rename",
+      "cancel": "Cancel"
+    },
     "type": {
       "folder": "Folder",
       "document": "File",

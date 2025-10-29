@@ -70,6 +70,15 @@
       "cancel": "Abbrechen",
       "confirm": "Verschieben"
     },
+    "conflictDialog": {
+      "title": "Namenskonflikt",
+      "messageFile": "Eine Datei mit dem Namen \"{{name}}\" existiert bereits in diesem Verzeichnis.",
+      "messageFolder": "Ein Ordner mit dem Namen \"{{name}}\" existiert bereits in diesem Verzeichnis.",
+      "question": "Was möchten Sie tun?",
+      "overwrite": "Überschreiben",
+      "autoRename": "Automatisch umbenennen",
+      "cancel": "Abbrechen"
+    },
     "type": {
       "folder": "Ordner",
       "document": "Datei",

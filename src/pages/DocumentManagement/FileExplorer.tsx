@@ -23,6 +23,8 @@ import FileListItem from './FileListItem';
 import FileViewer from './FileViewer';
 import BreadcrumbBar from './BreadcrumbBar';
 import DownloadDialog from './DownloadDialog';
+import ConflictDialog from './ConflictDialog';
+import type { ConflictAction } from './ConflictDialog';
 import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
@@ -109,6 +111,16 @@ export default function FileExplorer(): React.ReactElement {
   const [moveSourceType, setMoveSourceType] = React.useState<
     Item['itemType'] | string | null
   >(null);
+  // Conflict dialog state
+  const [conflictDialogOpen, setConflictDialogOpen] = React.useState(false);
+  const [conflictName, setConflictName] = React.useState('');
+  const [conflictType, setConflictType] = React.useState<'file' | 'folder'>(
+    'file'
+  );
+  const [conflictPendingAction, setConflictPendingAction] = React.useState<{
+    overwrite: () => Promise<void>;
+    rename: () => Promise<void>;
+  } | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredItems, setFilteredItems] = React.useState<Item[]>([]);
   // keep a ref to the latest items so event handlers don't need to be
@@ -420,39 +432,63 @@ export default function FileExplorer(): React.ReactElement {
       }
     }
 
-    const messages: Array<{ msg: string; severity: 'success' | 'error' }> = [];
-
-    if (oversizedFiles.length > 0) {
-      for (const file of oversizedFiles) {
-        messages.push({
-          msg: t('documentManagement.snack.fileTooLarge', {
-            defaultValue:
-              'File {{fileName}} exceeds max size of {{maxSize}} MB',
-            fileName: file.name,
-            maxSize: MAX_FILE_SIZE_MB,
-          }),
-          severity: 'error',
-        });
-      }
-    }
-
-    if (duplicateFiles.length > 0) {
-      for (const file of duplicateFiles) {
-        messages.push({
-          msg: t('documentManagement.snack.duplicate', {
-            defaultValue: 'File {{duplicateName}} already exists',
-            duplicateName: file.name,
-          }),
-          severity: 'error',
-        });
-      }
-    }
-
-    if (validFiles.length === 0) {
-      if (messages.length > 0) {
-        await showSnackSequence(messages);
-      }
-      handleCloseUpload();
+    // check duplicates
+    const duplicate = selectedFiles.find((file) =>
+      items.some((item) => item.name === file.name)
+    );
+    if (duplicate) {
+      // Show conflict dialog instead of error
+      setConflictName(duplicate.name);
+      setConflictType('file');
+      // Find the existing item with the same name
+      const existingItem = items.find((item) => item.name === duplicate.name);
+      setConflictPendingAction({
+        overwrite: async () => {
+          try {
+            // Delete the existing file first
+            if (existingItem) {
+              await api.deleteDocument(existingItem.id);
+            }
+            // Upload all selected files
+            for (const file of selectedFiles) {
+              await api.uploadDocument(file, currentFolderIdRef.current);
+            }
+            await refresh();
+            showSnack(
+              t('documentManagement.snack.uploaded', 'Uploaded successfully'),
+              'success'
+            );
+            handleCloseUpload();
+          } catch (error) {
+            console.error('Upload failed:', error);
+            showSnack(
+              t('documentManagement.snack.uploadFailed', 'Upload failed'),
+              'error'
+            );
+          }
+        },
+        rename: async () => {
+          try {
+            // Upload remaining files (if any)
+            for (const file of selectedFiles) {
+              await api.uploadDocument(file, currentFolderIdRef.current);
+            }
+            await refresh();
+            showSnack(
+              t('documentManagement.snack.uploaded', 'Uploaded successfully'),
+              'success'
+            );
+            handleCloseUpload();
+          } catch (error) {
+            console.error('Upload failed:', error);
+            showSnack(
+              t('documentManagement.snack.uploadFailed', 'Upload failed'),
+              'error'
+            );
+          }
+        },
+      });
+      setConflictDialogOpen(true);
       return;
     }
 
@@ -592,6 +628,79 @@ export default function FileExplorer(): React.ReactElement {
   const handleCreateFolder = async () => {
     const name = newFolderName.trim();
     if (!name) return setNewFolderOpen(false);
+
+    // Check for duplicate folder name
+    const duplicate = items.find(
+      (item) => item.itemType === 'folder' && item.name === name
+    );
+    if (duplicate) {
+      // Show conflict dialog instead of error
+      setConflictName(name);
+      setConflictType('folder');
+      setConflictPendingAction({
+        overwrite: async () => {
+          try {
+            // For folders, delete the existing one first
+            await api.deleteFolder(duplicate.id);
+
+            // Then create the new folder with the same name
+            await api.createFolder(name, currentFolderIdRef.current);
+
+            await refresh();
+
+            showSnack(
+              t('documentManagement.snack.created', 'Created'),
+              'success'
+            );
+            setNewFolderOpen(false);
+            setNewFolderName('');
+          } catch (error) {
+            console.error('Create folder failed:', error);
+            showSnack(
+              t('documentManagement.snack.createFailed', 'Create failed'),
+              'error'
+            );
+          }
+        },
+        rename: async () => {
+          try {
+            // Find the next available increment
+            let counter = 1;
+            let newName = `${name} (${counter})`;
+
+            while (
+              items.some(
+                (item) => item.itemType === 'folder' && item.name === newName
+              )
+            ) {
+              counter++;
+              newName = `${name} (${counter})`;
+            }
+
+            // Create folder with the new name
+            await api.createFolder(newName, currentFolderIdRef.current);
+
+            await refresh();
+
+            showSnack(
+              t('documentManagement.snack.created', 'Created'),
+              'success'
+            );
+            setNewFolderOpen(false);
+            setNewFolderName('');
+          } catch (error) {
+            console.error('Create folder failed:', error);
+            showSnack(
+              t('documentManagement.snack.createFailed', 'Create failed'),
+              'error'
+            );
+          }
+        },
+      });
+      setConflictDialogOpen(true);
+      return;
+    }
+
     try {
       const created = await api.createFolder(name, currentFolderIdRef.current);
       setItems((prev) => [
@@ -613,6 +722,28 @@ export default function FileExplorer(): React.ReactElement {
     }
     setNewFolderOpen(false);
     setNewFolderName('');
+  };
+
+  const handleConflictAction = async (action: ConflictAction) => {
+    setConflictDialogOpen(false);
+
+    if (action === 'cancel') {
+      // User cancelled - do nothing
+      setConflictPendingAction(null);
+      return;
+    }
+
+    if (!conflictPendingAction) return;
+
+    if (action === 'overwrite') {
+      // Execute the overwrite action
+      await conflictPendingAction.overwrite();
+    } else if (action === 'rename') {
+      // Execute the auto-rename action
+      await conflictPendingAction.rename();
+    }
+
+    setConflictPendingAction(null);
   };
 
   const handleOpenFolder = async (id: string) => {
@@ -700,6 +831,70 @@ export default function FileExplorer(): React.ReactElement {
           );
           return;
         }
+
+        // Check for name conflict in target folder
+        const targetFolderData = (await api.getFolder(
+          targetFolderId
+        )) as FolderResponse;
+        const targetSubfolders = targetFolderData.subfolders || [];
+        const sourceFolderData = (await api.getFolder(
+          sourceId
+        )) as FolderResponse;
+        const sourceMeta = parseFolderMetadata(sourceFolderData, sourceId);
+        const sourceFolderName = sourceMeta.name;
+        const existingFolder = targetSubfolders.find(
+          (f) => f.name === sourceFolderName && f.id !== sourceId
+        );
+
+        if (existingFolder) {
+          // Name conflict detected, show dialog
+          setConflictName(sourceFolderName);
+          setConflictType('folder');
+          setConflictPendingAction({
+            overwrite: async () => {
+              await api.deleteFolder(existingFolder.id);
+              await api.moveFolder(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
+              setItems((prev) => prev.filter((i) => i.id !== sourceId));
+              await refresh();
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
+            },
+            rename: async () => {
+              // Generate a new name with increment
+              let counter = 1;
+              let newName = `${sourceFolderName} (${counter})`;
+              while (targetSubfolders.some((f) => f.name === newName)) {
+                counter++;
+                newName = `${sourceFolderName} (${counter})`;
+              }
+
+              // First rename the folder
+              await api.renameFolder(sourceId, newName);
+
+              // Then move it to the target folder
+              await api.moveFolder(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
+              setItems((prev) => prev.filter((i) => i.id !== sourceId));
+              await refresh();
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
+            },
+          });
+          setConflictDialogOpen(true);
+          setMoveChooserOpen(false);
+          setMoveSourceId(null);
+          return;
+        }
+
         await api.moveFolder(
           sourceId,
           targetFolderId === 'root' ? undefined : targetFolderId
@@ -744,6 +939,76 @@ export default function FileExplorer(): React.ReactElement {
           }
         } catch {
           // ignore fallback errors
+        }
+
+        // Check for name conflict in target folder
+        const targetFolderData = (await api.getFolder(
+          targetFolderId
+        )) as FolderResponse;
+        const targetDocuments = targetFolderData.documents || [];
+        const sourceDocument = items.find((it) => it.id === sourceId);
+        const sourceDocumentName = sourceDocument?.name || '';
+        const existingDocument = targetDocuments.find(
+          (d) => d.name === sourceDocumentName && d.id !== sourceId
+        );
+
+        if (existingDocument) {
+          // Name conflict detected, show dialog
+          setConflictName(sourceDocumentName);
+          setConflictType('file');
+          setConflictPendingAction({
+            overwrite: async () => {
+              await api.deleteDocument(existingDocument.id);
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
+              setItems((prev) => prev.filter((i) => i.id !== sourceId));
+              await refresh();
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
+            },
+            rename: async () => {
+              // Generate a new name with increment (preserving file extension)
+              const lastDotIndex = sourceDocumentName.lastIndexOf('.');
+              const baseName =
+                lastDotIndex > 0
+                  ? sourceDocumentName.substring(0, lastDotIndex)
+                  : sourceDocumentName;
+              const extension =
+                lastDotIndex > 0
+                  ? sourceDocumentName.substring(lastDotIndex)
+                  : '';
+
+              let counter = 1;
+              let newName = `${baseName} (${counter})${extension}`;
+              while (targetDocuments.some((d) => d.name === newName)) {
+                counter++;
+                newName = `${baseName} (${counter})${extension}`;
+              }
+
+              // First rename the document
+              await api.renameDocument(sourceId, newName);
+
+              // Then move it to the target folder
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
+              setItems((prev) => prev.filter((i) => i.id !== sourceId));
+              await refresh();
+              showSnack(
+                t('documentManagement.snack.moved', 'Moved'),
+                'success'
+              );
+            },
+          });
+          setConflictDialogOpen(true);
+          setMoveChooserOpen(false);
+          setMoveSourceId(null);
+          return;
         }
 
         await api.moveDocument(
@@ -1497,6 +1762,15 @@ export default function FileExplorer(): React.ReactElement {
         </DialogActions>
       </Dialog>
 
+      {/* Conflict dialog */}
+      <ConflictDialog
+        open={conflictDialogOpen}
+        conflictName={conflictName}
+        conflictType={conflictType}
+        onAction={handleConflictAction}
+      />
+
+      {/* Download dialog */}
       <DownloadDialog
         open={downloadDialogOpen}
         onClose={() => setDownloadDialogOpen(false)}
