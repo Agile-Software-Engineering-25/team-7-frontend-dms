@@ -16,15 +16,15 @@ export type Action =
 
 const permissionsMap: Record<Action, string[]> = {
   // everyone
-  viewDocuments: ['student', 'dozent', 'staff', 'admin'],
-  filterDocuments: ['student', 'dozent', 'staff', 'admin'],
-  searchDocuments: ['student', 'dozent', 'staff', 'admin'],
-  navigateFolders: ['student', 'dozent', 'staff', 'admin'],
-  downloadDocuments: ['student', 'dozent', 'staff', 'admin'],
+  viewDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
+  filterDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
+  searchDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
+  navigateFolders: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
+  downloadDocuments: ['area-2-team-7-read', 'area-2-team-7-readwriteupdate-documents'],
 
   // only 'staff', 'dozent' and 'admin'
-  uploadDocuments: ['staff', 'dozent', 'admin'],
-  manageDocuments: ['staff', 'dozent', 'admin'],
+  uploadDocuments: ['area-2-team-7-readwriteupdate-documents'],
+  manageDocuments: ['area-2-team-7-readwriteupdate-documents'],
 };
 
 export const useCanAccess = () => {
