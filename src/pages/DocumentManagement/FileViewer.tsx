@@ -94,7 +94,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogContent>{renderPreview()}</DialogContent>
+      <DialogContent dividers>{renderPreview()}</DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           onClick={handleDownload}
@@ -102,6 +102,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
             '--Button-radius': '8px',
             '--Button-shadow': 'none',
             '--Button-hoverShadow': 'none',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            fontWeight: 600,
           }}
         >
           {t('documentManagement.fileViewer.download', 'Download')}

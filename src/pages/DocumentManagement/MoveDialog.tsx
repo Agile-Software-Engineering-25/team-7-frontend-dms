@@ -208,7 +208,7 @@ const MoveDialog: React.FC<Props> = ({
       <DialogTitle id="move-dialog-title">
         {t('documentManagement.moveDialog.title', 'Element verschieben')}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent dividers>
         <Typography variant="body2" sx={{ mb: 2 }}>
           {t(
             'documentManagement.moveDialog.instruction',

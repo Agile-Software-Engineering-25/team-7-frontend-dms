@@ -1096,11 +1096,13 @@ export default function FileExplorer(): React.ReactElement {
         open={renameOpen}
         onClose={() => setRenameOpen(false)}
         aria-labelledby="rename-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="rename-title">
           {t('documentManagement.renameDialog.title', 'Rename')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <TextField
             autoFocus
             margin="dense"
@@ -1154,11 +1156,13 @@ export default function FileExplorer(): React.ReactElement {
         open={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
         aria-labelledby="delete-confirm-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="delete-confirm-title">
           {t('documentManagement.deleteDialog.title', 'Delete')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           {t(
             'documentManagement.deleteDialog.message',
             'Are you sure you want to delete this item?'
@@ -1204,15 +1208,19 @@ export default function FileExplorer(): React.ReactElement {
         open={deleteFolderConfirmOpen}
         onClose={() => setDeleteFolderConfirmOpen(false)}
         aria-labelledby="delete-folder-confirm-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="delete-folder-confirm-title">
           {t('documentManagement.deleteFolderDialog.title', 'Delete folder')}
         </DialogTitle>
-        <DialogContent>
-          {t(
-            'documentManagement.deleteFolderDialog.message',
-            'Deleting this folder will also delete all contained documents. This action cannot be undone.'
-          )}
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ color: 'text.primary' }}>
+            {t(
+              'documentManagement.deleteFolderDialog.message',
+              'Deleting this folder will also delete all contained documents. This action cannot be undone.'
+            )}
+          </Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
@@ -1254,11 +1262,13 @@ export default function FileExplorer(): React.ReactElement {
         open={newFolderOpen}
         onClose={() => setNewFolderOpen(false)}
         aria-labelledby="new-folder-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="new-folder-title">
           {t('documentManagement.newFolder.title', 'Create folder')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <TextField
             autoFocus
             margin="dense"
@@ -1312,125 +1322,142 @@ export default function FileExplorer(): React.ReactElement {
         open={uploadOpen}
         onClose={handleCloseUpload}
         aria-labelledby="upload-dialog-title"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="upload-dialog-title">
           {t('documentManagement.uploadDocument.title', 'Upload document')}
         </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2 }}>
+        <DialogContent dividers>
+          <Typography variant="body2" sx={{ mb: 1 }}>
             {t('documentManagement.uploadDocument.maxSize', {
               defaultValue: 'Maximal {{max}} MB per file',
               max: MAX_FILE_SIZE_MB,
             })}
           </Typography>
-          <Button
-            component="label"
-            variant="soft"
+          <Box
             sx={{
-              '--Button-radius': '8px',
-              '--Button-shadow': 'none',
-              '--Button-hoverShadow': 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100%',
             }}
           >
-            {t(
-              'documentManagement.uploadDocument.selectFiles',
-              'Select files:'
-            )}
-            <input
-              type="file"
-              multiple
-              ref={fileInputRef}
-              hidden
-              onChange={(e) => {
-                const files = Array.from(e.target.files || []);
-                setSelectedFiles((prev) => [...prev, ...files]);
-              }}
-            />
-          </Button>
-          <List
-            dense
-            aria-label={t(
-              'documentManagement.uploadDocument.selected',
-              'selected files:'
-            )}
-          >
             {selectedFiles.length === 0 ? (
-              <ListItem>
-                <ListItemText
-                  primary={t(
-                    'documentManagement.uploadDocument.noFiles',
-                    'no files selected'
-                  )}
-                />
-              </ListItem>
+              <Typography
+                variant="body2"
+                sx={{ textAlign: 'center', color: 'text.secondary', mb: 1 }}
+              >
+                {t(
+                  'documentManagement.uploadDocument.noFiles',
+                  'Keine Dateien ausgewählt'
+                )}
+              </Typography>
             ) : (
-              selectedFiles.map((file, idx) => (
-                <ListItem
-                  key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
-                  aria-invalid={isTooLarge(file) ? 'true' : undefined}
-                  secondaryAction={
-                    <Tooltip
-                      title={t('documentManagement.uploadDocument.removeFile', {
-                        defaultValue: 'remove {{file}}',
-                        file: file.name,
-                      })}
-                      sx={{
-                        backgroundColor: '#ffe5e5',
-                      }}
-                    >
-                      <IconButton
-                        edge="end"
-                        aria-label={t(
+              <List
+                dense
+                sx={{ width: '100%' }}
+                aria-label={t(
+                  'documentManagement.uploadDocument.selected',
+                  'selected files:'
+                )}
+              >
+                {selectedFiles.map((file, idx) => (
+                  <ListItem
+                    key={`${file.name}-${file.size}-${file.lastModified}-${idx}`}
+                    aria-invalid={isTooLarge(file) ? 'true' : undefined}
+                    secondaryAction={
+                      <Tooltip
+                        title={t(
                           'documentManagement.uploadDocument.removeFile',
                           {
                             defaultValue: 'remove {{file}}',
                             file: file.name,
                           }
                         )}
-                        onClick={() => handleRemoveSelectedFile(idx)}
-                        color="error"
-                        size="small"
+                        sx={{
+                          backgroundColor: '#ffe5e5',
+                        }}
                       >
-                        <CloseIcon fontSize="small" aria-hidden />
-                      </IconButton>
-                    </Tooltip>
-                  }
-                >
-                  <ListItemText
-                    primary={file.name}
-                    primaryTypographyProps={{
-                      sx: {
-                        ...(isTooLarge(file) && {
-                          color: 'error.main',
-                          fontweight: 'bold',
-                        }),
-                      },
-                    }}
-                    secondary={
-                      <>
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                        {isTooLarge(file) && (
-                          <Typography
-                            variant="caption"
-                            color="error"
-                            sx={{ fontWeight: 500, ml: 1 }}
-                            role="alert"
-                          >
-                            {t(
-                              'documentManagement.uploadDocument.fileTooLarge',
-                              {
-                                defaultValue: 'too large',
-                              }
-                            )}
-                          </Typography>
-                        )}
-                      </>
+                        <IconButton
+                          edge="end"
+                          aria-label={t(
+                            'documentManagement.uploadDocument.removeFile',
+                            {
+                              defaultValue: 'remove {{file}}',
+                              file: file.name,
+                            }
+                          )}
+                          onClick={() => handleRemoveSelectedFile(idx)}
+                          color="error"
+                          size="small"
+                        >
+                          <CloseIcon fontSize="small" aria-hidden />
+                        </IconButton>
+                      </Tooltip>
                     }
-                  />
-                </ListItem>
-              ))
+                  >
+                    <ListItemText
+                      primary={file.name}
+                      primaryTypographyProps={{
+                        sx: {
+                          ...(isTooLarge(file) && {
+                            color: 'error.main',
+                          }),
+                        },
+                      }}
+                      secondary={
+                        <>
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                          {isTooLarge(file) && (
+                            <Typography
+                              variant="caption"
+                              color="error"
+                              sx={{ fontWeight: 500, ml: 1 }}
+                              role="alert"
+                            >
+                              {t(
+                                'documentManagement.uploadDocument.fileTooLarge',
+                                {
+                                  defaultValue: 'too large',
+                                }
+                              )}
+                            </Typography>
+                          )}
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
             )}
-          </List>
+            <Box sx={{ mt: 2 }}>
+              <Button
+                component="label"
+                variant="soft"
+                sx={{
+                  '--Button-radius': '8px',
+                  '--Button-shadow': 'none',
+                  '--Button-hoverShadow': 'none',
+                }}
+              >
+                {t(
+                  'documentManagement.uploadDocument.selectFiles',
+                  'Select files:'
+                )}
+                <input
+                  type="file"
+                  multiple
+                  ref={fileInputRef}
+                  hidden
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setSelectedFiles((prev) => [...prev, ...files]);
+                  }}
+                />
+              </Button>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }}>
           <Button
