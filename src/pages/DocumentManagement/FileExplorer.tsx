@@ -432,7 +432,7 @@ export default function FileExplorer(): React.ReactElement {
       }
     }
     const messages: Array<{ msg: string; severity: 'success' | 'error'}> = [];
- 
+    
     // check duplicates
     const duplicate = selectedFiles.find((file) =>
       items.some((item) => item.name === file.name)
