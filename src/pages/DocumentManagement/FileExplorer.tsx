@@ -1099,7 +1099,7 @@ export default function FileExplorer(): React.ReactElement {
         }}
       >
         <TextField
-          size="medium"
+          size="small"
           placeholder={t(
             'documentManagement.search.searchPlaceholder',
             'search'
