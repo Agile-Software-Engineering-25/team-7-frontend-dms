@@ -4,11 +4,13 @@ import { useMemo } from 'react';
 
 let mockInstance: ReturnType<typeof createMockApi> | null = null;
 
+const ALLOW_MOCK_TOGGLE = false;
+
 export default function useDmsApiSelector() {
-  // Give a narrow, typed view of window rather than `any`.
   const win = window as unknown as {
     __USE_DMS_MOCK__?: boolean;
     location: Location;
+    history: History;
   };
 
   function readUseMock(): boolean {
@@ -16,19 +18,31 @@ export default function useDmsApiSelector() {
       if (win.__USE_DMS_MOCK__ === true) return true;
       const qp = new URLSearchParams(win.location.search || '');
       const qpMock = qp.get('mock');
-      if (
+
+      const wantsMock =
         typeof qpMock === 'string' &&
-        ['1', 'true', 'yes'].includes(qpMock.toLowerCase())
-      )
-        return true;
+        ['1', 'true', 'yes'].includes(qpMock.toLowerCase());
+
+      // redirect user if toggle is disabled
+      if (wantsMock && !ALLOW_MOCK_TOGGLE) {
+        const url = new URL(win.location.href);
+        url.searchParams.delete('mock');
+        // use history.replaceState to avoid page reload
+        win.history.replaceState({}, '', url.toString());
+        console.info(
+          'Mock deactivited by config: redirecting to',
+          url.toString()
+        );
+        return false;
+      }
+
+      if (wantsMock && ALLOW_MOCK_TOGGLE) return true;
     } catch {
       // ignore
     }
     return false;
   }
 
-  // Call hooks unconditionally to satisfy Rules of Hooks. We still decide which
-  // API to return at runtime.
   const real = useDmsApi();
   const realMemo = useMemo(() => real, [real]);
 
