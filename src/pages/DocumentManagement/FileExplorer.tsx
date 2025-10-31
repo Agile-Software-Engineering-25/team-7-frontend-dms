@@ -94,6 +94,7 @@ export default function FileExplorer(): React.ReactElement {
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const [viewerFile, setViewerFile] = React.useState<{
+    id: string;
     url: string;
     name: string;
     type: string;
@@ -390,7 +391,7 @@ export default function FileExplorer(): React.ReactElement {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      setViewerFile({ url, name, type });
+      setViewerFile({ id: docId, url, name, type });
       setViewerOpen(true);
     } catch {
       showSnack(
@@ -1336,6 +1337,7 @@ export default function FileExplorer(): React.ReactElement {
       <FileViewer
         open={viewerOpen}
         onClose={handleCloseViewer}
+        fileId={viewerFile?.id ?? ''}
         fileUrl={viewerFile?.url ?? null}
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}

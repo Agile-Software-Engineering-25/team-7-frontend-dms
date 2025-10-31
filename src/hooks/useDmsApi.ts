@@ -90,9 +90,12 @@ const useDmsApi = () => {
 
   const downloadDocument = useCallback(
     async (id: string) => {
-      const response = await axiosInstance.get(`/dms/v1/documents/${id}`, {
-        responseType: 'blob',
-      });
+      const response = await axiosInstance.get(
+        `/dms/v1/documents/${id}/download`,
+        {
+          responseType: 'blob',
+        }
+      );
 
       const contentDisposition = response.headers['content-disposition'];
       let filename = `document-${id}`;
@@ -169,6 +172,19 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const convertOfficeToPdf = useCallback(
+    async (id: string) => {
+      const response = await axiosInstance.get(
+        `/dms/v1/documents/${id}/pdfconverter`,
+        {
+          responseType: 'blob',
+        }
+      );
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
   const api = useMemo(
     () => ({
       getFolder,
@@ -182,6 +198,7 @@ const useDmsApi = () => {
       createFolder,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     }),
     [
       getFolder,
@@ -195,6 +212,7 @@ const useDmsApi = () => {
       createFolder,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     ]
   );
 

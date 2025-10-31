@@ -412,6 +412,12 @@ export default function createMockApi() {
     return { id: d.id, name: d.name, size: d.size, createdDate: d.createdDate };
   }
 
+  async function convertOfficeToPdf(id: string) {
+    // todo
+    console.log(id);
+    return;
+  }
+
   async function downloadDocument(id: string) {
     const doc = documents.get(id);
     if (!doc) throw new Error('Document not found');
@@ -536,5 +542,6 @@ export default function createMockApi() {
     createFolder,
     moveDocument,
     moveFolder,
+    convertOfficeToPdf,
   };
 }
