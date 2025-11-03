@@ -153,9 +153,8 @@ Host integrates via import maps and registerApplication:
 registerApplication({
   name: "@org/frontend-template",
   app: () => import("@org/frontend-template"),
-  activeWhen: (loc) => loc.pathname.startsWith("/weather"),
+  activeWhen: (loc) => loc.pathname.startsWith("/"),
   customProps: {
-  // optional: basename, leave undefined if your internal routes include '/weather'
   initialLocale: "en"
   }
 });
