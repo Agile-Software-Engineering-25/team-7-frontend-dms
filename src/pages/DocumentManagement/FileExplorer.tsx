@@ -1158,7 +1158,7 @@ export default function FileExplorer(): React.ReactElement {
             )
           }
         >
-          {t('documentManagement.filterButton', 'Filter (bald)')}
+          {t('documentManagement.filter.button', 'Filter (bald verfügbar)')}
         </Button>
         <Box sx={{ flexGrow: 1 }} />
         {/* Button only visible for userrole 'admin' and 'staff' */}

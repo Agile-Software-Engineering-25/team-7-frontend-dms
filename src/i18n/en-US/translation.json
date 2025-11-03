@@ -25,6 +25,9 @@
       "noResults": "no results found",
       "queryPrefix": "for"
     },
+    "filter": {
+      "button": "Filter (coming soon)"
+    },
     "downloadDocument": {
       "button": "Download files",
       "download": "Download",
