@@ -560,10 +560,16 @@ export default function FileExplorer(): React.ReactElement {
       if (doc.itemType === 'document' || doc.itemType === 'pdf') {
         const { url, name } = await api.downloadDocument(docId);
 
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
         const link = document.createElement('a');
-        link.href = url;
+        link.href = blobUrl;
         link.download = name;
         link.click();
+
+        URL.revokeObjectURL(blobUrl);
 
         showSnack(
           t('documentManagement.snack.downloaded', 'Download started'),
@@ -583,6 +589,7 @@ export default function FileExplorer(): React.ReactElement {
             ),
             'error'
           );
+          return;
         }
 
         await api.downloadAsZip(docsForZip, doc.name);
