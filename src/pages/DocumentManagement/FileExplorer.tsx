@@ -24,6 +24,8 @@ import FileViewer from './FileViewer';
 import BreadcrumbBar from './BreadcrumbBar';
 import DownloadDialog from './DownloadDialog';
 import ConflictDialog from './ConflictDialog';
+import ConflictDialogWithoutOverwrite from './ConflictDialogWithoutOverwrite';
+import type { ConflictActionWithoutOverwrite } from './ConflictDialogWithoutOverwrite';
 import type { ConflictAction } from './ConflictDialog';
 import MoveDialog from './MoveDialog';
 import type { DmsDragPayload } from '../../lib/dmsEvents';
@@ -114,12 +116,16 @@ export default function FileExplorer(): React.ReactElement {
   >(null);
   // Conflict dialog state
   const [conflictDialogOpen, setConflictDialogOpen] = React.useState(false);
+  const [conflictDialogWithoutOverwriteOpen, setConflictDialogWithoutOverwriteOpen] = React.useState(false);
   const [conflictName, setConflictName] = React.useState('');
   const [conflictType, setConflictType] = React.useState<'file' | 'folder'>(
     'file'
   );
   const [conflictPendingAction, setConflictPendingAction] = React.useState<{
     overwrite: () => Promise<void>;
+    rename: () => Promise<void>;
+  } | null>(null);
+  const [conflictPendingActionWithoutOverWrite, setConflictPendingActionWithoutOverwrite] = React.useState<{
     rename: () => Promise<void>;
   } | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -746,6 +752,23 @@ export default function FileExplorer(): React.ReactElement {
 
     setConflictPendingAction(null);
   };
+  const handleConflictActionWithoutOverwrite = async (action: ConflictActionWithoutOverwrite) => {
+    setConflictDialogWithoutOverwriteOpen(false);
+
+    if (action === 'cancel') {
+      // User cancelled - do nothing
+      setConflictPendingAction(null);
+      return;
+    }
+
+    if (!conflictPendingActionWithoutOverWrite) return;
+    if (action === 'rename') {
+      // Execute the auto-rename action
+      await conflictPendingActionWithoutOverWrite.rename();
+    }
+
+    setConflictPendingAction(null);
+  };
 
   const handleOpenFolder = async (id: string) => {
     try {
@@ -851,46 +874,77 @@ export default function FileExplorer(): React.ReactElement {
           // Name conflict detected, show dialog
           setConflictName(sourceFolderName);
           setConflictType('folder');
-          setConflictPendingAction({
-            overwrite: async () => {
-              await api.deleteFolder(existingFolder.id);
-              await api.moveFolder(
-                sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
-              );
-              setItems((prev) => prev.filter((i) => i.id !== sourceId));
-              await refresh();
-              showSnack(
-                t('documentManagement.snack.moved', 'Moved'),
-                'success'
-              );
-            },
-            rename: async () => {
-              // Generate a new name with increment
-              let counter = 1;
-              let newName = `${sourceFolderName} (${counter})`;
-              while (targetSubfolders.some((f) => f.name === newName)) {
-                counter++;
-                newName = `${sourceFolderName} (${counter})`;
-              }
+          if (existingFolder.id === sourceMeta.parentId) {
+            setConflictPendingActionWithoutOverwrite({
+              rename: async () => {
+                // Generate a new name with increment
+                let counter = 1;
+                let newName = `${sourceFolderName} (${counter})`;
+                while (targetSubfolders.some((f) => f.name === newName)) {
+                  counter++;
+                  newName = `${sourceFolderName} (${counter})`;
+                }
 
-              // First rename the folder
-              await api.renameFolder(sourceId, newName);
+                // First rename the folder
+                await api.renameFolder(sourceId, newName);
 
-              // Then move it to the target folder
-              await api.moveFolder(
-                sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
-              );
-              setItems((prev) => prev.filter((i) => i.id !== sourceId));
-              await refresh();
-              showSnack(
-                t('documentManagement.snack.moved', 'Moved'),
-                'success'
-              );
-            },
-          });
-          setConflictDialogOpen(true);
+                // Then move it to the target folder
+                await api.moveFolder(
+                  sourceId,
+                  targetFolderId === 'root' ? undefined : targetFolderId
+                );
+                setItems((prev) => prev.filter((i) => i.id !== sourceId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.moved', 'Moved'),
+                  'success'
+                );
+              },
+            });
+            setConflictDialogWithoutOverwriteOpen(true)
+          } else {
+            setConflictPendingAction({
+              overwrite: async () => {
+                await api.deleteFolder(existingFolder.id);
+                await api.moveFolder(
+                  sourceId,
+                  targetFolderId === 'root' ? undefined : targetFolderId
+                );
+                setItems((prev) => prev.filter((i) => i.id !== sourceId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.moved', 'Moved'),
+                  'success'
+                );
+              },
+              rename: async () => {
+                // Generate a new name with increment
+                let counter = 1;
+                let newName = `${sourceFolderName} (${counter})`;
+                while (targetSubfolders.some((f) => f.name === newName)) {
+                  counter++;
+                  newName = `${sourceFolderName} (${counter})`;
+                }
+
+                // First rename the folder
+                await api.renameFolder(sourceId, newName);
+
+                // Then move it to the target folder
+                await api.moveFolder(
+                  sourceId,
+                  targetFolderId === 'root' ? undefined : targetFolderId
+                );
+                setItems((prev) => prev.filter((i) => i.id !== sourceId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.moved', 'Moved'),
+                  'success'
+                );
+              },
+            });
+            setConflictDialogOpen(true);
+          }
+
           setMoveChooserOpen(false);
           setMoveSourceId(null);
           return;
@@ -1769,6 +1823,13 @@ export default function FileExplorer(): React.ReactElement {
         conflictName={conflictName}
         conflictType={conflictType}
         onAction={handleConflictAction}
+      />
+      {/* Conflict dialog without Overwrite */}
+      <ConflictDialogWithoutOverwrite
+        open={conflictDialogWithoutOverwriteOpen}
+        conflictName={conflictName}
+        conflictType={conflictType}
+        onAction={handleConflictActionWithoutOverwrite}
       />
 
       {/* Download dialog */}
