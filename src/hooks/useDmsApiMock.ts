@@ -25,7 +25,10 @@ type Folder = {
 // token to test role functionality
 const fakePayload = {
   realm_access: {
-    roles: ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document'], // either ['Area-2.Team-7.Read.read-document'] or ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document']
+    roles: [
+      'Area-2.Team-7.ReadUpdateDelete.readwrite-document',
+      'Area-2.Team-7.Read.read-document',
+    ], // either ['Area-2.Team-7.Read.read-document'] or ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document']
   },
 };
 // JWT consists of header.payload.signature - all base64 encoded
@@ -297,7 +300,7 @@ export default function createMockApi() {
   root.documents.push(dPdf.id, dSvg.id, dPng.id, dJpg.id, dTxt.id);
 
   async function getFolder(id: string) {
-    if (id ==="root") id = "XRoot";
+    if (id === 'root') id = 'XRoot';
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     return {

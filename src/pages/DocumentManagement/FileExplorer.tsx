@@ -216,7 +216,7 @@ export default function FileExplorer(): React.ReactElement {
       const folder = (await api.getFolder(
         currentFolderIdRef.current
       )) as FolderResponse;
-      currentFolderIdRef.current = folder.id ?? "root";
+      currentFolderIdRef.current = folder.id ?? 'root';
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -251,7 +251,10 @@ export default function FileExplorer(): React.ReactElement {
           const folderData = (await api.getFolder(currentId)) as FolderResponse;
           const md = parseFolderMetadata(folderData, currentId);
           if (md.name === 'root') {
-            path.push({ id: md.id, name: t('documentManagement.root', 'Home') });
+            path.push({
+              id: md.id,
+              name: t('documentManagement.root', 'Home'),
+            });
             break;
           }
           path.push({ id: md.id, name: md.name });
