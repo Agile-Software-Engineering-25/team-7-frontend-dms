@@ -73,7 +73,7 @@ const MAX_FILE_SIZE_MB = 5;
 
 export default function FileExplorer(): React.ReactElement {
   const { canAccess } = useCanAccess();
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
   const currentFolderIdRef = React.useRef<string>('root');
@@ -1089,6 +1089,10 @@ export default function FileExplorer(): React.ReactElement {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    buildPathFromId(currentFolderIdRef.current);
+  }, [i18n.language, buildPathFromId]);
 
   return (
     <Box
