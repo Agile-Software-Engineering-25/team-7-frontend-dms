@@ -97,9 +97,12 @@ const useDmsApi = () => {
   const downloadDocument = useCallback(
     // GET document/download to download a document
     async (id: string) => {
-      const response = await axiosInstance.get(`/dms/v1/documents/${id}/download`, {
-        responseType: 'blob',
-      });
+      const response = await axiosInstance.get(
+        `/dms/v1/documents/${id}/download`,
+        {
+          responseType: 'blob',
+        }
+      );
 
       const contentDisposition = response.headers['content-disposition'];
       let filename = `document-${id}`;
