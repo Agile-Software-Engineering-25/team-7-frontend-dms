@@ -117,7 +117,10 @@ export default function FileExplorer(): React.ReactElement {
   >(null);
   // Conflict dialog state
   const [conflictDialogOpen, setConflictDialogOpen] = React.useState(false);
-  const [conflictDialogWithoutOverwriteOpen, setConflictDialogWithoutOverwriteOpen] = React.useState(false);
+  const [
+    conflictDialogWithoutOverwriteOpen,
+    setConflictDialogWithoutOverwriteOpen,
+  ] = React.useState(false);
   const [conflictName, setConflictName] = React.useState('');
   const [conflictType, setConflictType] = React.useState<'file' | 'folder'>(
     'file'
@@ -126,7 +129,10 @@ export default function FileExplorer(): React.ReactElement {
     overwrite: () => Promise<void>;
     rename: () => Promise<void>;
   } | null>(null);
-  const [conflictPendingActionWithoutOverWrite, setConflictPendingActionWithoutOverwrite] = React.useState<{
+  const [
+    conflictPendingActionWithoutOverWrite,
+    setConflictPendingActionWithoutOverwrite,
+  ] = React.useState<{
     rename: () => Promise<void>;
   } | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -337,7 +343,7 @@ export default function FileExplorer(): React.ReactElement {
             activeId
           )) as FolderResponse;
           const parentFolderData = (await api.getFolder(
-            targetFolderData.parentId?? 'root'
+            targetFolderData.parentId ?? 'root'
           )) as FolderResponse;
           const targetFolders = parentFolderData.subfolders || [];
           const existingFolder = targetFolders.find(
@@ -351,10 +357,7 @@ export default function FileExplorer(): React.ReactElement {
             setConflictPendingAction({
               overwrite: async () => {
                 await api.deleteFolder(existingFolder.id);
-                await api.renameFolder(
-                  activeId,
-                  newName
-                );
+                await api.renameFolder(activeId, newName);
                 setItems((prev) => prev.filter((i) => i.id !== activeId));
                 await refresh();
                 showSnack(
@@ -364,16 +367,14 @@ export default function FileExplorer(): React.ReactElement {
               },
               rename: async () => {
                 // Generate a new name with increment (preserving file extension)
-                let newName2 = renameValue.trim()
+                let newName2 = renameValue.trim();
                 const lastDotIndex = newName2.lastIndexOf('.');
                 const baseName =
                   lastDotIndex > 0
                     ? newName2.substring(0, lastDotIndex)
                     : newName2;
                 const extension =
-                  lastDotIndex > 0
-                    ? newName2.substring(lastDotIndex)
-                    : '';
+                  lastDotIndex > 0 ? newName2.substring(lastDotIndex) : '';
 
                 let counter = 1;
                 newName2 = `${baseName} (${counter})${extension}`;
@@ -413,10 +414,7 @@ export default function FileExplorer(): React.ReactElement {
             setConflictPendingAction({
               overwrite: async () => {
                 await api.deleteDocument(existingDocuments.id);
-                await api.renameDocument(
-                  activeId,
-                  newName
-                );
+                await api.renameDocument(activeId, newName);
                 setItems((prev) => prev.filter((i) => i.id !== activeId));
                 await refresh();
                 showSnack(
@@ -426,16 +424,14 @@ export default function FileExplorer(): React.ReactElement {
               },
               rename: async () => {
                 // Generate a new name with increment (preserving file extension)
-                let newName2 = renameValue.trim()
+                let newName2 = renameValue.trim();
                 const lastDotIndex = newName2.lastIndexOf('.');
                 const baseName =
                   lastDotIndex > 0
                     ? newName2.substring(0, lastDotIndex)
                     : newName2;
                 const extension =
-                  lastDotIndex > 0
-                    ? newName2.substring(lastDotIndex)
-                    : '';
+                  lastDotIndex > 0 ? newName2.substring(lastDotIndex) : '';
 
                 let counter = 1;
                 newName2 = `${baseName} (${counter})${extension}`;
@@ -874,7 +870,9 @@ export default function FileExplorer(): React.ReactElement {
 
     setConflictPendingAction(null);
   };
-  const handleConflictActionWithoutOverwrite = async (action: ConflictActionWithoutOverwrite) => {
+  const handleConflictActionWithoutOverwrite = async (
+    action: ConflictActionWithoutOverwrite
+  ) => {
     setConflictDialogWithoutOverwriteOpen(false);
 
     if (action === 'cancel') {
@@ -1023,7 +1021,7 @@ export default function FileExplorer(): React.ReactElement {
                 );
               },
             });
-            setConflictDialogWithoutOverwriteOpen(true)
+            setConflictDialogWithoutOverwriteOpen(true);
           } else {
             setConflictPendingAction({
               overwrite: async () => {
