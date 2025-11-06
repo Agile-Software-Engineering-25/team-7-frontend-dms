@@ -45,6 +45,8 @@ type Item = {
 };
 
 type FolderResponse = {
+  id?: string;
+  name?: string;
   documents?: Array<{
     id: string;
     name: string;
@@ -57,7 +59,6 @@ type FolderResponse = {
     name: string;
     createdDate?: string;
   }>;
-  path?: Array<{ id: string; name: string }>;
 };
 
 type DocForZip = {
@@ -215,6 +216,7 @@ export default function FileExplorer(): React.ReactElement {
       const folder = (await api.getFolder(
         currentFolderIdRef.current
       )) as FolderResponse;
+      currentFolderIdRef.current = folder.id ?? "root";
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -241,12 +243,6 @@ export default function FileExplorer(): React.ReactElement {
   const buildPathFromId = React.useCallback(
     async (id: string) => {
       try {
-        if (!id || id === 'root') {
-          setCurrentPath([
-            { id: 'root', name: t('documentManagement.root', 'Home') },
-          ]);
-          return;
-        }
         const path: Array<{ id: string; name: string }> = [];
         let currentId: string | undefined = id;
         const iterationLimit = MAX_PATH_DEPTH;
@@ -254,14 +250,16 @@ export default function FileExplorer(): React.ReactElement {
         while (currentId && iteration < iterationLimit) {
           const folderData = (await api.getFolder(currentId)) as FolderResponse;
           const md = parseFolderMetadata(folderData, currentId);
+          if (md.name === 'root') {
+            path.push({ id: md.id, name: t('documentManagement.root', 'Home') });
+            break;
+          }
           path.push({ id: md.id, name: md.name });
-          if (!md.parentId || md.parentId === 'root') break;
           currentId = md.parentId;
           iteration += 1;
         }
-        const root = { id: 'root', name: t('documentManagement.root', 'Home') };
         const reversed = path.reverse();
-        setCurrentPath([root, ...reversed]);
+        setCurrentPath(reversed);
       } catch {
         // fallback
       }

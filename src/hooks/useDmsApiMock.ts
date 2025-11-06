@@ -25,7 +25,7 @@ type Folder = {
 // token to test role functionality
 const fakePayload = {
   realm_access: {
-    roles: ['Area-2.Team-7.Read.read-document'], // either ['Area-2.Team-7.Read.read-document'] or ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document']
+    roles: ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document'], // either ['Area-2.Team-7.Read.read-document'] or ['Area-2.Team-7.ReadUpdateDelete.readwrite-document', 'Area-2.Team-7.Read.read-document']
   },
 };
 // JWT consists of header.payload.signature - all base64 encoded
@@ -76,7 +76,7 @@ export default function createMockApi() {
 
   // Root-Ordner
   const root: Folder = {
-    id: 'root',
+    id: 'XRoot',
     name: 'Home',
     parentId: undefined,
     createdDate: nowIso(),
@@ -90,7 +90,7 @@ export default function createMockApi() {
   const infFolder: Folder = {
     id: infId,
     name: 'Informatik Studiengänge (Telekom)',
-    parentId: 'root',
+    parentId: 'XRoot',
     createdDate: nowIso(),
     subfolders: [],
     documents: [],
@@ -251,7 +251,7 @@ export default function createMockApi() {
     size: 12345,
     createdDate: nowIso(),
     type: 'application/pdf',
-    parentId: 'root',
+    parentId: 'XRoot',
   };
 
   const dSvg: Doc = {
@@ -260,7 +260,7 @@ export default function createMockApi() {
     size: 2345,
     createdDate: nowIso(),
     type: 'image/svg+xml',
-    parentId: 'root',
+    parentId: 'XRoot',
   };
 
   const dPng: Doc = {
@@ -269,7 +269,7 @@ export default function createMockApi() {
     size: 54321,
     createdDate: nowIso(),
     type: 'image/png',
-    parentId: 'root',
+    parentId: 'r981723a129387',
   };
 
   const dJpg: Doc = {
@@ -278,7 +278,7 @@ export default function createMockApi() {
     size: 65432,
     createdDate: nowIso(),
     type: 'image/jpeg',
-    parentId: 'root',
+    parentId: 'XRoot',
   };
 
   const dTxt: Doc = {
@@ -287,7 +287,7 @@ export default function createMockApi() {
     size: 1024,
     createdDate: nowIso(),
     type: 'text/plain',
-    parentId: 'root',
+    parentId: 'XRoot',
   };
   documents.set(dPdf.id, dPdf);
   documents.set(dSvg.id, dSvg);
@@ -297,6 +297,7 @@ export default function createMockApi() {
   root.documents.push(dPdf.id, dSvg.id, dPng.id, dJpg.id, dTxt.id);
 
   async function getFolder(id: string) {
+    if (id ==="root") id = "XRoot";
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     return {
@@ -332,7 +333,7 @@ export default function createMockApi() {
     const folder: Folder = {
       id,
       name,
-      parentId: parentId ?? 'root',
+      parentId: parentId ?? 'XRoot',
       createdDate: nowIso(),
       subfolders: [],
       documents: [],
@@ -501,7 +502,7 @@ export default function createMockApi() {
     for (const [, folder] of folders) {
       folder.documents = folder.documents.filter((x) => x !== id);
     }
-    const destId = parentId ?? 'root';
+    const destId = parentId ?? 'XRoot';
     const dest = folders.get(destId);
     if (!dest) throw new Error('Destination folder not found');
     dest.documents.unshift(id);
@@ -516,7 +517,7 @@ export default function createMockApi() {
     for (const [, folder] of folders) {
       folder.subfolders = folder.subfolders.filter((x) => x !== id);
     }
-    const destId = parentId ?? 'root';
+    const destId = parentId ?? 'XRoot';
     const dest = folders.get(destId);
     if (!dest) throw new Error('Destination folder not found');
     dest.subfolders.unshift(id);
