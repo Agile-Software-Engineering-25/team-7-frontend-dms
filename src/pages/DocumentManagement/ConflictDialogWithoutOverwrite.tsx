@@ -20,12 +20,9 @@ interface ConflictDialogWithoutOverwriteProps {
   onAction: (action: ConflictActionWithoutOverwrite) => void;
 }
 
-export const ConflictDialogWithoutOverwrite: React.FC<ConflictDialogWithoutOverwriteProps> = ({
-                                                                                                open,
-                                                                                                conflictName,
-                                                                                                conflictType,
-                                                                                                onAction,
-                                                                                              }) => {
+export const ConflictDialogWithoutOverwrite: React.FC<
+  ConflictDialogWithoutOverwriteProps
+> = ({ open, conflictName, conflictType, onAction }) => {
   const { t } = useTranslation();
 
   return (
@@ -46,15 +43,15 @@ export const ConflictDialogWithoutOverwrite: React.FC<ConflictDialogWithoutOverw
         <Typography variant="body1" sx={{ mb: 2 }}>
           {conflictType === 'file'
             ? t('documentManagement.conflictDialog.messageFile', {
-              defaultValue:
-                'Eine Datei mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
-              name: conflictName,
-            })
+                defaultValue:
+                  'Eine Datei mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
+                name: conflictName,
+              })
             : t('documentManagement.conflictDialog.messageFolder', {
-              defaultValue:
-                'Ein Ordner mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
-              name: conflictName,
-            })}
+                defaultValue:
+                  'Ein Ordner mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
+                name: conflictName,
+              })}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {t(
