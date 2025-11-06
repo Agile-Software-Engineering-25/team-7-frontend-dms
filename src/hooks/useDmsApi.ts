@@ -32,6 +32,7 @@ const useDmsApi = () => {
   const axiosInstance = useAxiosInstance(BACKEND_BASE_URL);
 
   const getFolder = useCallback(
+    // GET folders
     async (id: string) => {
       const response = await axiosInstance.get<FolderResponse>(
         `/dms/v1/folders/${id}`
@@ -42,6 +43,7 @@ const useDmsApi = () => {
   );
 
   const renameDocument = useCallback(
+    // PATCH document to rename a document
     async (id: string, name: string) => {
       const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
         name,
@@ -52,6 +54,7 @@ const useDmsApi = () => {
   );
 
   const renameFolder = useCallback(
+    // PATCH folder to rename a folder
     async (id: string, name: string) => {
       const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
         name,
@@ -62,6 +65,7 @@ const useDmsApi = () => {
   );
 
   const deleteDocument = useCallback(
+    // DELETE document
     async (id: string) => {
       await axiosInstance.delete(`/dms/v1/documents/${id}`);
     },
@@ -69,6 +73,7 @@ const useDmsApi = () => {
   );
 
   const deleteFolder = useCallback(
+    // DELETE folder
     async (id: string) => {
       await axiosInstance.delete(`/dms/v1/folders/${id}`);
     },
@@ -76,6 +81,7 @@ const useDmsApi = () => {
   );
 
   const uploadDocument = useCallback(
+    // POST document to upload a document
     async (file: File, folderId: string) => {
       const form = new FormData();
       form.append('file', file, file.name);
@@ -89,8 +95,9 @@ const useDmsApi = () => {
   );
 
   const downloadDocument = useCallback(
+    // GET document/download to download a document
     async (id: string) => {
-      const response = await axiosInstance.get(`/dms/v1/documents/${id}`, {
+      const response = await axiosInstance.get(`/dms/v1/documents/${id}/download`, {
         responseType: 'blob',
       });
 
@@ -113,6 +120,7 @@ const useDmsApi = () => {
   );
 
   const downloadAsZip = useCallback(
+    // Download folders as ZIP
     async (
       docs: { url: string; name: string; path: string }[],
       folderName?: string
@@ -138,6 +146,7 @@ const useDmsApi = () => {
 
   const createFolder = useCallback(
     async (name: string, parentId?: string) => {
+      // POST folder to create a folder
       const response = await axiosInstance.post('/dms/v1/folders', {
         name,
         parentId,
