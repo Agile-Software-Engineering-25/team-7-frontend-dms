@@ -61,6 +61,7 @@ type FolderResponse = {
     name: string;
     createdDate?: string;
   }>;
+  parentId?: string;
 };
 
 type DocForZip = {
@@ -332,11 +333,132 @@ export default function FileExplorer(): React.ReactElement {
       );
       try {
         if (it.itemType === 'folder') {
-          await api.renameFolder(it.id, newName);
+          const targetFolderData = (await api.getFolder(
+            activeId
+          )) as FolderResponse;
+          const parentFolderData = (await api.getFolder(
+            targetFolderData.parentId?? 'root'
+          )) as FolderResponse;
+          const targetFolders = parentFolderData.subfolders || [];
+          const existingFolder = targetFolders.find(
+            (d) => d.name === newName && d.id !== activeId
+          );
+
+          if (existingFolder) {
+            // Name conflict detected, show dialog
+            setConflictName(newName ?? '');
+            setConflictType('folder');
+            setConflictPendingAction({
+              overwrite: async () => {
+                await api.deleteFolder(existingFolder.id);
+                await api.renameFolder(
+                  activeId,
+                  newName
+                );
+                setItems((prev) => prev.filter((i) => i.id !== activeId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.renamed', 'Renamed'),
+                  'success'
+                );
+              },
+              rename: async () => {
+                // Generate a new name with increment (preserving file extension)
+                let newName2 = renameValue.trim()
+                const lastDotIndex = newName2.lastIndexOf('.');
+                const baseName =
+                  lastDotIndex > 0
+                    ? newName2.substring(0, lastDotIndex)
+                    : newName2;
+                const extension =
+                  lastDotIndex > 0
+                    ? newName2.substring(lastDotIndex)
+                    : '';
+
+                let counter = 1;
+                newName2 = `${baseName} (${counter})${extension}`;
+                while (targetFolders.some((d) => d.name === newName2)) {
+                  counter++;
+                  newName2 = `${baseName} (${counter})${extension}`;
+                }
+
+                // First rename the document
+                await api.renameFolder(activeId, newName2);
+
+                setItems((prev) => prev.filter((i) => i.id !== activeId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.renamed', 'Renamed'),
+                  'success'
+                );
+              },
+            });
+            setConflictDialogOpen(true);
+            setMoveChooserOpen(false);
+            setMoveSourceId(null);
+          }
         } else {
-          await api.renameDocument(it.id, newName);
+          const parentFolderData = (await api.getFolder(
+            currentFolderIdRef.current
+          )) as FolderResponse;
+          const targetDocuments = parentFolderData.documents || [];
+          const existingDocuments = targetDocuments.find(
+            (d) => d.name === newName && d.id !== activeId
+          );
+
+          if (existingDocuments) {
+            // Name conflict detected, show dialog
+            setConflictName(newName ?? '');
+            setConflictType('file');
+            setConflictPendingAction({
+              overwrite: async () => {
+                await api.deleteDocument(existingDocuments.id);
+                await api.renameDocument(
+                  activeId,
+                  newName
+                );
+                setItems((prev) => prev.filter((i) => i.id !== activeId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.renamed', 'Renamed'),
+                  'success'
+                );
+              },
+              rename: async () => {
+                // Generate a new name with increment (preserving file extension)
+                let newName2 = renameValue.trim()
+                const lastDotIndex = newName2.lastIndexOf('.');
+                const baseName =
+                  lastDotIndex > 0
+                    ? newName2.substring(0, lastDotIndex)
+                    : newName2;
+                const extension =
+                  lastDotIndex > 0
+                    ? newName2.substring(lastDotIndex)
+                    : '';
+
+                let counter = 1;
+                newName2 = `${baseName} (${counter})${extension}`;
+                while (targetDocuments.some((d) => d.name === newName2)) {
+                  counter++;
+                  newName2 = `${baseName} (${counter})${extension}`;
+                }
+
+                await api.renameDocument(activeId, newName2);
+
+                setItems((prev) => prev.filter((i) => i.id !== activeId));
+                await refresh();
+                showSnack(
+                  t('documentManagement.snack.renamed', 'Renamed'),
+                  'success'
+                );
+              },
+            });
+            setConflictDialogOpen(true);
+            setMoveChooserOpen(false);
+            setMoveSourceId(null);
+          }
         }
-        showSnack(t('documentManagement.snack.renamed', 'Renamed'), 'success');
       } catch {
         setItems((prev) => prev.map((p) => (p.id === it.id ? it : p)));
         showSnack(
