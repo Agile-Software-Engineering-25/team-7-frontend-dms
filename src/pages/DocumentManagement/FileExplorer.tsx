@@ -567,32 +567,34 @@ export default function FileExplorer(): React.ReactElement {
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = name;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
 
-        URL.revokeObjectURL(blobUrl);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
         showSnack(
           t('documentManagement.snack.downloaded', 'Download started'),
           'success'
         );
       } else if (doc.itemType === 'folder') {
-        const docsForZip = await collectDocsFromFolderWithPaths(
-          doc.id,
-          doc.name
-        );
-
-        if (docsForZip.length === 0) {
-          showSnack(
-            t(
-              'documentManagement.snack.noDocsInSelection',
-              'No documents in folder'
-            ),
-            'error'
+          const docsForZip = await collectDocsFromFolderWithPaths(
+            doc.id,
+            doc.name
           );
-          return;
-        }
 
-        await api.downloadAsZip(docsForZip, doc.name);
+          if (docsForZip.length === 0) {
+            showSnack(
+              t(
+                'documentManagement.snack.noDocsInSelection',
+                'No documents in folder'
+              ),
+              'error'
+            );
+            return;
+          }
+
+          await api.downloadAsZip(docsForZip, doc.name);
 
         showSnack(
           t('documentManagement.snack.downloaded', 'Download started'),
