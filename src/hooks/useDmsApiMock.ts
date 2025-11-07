@@ -56,7 +56,12 @@ const mockUser: User = {
   state: '',
 } as User;
 
-//setGlobalUser(mockUser);
+setGlobalUser(mockUser);
+
+//mocked setGlobalUser because it was revomed in useUser.ts 
+function setGlobalUser(user: User | null) {
+  user = null;
+}
 
 function nowIso() {
   return new Date().toISOString();
