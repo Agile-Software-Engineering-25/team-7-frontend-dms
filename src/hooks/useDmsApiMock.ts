@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { setGlobalUser } from './useUser';
+//import { setGlobalUser } from './useUser';
 import { User } from 'oidc-client-ts';
 
 type Doc = {
@@ -56,7 +56,7 @@ const mockUser: User = {
   state: '',
 } as User;
 
-setGlobalUser(mockUser);
+//setGlobalUser(mockUser);
 
 function nowIso() {
   return new Date().toISOString();
