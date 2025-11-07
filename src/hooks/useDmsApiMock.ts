@@ -58,9 +58,9 @@ const mockUser: User = {
 
 setGlobalUser(mockUser);
 
-//mocked setGlobalUser because it was revomed in useUser.ts 
+//mocked setGlobalUser because it was revomed in useUser.ts
 function setGlobalUser(user: User | null) {
-  user = null;
+  return user;
 }
 
 function nowIso() {
