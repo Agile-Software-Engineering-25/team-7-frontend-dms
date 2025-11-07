@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { setGlobalUser } from './useUser';
+//import { setGlobalUser } from './useUser';
 import { User } from 'oidc-client-ts';
 
 type Doc = {
@@ -57,6 +57,11 @@ const mockUser: User = {
 } as User;
 
 setGlobalUser(mockUser);
+
+//mocked setGlobalUser because it was revomed in useUser.ts
+function setGlobalUser(user: User | null) {
+  return user;
+}
 
 function nowIso() {
   return new Date().toISOString();
