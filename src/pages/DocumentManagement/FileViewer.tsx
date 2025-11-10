@@ -19,6 +19,7 @@ type FileViewerProps = {
   fileName: string | null;
   fileType: string | null;
   loading?: boolean;
+  setLoading?: (v: boolean) => void;
 };
 
 const FileViewer: React.FC<FileViewerProps> = ({
@@ -44,21 +45,6 @@ const FileViewer: React.FC<FileViewerProps> = ({
       setTextContent(null);
     }
   }, [open, fileType, fileUrl]);
-
-  useEffect(() => {
-    if (open) setLoading(true);
-  }, [open]);
-
-  useEffect(() => {
-    if (!fileUrl) return;
-
-    setLoading(true);
-
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [fileUrl]);
 
   const handleDownload = async () => {
     try {
@@ -126,6 +112,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             src={fileUrl}
             alt={fileName ?? 'preview'}
             style={{ maxWidth: '100%', maxHeight: '80vh' }}
+            onLoad={() => setLoading(false)}
           />
         </Box>
       );
