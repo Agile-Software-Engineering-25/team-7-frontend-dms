@@ -173,7 +173,9 @@ const useDmsApi = () => {
   );
 
   const convertOfficeToPdf = useCallback(
-    async (id: string): Promise<{ url: string; name: string; type: string }> => {
+    async (
+      id: string
+    ): Promise<{ url: string; name: string; type: string }> => {
       const response = await axiosInstance.get(
         `/dms/v1/documents/${id}/pdfconverter`,
         {

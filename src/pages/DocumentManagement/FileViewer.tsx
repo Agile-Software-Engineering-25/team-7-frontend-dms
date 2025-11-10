@@ -36,11 +36,12 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   }, [open, fileType, fileUrl]);
 
-    const handleDownload = async () => {
+  const handleDownload = async () => {
     try {
       if (!fileId) return;
 
-      const isConvertedPdf = fileType === 'application/pdf' && fileName?.startsWith('converted-');
+      const isConvertedPdf =
+        fileType === 'application/pdf' && fileName?.startsWith('converted-');
 
       if (isConvertedPdf) {
         const { url, name } = await api.downloadDocument(fileId);

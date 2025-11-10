@@ -384,23 +384,6 @@ export default function FileExplorer(): React.ReactElement {
     handleClose();
   };
 
-  const handleOpenViewer = async (docId: string) => {
-    // console.log("handleOpenViewer called with:", docId)
-    try {
-      const { url, name, type } = await api.downloadDocument(docId);
-      const doc = items.find((i) => i.id === docId);
-      if (!doc) return;
-
-      setViewerFile({ id: docId, url, name, type });
-      setViewerOpen(true);
-    } catch {
-      showSnack(
-        t('documentManagement.snack.previewFailed', 'Preview failed'),
-        'error'
-      );
-    }
-  };
-
   const handleCloseViewer = () => {
     setViewerFile(null);
     setViewerOpen(false);
@@ -564,7 +547,7 @@ export default function FileExplorer(): React.ReactElement {
 
       if (!isOfficeDoc) {
         const { url, name, type } = await api.downloadDocument(docId);
-        
+
         setViewerFile({ id: docId, url, name, type });
         setViewerOpen(true);
         return;
@@ -572,14 +555,19 @@ export default function FileExplorer(): React.ReactElement {
         console.log('Convert office-doc --> PDF:', doc.name);
         const converted = await api.convertOfficeToPdf(docId);
         console.log('result:', converted);
-        setViewerFile({ id: docId, url: converted.url, name: converted.name, type: converted.type });
+        setViewerFile({
+          id: docId,
+          url: converted.url,
+          name: converted.name,
+          type: converted.type,
+        });
         setViewerOpen(true);
       }
     } catch (err) {
       console.error('Fehler bei PDF-Konvertierung:', err);
       showSnack('Fehler bei der Vorschau-Erstellung', 'error');
     }
-  }; 
+  };
 
   const handleDownload = async (docId: string) => {
     try {
@@ -1335,8 +1323,8 @@ export default function FileExplorer(): React.ReactElement {
                 onDownload={handleDownload}
                 onPreview={
                   item.itemType !== 'folder'
-                  ? () => handleConvertOfficeToPdf(item.id)
-                  : undefined
+                    ? () => handleConvertOfficeToPdf(item.id)
+                    : undefined
                 }
                 onDragOver={(e) => {
                   if (canAccess('manageDocuments')) e.preventDefault();
