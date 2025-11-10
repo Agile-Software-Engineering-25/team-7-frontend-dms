@@ -37,6 +37,7 @@
     },
     "fileViewer": {
       "download": "Herunterladen",
+      "loading": "Vorschau wird erstellt",
       "close": "Schließen",
       "noPreview": "Keine Vorschau verfügbar für "
   },

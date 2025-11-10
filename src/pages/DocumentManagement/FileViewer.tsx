@@ -32,7 +32,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
-  const [loading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
@@ -44,6 +44,21 @@ const FileViewer: React.FC<FileViewerProps> = ({
       setTextContent(null);
     }
   }, [open, fileType, fileUrl]);
+
+  useEffect(() => {
+    if (open) setLoading(true);
+  }, [open]);
+
+  useEffect(() => {
+    if (!fileUrl) return;
+
+    setLoading(true);
+
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [fileUrl]);
 
   const handleDownload = async () => {
     try {
@@ -83,7 +98,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
           <CircularProgress />
           <Typography sx={{ ml: 2 }}>
             {t(
-              'documentManagement.viewer.loading',
+              'documentManagement.fileViewer.loading',
               'Vorschau wird erstellt...'
             )}
           </Typography>
@@ -99,6 +114,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
           src={fileUrl}
           style={{ width: '100%', height: '80vh', border: 'none' }}
           title="PDF Preview"
+          onLoad={() => setLoading(false)}
         />
       );
     }
