@@ -66,6 +66,23 @@
       "create": "Erstellen",
       "cancel": "Abbrechen"
     },
+    "studyGroups": {
+      "loading": "Studierendengruppen werden geladen...",
+      "label": "Studiengruppen",
+      "allGroups": "Alle Studiengruppen",
+      "noGroupsFromParent": "Es sind keine Studiengruppen aus dem Überordner verfügbar.",
+      "noGroups": "Es sind keine Studiengruppen verfügbar.",
+      "studentCount": "{{count}} Studenten",
+      "restrictedInfo": "Auswahl ist eingeschränkt auf Studiengruppen des Überordners.",
+      "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für Alle sichtbar sein wird.",
+      "failedSave": "Studiengruppen konnten nicht gespeichert werden.",
+      "manageTitle": "Studiengruppen bearbeiten.",
+      "manageDescription": "Wähle welche Studiengruppen den Ordner {{folder}} sehen können.",
+      "parentRestrictionTitle": "Überordner Einschränkung",
+      "parentRestrictionContent": "Diesem Ordner können nur Studiengruppen aus dessen Überorder eingefügt werden: {{groups}}.",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    },
     "moveDialog": {
       "title": "Element verschieben",
       "instruction": "Wählen Sie einen Zielordner aus. Sie können in übergeordnete Ordner oder Unterordner des aktuellen Verzeichnisses verschieben.",

@@ -57,10 +57,11 @@ const useDmsApi = () => {
     // GET study groups (cohorts)
     async () => {
       const response = await axiosInstance.get<StudyGroupsResponse>(
-        `/api/v1/group`,
+        `/v1/group`,
         {
           params: {
             showMembers: false,
+            withDetails: false,
           },
         }
       );
