@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Dialog, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Dialog, DialogContent, DialogActions, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -11,6 +11,7 @@ type FileViewerProps = {
   fileUrl: string | null;
   fileName: string | null;
   fileType: string | null;
+  loading?: boolean;
 };
 
 const FileViewer: React.FC<FileViewerProps> = ({
@@ -24,6 +25,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
@@ -61,6 +63,23 @@ const FileViewer: React.FC<FileViewerProps> = ({
   };
 
   const renderPreview = () => {
+    if (loading) {
+      return (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="80vh"
+          role="status"
+          aria-live="polite"
+        >
+          <CircularProgress />
+          <Typography sx={{ ml: 2 }}>
+            {t('documentManagement.viewer.loading', 'Vorschau wird erstellt...')}
+          </Typography>
+        </Box>
+      );
+    }
     // console.log("renderPreview called with:", { fileUrl, fileType, fileName });
     if (!fileUrl || !fileType) return null;
 

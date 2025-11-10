@@ -92,6 +92,7 @@ export default function FileExplorer(): React.ReactElement {
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
+  const [viewerLoading, setViewerLoading] = React.useState(false);
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const [viewerFile, setViewerFile] = React.useState<{
     id: string;
@@ -540,6 +541,7 @@ export default function FileExplorer(): React.ReactElement {
     console.log('handleConvertOfficeToPdf triggered for', docId, api);
     console.log('convertOfficeToPdf:', api.convertOfficeToPdf);
     try {
+      setViewerLoading(true);
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
@@ -566,6 +568,8 @@ export default function FileExplorer(): React.ReactElement {
     } catch (err) {
       console.error('Fehler bei PDF-Konvertierung:', err);
       showSnack('Fehler bei der Vorschau-Erstellung', 'error');
+    } finally {
+      setViewerLoading(false);
     }
   };
 
@@ -1359,6 +1363,7 @@ export default function FileExplorer(): React.ReactElement {
         fileUrl={viewerFile?.url ?? null}
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}
+        loading={viewerLoading}
       />
       {/* Enhanced Move Dialog with folder tree */}
       <MoveDialog
