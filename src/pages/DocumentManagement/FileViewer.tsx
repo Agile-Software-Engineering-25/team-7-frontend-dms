@@ -7,7 +7,7 @@ import useDmsApiSelector from '@hooks/useDmsApiSelector';
 type FileViewerProps = {
   open: boolean;
   onClose: () => void;
-  fileId: string;
+  fileId?: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileType: string | null;
@@ -36,35 +36,39 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   }, [open, fileType, fileUrl]);
 
-  const handleDownload = () => {
-    if (!fileUrl || !fileName) return;
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.click();
+    const handleDownload = async () => {
+    try {
+      if (!fileId) return;
+
+      const isConvertedPdf = fileType === 'application/pdf' && fileName?.startsWith('converted-');
+
+      if (isConvertedPdf) {
+        const { url, name } = await api.downloadDocument(fileId);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
+      } else {
+        const link = document.createElement('a');
+        link.href = fileUrl!;
+        link.download = fileName ?? 'file';
+        link.click();
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
   };
 
-  const renderPreview = async () => {
+  const renderPreview = () => {
     // console.log("renderPreview called with:", { fileUrl, fileType, fileName });
     if (!fileUrl || !fileType) return null;
 
-    const officeMimeTypes = [
-      'application/msword', //.doc
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', //.docx
-      'application/vnd.ms-excel', //.xls
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', //.xlsx
-      'application/vnd.ms-excel.sheet.macroEnabled.12', //.xlsm
-      'application/vnd.ms-powerpoint', //.ppt
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation', //.pptx
-    ];
-
-    if (fileType === 'application/pdf' || fileType in officeMimeTypes) {
-      const convertedPdf = await api.convertOfficeToPdf(fileId);
+    if (fileType === 'application/pdf') {
       return (
         <iframe
-          src={convertedPdf}
+          src={fileUrl}
           style={{ width: '100%', height: '80vh', border: 'none' }}
-          title="Office & PDF previewer"
+          title="PDF Preview"
         />
       );
     }

@@ -34,7 +34,7 @@ export default function useDmsApiSelector() {
 
   const useMock = readUseMock();
   if (useMock) {
-    if (!mockInstance) mockInstance = createMockApi();
+    mockInstance = createMockApi();
     console.info('DMS: using mock API');
     return mockInstance;
   }
