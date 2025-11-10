@@ -550,10 +550,13 @@ export default function createMockApi() {
     };
   };
 
-  const updateFolderStudyGroups = async (id: string, studyGroupIds: string[]) => {
+  const updateFolderStudyGroups = async (
+    id: string,
+    studyGroupIds: string[]
+  ) => {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
-    
+
     // In a real implementation, this would update the folder's studyGroupIds
     // For the mock, we just acknowledge the update
     return { id: f.id, studyGroupIds };

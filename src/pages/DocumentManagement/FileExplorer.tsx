@@ -152,19 +152,31 @@ export default function FileExplorer(): React.ReactElement {
     itemsRef.current = items;
   }, [items]);
   // Study Groups State
-  const [studyGroups, setStudyGroups] = React.useState<Array<{ name: string; students_count: number }>>([]);
+  const [studyGroups, setStudyGroups] = React.useState<
+    Array<{ name: string; students_count: number }>
+  >([]);
   const [studyGroupsLoading, setStudyGroupsLoading] = React.useState(false);
-  const [studyGroupsError, setStudyGroupsError] = React.useState<string | null>(null);
+  const [studyGroupsError, setStudyGroupsError] = React.useState<string | null>(
+    null
+  );
 
   // Manage Study Groups Dialog State
-  const [manageGroupsDialogOpen, setManageGroupsDialogOpen] = React.useState(false);
-  const [manageGroupsFolderId, setManageGroupsFolderId] = React.useState<string | null>(null);
-  const [manageGroupsFolderName, setManageGroupsFolderName] = React.useState<string>('');
-  const [manageGroupsCurrentGroups, setManageGroupsCurrentGroups] = React.useState<string[]>([]);
-  const [manageGroupsParentGroups, setManageGroupsParentGroups] = React.useState<string[] | undefined>(undefined);
+  const [manageGroupsDialogOpen, setManageGroupsDialogOpen] =
+    React.useState(false);
+  const [manageGroupsFolderId, setManageGroupsFolderId] = React.useState<
+    string | null
+  >(null);
+  const [manageGroupsFolderName, setManageGroupsFolderName] =
+    React.useState<string>('');
+  const [manageGroupsCurrentGroups, setManageGroupsCurrentGroups] =
+    React.useState<string[]>([]);
+  const [manageGroupsParentGroups, setManageGroupsParentGroups] =
+    React.useState<string[] | undefined>(undefined);
 
   // Selected study groups for new folder creation
-  const [newFolderStudyGroups, setNewFolderStudyGroups] = React.useState<string[]>([]);
+  const [newFolderStudyGroups, setNewFolderStudyGroups] = React.useState<
+    string[]
+  >([]);
 
   // correctly move, create and upload effect because of debounce from searchbar
   React.useEffect(() => {
@@ -362,7 +374,7 @@ export default function FileExplorer(): React.ReactElement {
       // Fallback: try to extract group names manually
       const match = studyGroupIds.match(/\['([^']+)'/g);
       if (match) {
-        return match.map(m => m.replace(/\[?'([^']+)'/, '$1'));
+        return match.map((m) => m.replace(/\[?'([^']+)'/, '$1'));
       }
       return [];
     }
@@ -385,7 +397,10 @@ export default function FileExplorer(): React.ReactElement {
       } catch (error) {
         console.error('Failed to fetch study groups:', error);
         setStudyGroupsError(
-          t('documentManagement.studyGroups.loadError', 'Failed to load study groups')
+          t(
+            'documentManagement.studyGroups.loadError',
+            'Failed to load study groups'
+          )
         );
       } finally {
         setStudyGroupsLoading(false);
@@ -396,19 +411,25 @@ export default function FileExplorer(): React.ReactElement {
   }, [api, t]);
 
   // Get parent folder's study groups for restriction
-  const getParentFolderGroups = async (folderId: string): Promise<string[] | undefined> => {
+  const getParentFolderGroups = async (
+    folderId: string
+  ): Promise<string[] | undefined> => {
     try {
-      const folderData = await api.getFolder(folderId) as FolderResponse;
+      const folderData = (await api.getFolder(folderId)) as FolderResponse;
       const parentId = folderData.folders?.parentId;
-      
+
       // If no parent or parent is root, no restriction
       if (!parentId || parentId === 'root') {
         return undefined;
       }
-      
-      const parentFolderData = await api.getFolder(parentId) as FolderResponse;
-      const parentGroups = parseStudyGroupIds(parentFolderData.folders?.studyGroupIds);
-      
+
+      const parentFolderData = (await api.getFolder(
+        parentId
+      )) as FolderResponse;
+      const parentGroups = parseStudyGroupIds(
+        parentFolderData.folders?.studyGroupIds
+      );
+
       // If parent has no groups assigned, no restriction
       return parentGroups.length > 0 ? parentGroups : undefined;
     } catch (error) {
@@ -419,27 +440,32 @@ export default function FileExplorer(): React.ReactElement {
 
   // Handler for opening manage study groups dialog
   const handleOpenManageGroups = async (folderId: string) => {
-    const folder = items.find(item => item.id === folderId);
+    const folder = items.find((item) => item.id === folderId);
     if (!folder || folder.itemType !== 'folder') return;
-    
+
     setManageGroupsFolderId(folderId);
     setManageGroupsFolderName(folder.name);
-    
+
     try {
       // Get current folder's study groups
-      const folderData = await api.getFolder(folderId) as FolderResponse;
-      const currentGroups = parseStudyGroupIds(folderData.folders?.studyGroupIds);
+      const folderData = (await api.getFolder(folderId)) as FolderResponse;
+      const currentGroups = parseStudyGroupIds(
+        folderData.folders?.studyGroupIds
+      );
       setManageGroupsCurrentGroups(currentGroups);
-      
+
       // Get parent folder's groups for restriction
       const parentGroups = await getParentFolderGroups(folderId);
       setManageGroupsParentGroups(parentGroups);
-      
+
       setManageGroupsDialogOpen(true);
     } catch (error) {
       console.error('Failed to open manage groups dialog:', error);
       showSnack(
-        t('documentManagement.studyGroups.loadError', 'Failed to load study groups'),
+        t(
+          'documentManagement.studyGroups.loadError',
+          'Failed to load study groups'
+        ),
         'error'
       );
     }
@@ -448,23 +474,29 @@ export default function FileExplorer(): React.ReactElement {
   // Handler for saving study groups
   const handleSaveStudyGroups = async (selectedGroups: string[]) => {
     if (!manageGroupsFolderId) return;
-    
+
     try {
       await api.updateFolderStudyGroups(
         manageGroupsFolderId,
         formatStudyGroupIds(selectedGroups)
       );
-      
+
       await refresh();
-      
+
       showSnack(
-        t('documentManagement.studyGroups.saved', 'Study groups updated successfully'),
+        t(
+          'documentManagement.studyGroups.saved',
+          'Study groups updated successfully'
+        ),
         'success'
       );
     } catch (error) {
       console.error('Failed to save study groups:', error);
       showSnack(
-        t('documentManagement.studyGroups.saveError', 'Failed to update study groups'),
+        t(
+          'documentManagement.studyGroups.saveError',
+          'Failed to update study groups'
+        ),
         'error'
       );
       throw error; // Re-throw to prevent dialog from closing
@@ -902,134 +934,136 @@ export default function FileExplorer(): React.ReactElement {
     return [...docsHere, ...nested];
   };
 
-const handleCreateFolder = async () => {
-  const name = newFolderName.trim();
-  if (!name) return setNewFolderOpen(false);
+  const handleCreateFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name) return setNewFolderOpen(false);
 
-  // Check for duplicate folder name
-  const duplicate = items.find(
-    (item) => item.itemType === 'folder' && item.name === name
-  );
-  if (duplicate) {
-    // Show conflict dialog instead of error
-    setConflictName(name);
-    setConflictType('folder');
-    setConflictPendingAction({
-      overwrite: async () => {
-        try {
-          // For folders, delete the existing one first
-          await api.deleteFolder(duplicate.id);
+    // Check for duplicate folder name
+    const duplicate = items.find(
+      (item) => item.itemType === 'folder' && item.name === name
+    );
+    if (duplicate) {
+      // Show conflict dialog instead of error
+      setConflictName(name);
+      setConflictType('folder');
+      setConflictPendingAction({
+        overwrite: async () => {
+          try {
+            // For folders, delete the existing one first
+            await api.deleteFolder(duplicate.id);
 
-          // Then create the new folder with the same name
-          await api.createFolder(
-            name,
-            currentFolderIdRef.current,
-            formatStudyGroupIds(newFolderStudyGroups)
-          );
+            // Then create the new folder with the same name
+            await api.createFolder(
+              name,
+              currentFolderIdRef.current,
+              formatStudyGroupIds(newFolderStudyGroups)
+            );
 
-          await refresh();
+            await refresh();
 
-          showSnack(
-            t('documentManagement.snack.created', 'Created'),
-            'success'
-          );
-          setNewFolderOpen(false);
-          setNewFolderName('');
-          setNewFolderStudyGroups([]); // Reset study groups selection
-        } catch (error) {
-          console.error('Create folder failed:', error);
-          showSnack(
-            t('documentManagement.snack.createFailed', 'Create failed'),
-            'error'
-          );
-        }
-      },
-      rename: async () => {
-        try {
-          // Find the next available increment
-          let counter = 1;
-          let newName = `${name} (${counter})`;
-
-          while (
-            items.some(
-              (item) => item.itemType === 'folder' && item.name === newName
-            )
-          ) {
-            counter++;
-            newName = `${name} (${counter})`;
+            showSnack(
+              t('documentManagement.snack.created', 'Created'),
+              'success'
+            );
+            setNewFolderOpen(false);
+            setNewFolderName('');
+            setNewFolderStudyGroups([]); // Reset study groups selection
+          } catch (error) {
+            console.error('Create folder failed:', error);
+            showSnack(
+              t('documentManagement.snack.createFailed', 'Create failed'),
+              'error'
+            );
           }
+        },
+        rename: async () => {
+          try {
+            // Find the next available increment
+            let counter = 1;
+            let newName = `${name} (${counter})`;
 
-          // Create folder with the new name
-          await api.createFolder(
-            newName,
-            currentFolderIdRef.current,
-            formatStudyGroupIds(newFolderStudyGroups)
-          );
+            while (
+              items.some(
+                (item) => item.itemType === 'folder' && item.name === newName
+              )
+            ) {
+              counter++;
+              newName = `${name} (${counter})`;
+            }
 
-          await refresh();
+            // Create folder with the new name
+            await api.createFolder(
+              newName,
+              currentFolderIdRef.current,
+              formatStudyGroupIds(newFolderStudyGroups)
+            );
 
-          showSnack(
-            t('documentManagement.snack.created', 'Created'),
-            'success'
-          );
-          setNewFolderOpen(false);
-          setNewFolderName('');
-          setNewFolderStudyGroups([]); // Reset study groups selection
-        } catch (error) {
-          console.error('Create folder failed:', error);
-          showSnack(
-            t('documentManagement.snack.createFailed', 'Create failed'),
-            'error'
-          );
-        }
-      },
-    });
-    setConflictDialogOpen(true);
-    return;
-  }
+            await refresh();
 
-  try {
-    const created = await api.createFolder(
-      name,
-      currentFolderIdRef.current,
-      formatStudyGroupIds(newFolderStudyGroups)
-    );
-    setItems((prev) => [
-      {
-        id: created.id,
-        name: created.name,
-        size: 0,
-        uploadDate: created.createdDate ?? new Date().toISOString(),
-        itemType: 'folder',
-      },
-      ...prev,
-    ]);
-    showSnack(t('documentManagement.snack.created', 'Created'), 'success');
-  } catch {
-    showSnack(
-      t('documentManagement.snack.createFailed', 'Create failed'),
-      'error'
-    );
-  }
-  setNewFolderOpen(false);
-  setNewFolderName('');
-  setNewFolderStudyGroups([]); // Reset study groups selection
-};
+            showSnack(
+              t('documentManagement.snack.created', 'Created'),
+              'success'
+            );
+            setNewFolderOpen(false);
+            setNewFolderName('');
+            setNewFolderStudyGroups([]); // Reset study groups selection
+          } catch (error) {
+            console.error('Create folder failed:', error);
+            showSnack(
+              t('documentManagement.snack.createFailed', 'Create failed'),
+              'error'
+            );
+          }
+        },
+      });
+      setConflictDialogOpen(true);
+      return;
+    }
+
+    try {
+      const created = await api.createFolder(
+        name,
+        currentFolderIdRef.current,
+        formatStudyGroupIds(newFolderStudyGroups)
+      );
+      setItems((prev) => [
+        {
+          id: created.id,
+          name: created.name,
+          size: 0,
+          uploadDate: created.createdDate ?? new Date().toISOString(),
+          itemType: 'folder',
+        },
+        ...prev,
+      ]);
+      showSnack(t('documentManagement.snack.created', 'Created'), 'success');
+    } catch {
+      showSnack(
+        t('documentManagement.snack.createFailed', 'Create failed'),
+        'error'
+      );
+    }
+    setNewFolderOpen(false);
+    setNewFolderName('');
+    setNewFolderStudyGroups([]); // Reset study groups selection
+  };
 
   // Get parent folder's study groups when opening new folder dialog
   // This should be called when setNewFolderOpen(true) is triggered
   const handleOpenNewFolderDialog = async () => {
     setNewFolderOpen(true);
-    
+
     // Reset selections
     setNewFolderName('');
     setNewFolderStudyGroups([]);
-    
+
     // Get parent folder's groups for restriction
     if (currentFolderIdRef.current !== 'root') {
       try {
-        const parentGroups = await getParentFolderGroups(currentFolderIdRef.current);
-        
+        const parentGroups = await getParentFolderGroups(
+          currentFolderIdRef.current
+        );
+
         // If parent has restricted groups, pre-select them
         if (parentGroups && parentGroups.length > 0) {
           setNewFolderStudyGroups(parentGroups);
@@ -1684,43 +1718,42 @@ const handleCreateFolder = async () => {
         >
           <List aria-label="file list" sx={{ padding: 0 }}>
             {filteredItems.map((item) => (
-                <FileListItem
-                  key={item.id}
-                  item={item}
-                  onRename={handleOpenRename}
-                  onDelete={handleOpenDelete}
-                  onOpen={handleOpenFolder}
-                  onDownload={handleDownload}
-                  onPreview={
-                    item.itemType !== 'folder' ? handleOpenViewer : undefined
-                  }
-                  onManageGroups={
-                    item.itemType === 'folder' && canAccess('manageDocuments')
-                      ? () => handleOpenManageGroups(item.id)
-                      : undefined
-                  }
-                  onDragOver={(e) => {
-                    if (canAccess('manageDocuments')) e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    if (!canAccess('manageDocuments')) return;
-                    try {
-                      const raw = e.dataTransfer?.getData(
-                        'application/x-dms-item'
-                      );
-                      if (!raw) return;
-                      const parsed = JSON.parse(raw);
-                      // If dropped onto a folder, move into that folder
-                      if (item.itemType === 'folder') {
-                        handleMove(parsed.id, parsed.type, item.id);
-                      }
-                    } catch {
-                      // ignore
+              <FileListItem
+                key={item.id}
+                item={item}
+                onRename={handleOpenRename}
+                onDelete={handleOpenDelete}
+                onOpen={handleOpenFolder}
+                onDownload={handleDownload}
+                onPreview={
+                  item.itemType !== 'folder' ? handleOpenViewer : undefined
+                }
+                onManageGroups={
+                  item.itemType === 'folder' && canAccess('manageDocuments')
+                    ? () => handleOpenManageGroups(item.id)
+                    : undefined
+                }
+                onDragOver={(e) => {
+                  if (canAccess('manageDocuments')) e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  if (!canAccess('manageDocuments')) return;
+                  try {
+                    const raw = e.dataTransfer?.getData(
+                      'application/x-dms-item'
+                    );
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    // If dropped onto a folder, move into that folder
+                    if (item.itemType === 'folder') {
+                      handleMove(parsed.id, parsed.type, item.id);
                     }
-                  }}
-                />
-              ))}
-
+                  } catch {
+                    // ignore
+                  }
+                }}
+              />
+            ))}
           </List>
         </Box>
       )}
@@ -1944,7 +1977,7 @@ const handleCreateFolder = async () => {
               }
             }}
           />
-          
+
           <StudyGroupSelector
             selectedGroups={newFolderStudyGroups}
             onChange={setNewFolderStudyGroups}

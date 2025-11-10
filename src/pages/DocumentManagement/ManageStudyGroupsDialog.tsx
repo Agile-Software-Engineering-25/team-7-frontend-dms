@@ -40,7 +40,8 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
   parentFolderGroups,
 }) => {
   const { t } = useTranslation();
-  const [selectedGroups, setSelectedGroups] = React.useState<string[]>(currentGroups);
+  const [selectedGroups, setSelectedGroups] =
+    React.useState<string[]>(currentGroups);
   const [saving, setSaving] = React.useState(false);
 
   // Update selected groups when currentGroups changes (dialog opens)
@@ -62,7 +63,9 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
     }
   };
 
-  const hasChanges = JSON.stringify([...selectedGroups].sort()) !== JSON.stringify([...currentGroups].sort());
+  const hasChanges =
+    JSON.stringify([...selectedGroups].sort()) !==
+    JSON.stringify([...currentGroups].sort());
 
   return (
     <Dialog
@@ -78,11 +81,12 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       <DialogContent dividers>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {t('documentManagement.studyGroups.manageDescription', {
-            defaultValue: 'Select which study groups can see the folder "{{folderName}}"',
+            defaultValue:
+              'Select which study groups can see the folder "{{folderName}}"',
             folderName,
           })}
         </Typography>
-        
+
         <StudyGroupSelector
           selectedGroups={selectedGroups}
           onChange={setSelectedGroups}
@@ -92,16 +96,22 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
           error={error}
           parentFolderGroups={parentFolderGroups}
         />
-        
+
         {parentFolderGroups && parentFolderGroups.length > 0 && (
-          <Box sx={{ mt: 2, p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+          <Box
+            sx={{ mt: 2, p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}
+          >
             <Typography variant="caption" color="text.secondary">
               <strong>
-                {t('documentManagement.studyGroups.parentRestrictionTitle', 'Parent folder restriction:')}
+                {t(
+                  'documentManagement.studyGroups.parentRestrictionTitle',
+                  'Parent folder restriction:'
+                )}
               </strong>
               <br />
               {t('documentManagement.studyGroups.parentRestrictionText', {
-                defaultValue: 'This folder can only be assigned to study groups that are also assigned to its parent folder: {{groups}}',
+                defaultValue:
+                  'This folder can only be assigned to study groups that are also assigned to its parent folder: {{groups}}',
                 groups: parentFolderGroups.join(', '),
               })}
             </Typography>

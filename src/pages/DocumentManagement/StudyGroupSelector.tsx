@@ -64,7 +64,10 @@ const StudyGroupSelector: React.FC<Props> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
         <CircularProgress size={20} />
         <Typography variant="body2" color="text.secondary">
-          {t('documentManagement.studyGroups.loading', 'Loading study groups...')}
+          {t(
+            'documentManagement.studyGroups.loading',
+            'Loading study groups...'
+          )}
         </Typography>
       </Box>
     );
@@ -92,12 +95,19 @@ const StudyGroupSelector: React.FC<Props> = ({
         disabled={disabled || selectableGroups.length === 0}
         value={selectedGroups}
         onChange={handleChange}
-        input={<OutlinedInput label={t('documentManagement.studyGroups.label', 'Study Groups')} />}
+        input={
+          <OutlinedInput
+            label={t('documentManagement.studyGroups.label', 'Study Groups')}
+          />
+        }
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {selected.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
-                {t('documentManagement.studyGroups.allGroups', 'All study groups (no restriction)')}
+                {t(
+                  'documentManagement.studyGroups.allGroups',
+                  'All study groups (no restriction)'
+                )}
               </Typography>
             ) : (
               selected.map((value) => (
@@ -126,13 +136,26 @@ const StudyGroupSelector: React.FC<Props> = ({
         {selectableGroups.length === 0 ? (
           <MenuItem disabled>
             {isRestricted
-              ? t('documentManagement.studyGroups.noGroupsFromParent', 'No study groups available from parent folder')
-              : t('documentManagement.studyGroups.noGroups', 'No study groups available')}
+              ? t(
+                  'documentManagement.studyGroups.noGroupsFromParent',
+                  'No study groups available from parent folder'
+                )
+              : t(
+                  'documentManagement.studyGroups.noGroups',
+                  'No study groups available'
+                )}
           </MenuItem>
         ) : (
           selectableGroups.map((group) => (
             <MenuItem key={group.name} value={group.name}>
-              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  gap: 1,
+                }}
+              >
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body2">{group.name}</Typography>
                   <Typography variant="caption" color="text.secondary">
