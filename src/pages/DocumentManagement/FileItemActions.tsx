@@ -7,7 +7,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import GroupIcon from '@mui/icons-material/Group';
 import { useTranslation } from 'react-i18next';
 import { emitRequestMove } from '../../lib/dmsEvents';
 import { useCanAccess } from '@/lib/permissions';
@@ -93,8 +92,7 @@ const FileItemActions: React.FC<Props> = ({
               onManageGroups();
             }}
           >
-            <GroupIcon sx={{ mr: 1, fontSize: 20 }} />
-            {t('documentManagement.manageStudyGroups', 'Manage Study Groups')}
+            {t('documentManagement.studyGroup.manageTitle', 'Manage Study Groups')}
           </MenuItem>
         )}
         {canManageDocuments && (

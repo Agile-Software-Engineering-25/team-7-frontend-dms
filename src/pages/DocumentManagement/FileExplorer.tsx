@@ -423,7 +423,9 @@ export default function FileExplorer(): React.ReactElement {
         return undefined;
       }
 
-      const parentFolderData = (await api.getFolder(parentId)) as FolderResponse;
+      const parentFolderData = (await api.getFolder(
+        parentId
+      )) as FolderResponse;
       const parentGroups = parseStudyGroupIds(
         parentFolderData.folders?.studyGroupIds
       );
