@@ -57,7 +57,13 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       await onSave(selectedGroups);
       onClose();
     } catch (error) {
-      console.error(t('documentManagement.studyGroups.failedSave', 'Failed to save study groups:'), error);
+      console.error(
+        t(
+          'documentManagement.studyGroups.failedSave',
+          'Failed to save study groups:'
+        ),
+        error
+      );
     } finally {
       setSaving(false);
     }
