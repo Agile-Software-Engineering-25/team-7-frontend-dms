@@ -181,6 +181,24 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const convertOfficeToPdf = useCallback(
+    async (
+      id: string
+    ): Promise<{ url: string; name: string; type: string }> => {
+      const response = await axiosInstance.get(
+        `/dms/v1/documents/${id}/pdfconverter`,
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      return { url, name: `converted-${id}.pdf`, type: 'application/pdf' };
+    },
+    [axiosInstance]
+  );
+
   const api = useMemo(
     () => ({
       getFolder,
@@ -194,6 +212,7 @@ const useDmsApi = () => {
       createFolder,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     }),
     [
       getFolder,
@@ -207,6 +226,7 @@ const useDmsApi = () => {
       createFolder,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     ]
   );
 

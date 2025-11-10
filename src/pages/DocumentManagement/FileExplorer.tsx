@@ -98,6 +98,7 @@ export default function FileExplorer(): React.ReactElement {
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const [viewerFile, setViewerFile] = React.useState<{
+    id: string;
     url: string;
     name: string;
     type: string;
@@ -508,23 +509,6 @@ export default function FileExplorer(): React.ReactElement {
     handleClose();
   };
 
-  const handleOpenViewer = async (docId: string) => {
-    // console.log("handleOpenViewer called with:", docId)
-    try {
-      const { url, name, type } = await api.downloadDocument(docId);
-      const doc = items.find((i) => i.id === docId);
-      if (!doc) return;
-
-      setViewerFile({ url, name, type });
-      setViewerOpen(true);
-    } catch {
-      showSnack(
-        t('documentManagement.snack.previewFailed', 'Preview failed'),
-        'error'
-      );
-    }
-  };
-
   const handleCloseViewer = () => {
     setViewerFile(null);
     setViewerOpen(false);
@@ -674,6 +658,39 @@ export default function FileExplorer(): React.ReactElement {
     setSelectedFiles([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConvertOfficeToPdf = async (docId: string) => {
+    console.log('handleConvertOfficeToPdf triggered for', docId, api);
+    console.log('convertOfficeToPdf:', api.convertOfficeToPdf);
+    try {
+      const doc = items.find((i) => i.id === docId);
+      if (!doc) return;
+
+      const isOfficeDoc = /\.(docx?|xlsx?|pptx?)$/i.test(doc.name);
+
+      if (!isOfficeDoc) {
+        const { url, name, type } = await api.downloadDocument(docId);
+
+        setViewerFile({ id: docId, url, name, type });
+        setViewerOpen(true);
+        return;
+      } else {
+        console.log('Convert office-doc --> PDF:', doc.name);
+        const converted = await api.convertOfficeToPdf(docId);
+        console.log('result:', converted);
+        setViewerFile({
+          id: docId,
+          url: converted.url,
+          name: converted.name,
+          type: converted.type,
+        });
+        setViewerOpen(true);
+      }
+    } catch (err) {
+      console.error('Fehler bei PDF-Konvertierung:', err);
+      showSnack('Fehler bei der Vorschau-Erstellung', 'error');
     }
   };
 
@@ -1493,7 +1510,9 @@ export default function FileExplorer(): React.ReactElement {
                 onOpen={handleOpenFolder}
                 onDownload={handleDownload}
                 onPreview={
-                  item.itemType !== 'folder' ? handleOpenViewer : undefined
+                  item.itemType !== 'folder'
+                    ? () => handleConvertOfficeToPdf(item.id)
+                    : undefined
                 }
                 onDragOver={(e) => {
                   if (canAccess('manageDocuments')) e.preventDefault();
@@ -1524,6 +1543,7 @@ export default function FileExplorer(): React.ReactElement {
       <FileViewer
         open={viewerOpen}
         onClose={handleCloseViewer}
+        fileId={viewerFile?.id ?? null}
         fileUrl={viewerFile?.url ?? null}
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}

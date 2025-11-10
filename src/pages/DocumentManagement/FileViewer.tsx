@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Box, Dialog, DialogContent, DialogActions } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
 type FileViewerProps = {
   open: boolean;
   onClose: () => void;
+  fileId?: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileType: string | null;
@@ -14,11 +16,13 @@ type FileViewerProps = {
 const FileViewer: React.FC<FileViewerProps> = ({
   open,
   onClose,
+  fileId,
   fileUrl,
   fileName,
   fileType,
 }) => {
   const { t } = useTranslation();
+  const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,12 +36,28 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   }, [open, fileType, fileUrl]);
 
-  const handleDownload = () => {
-    if (!fileUrl || !fileName) return;
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.click();
+  const handleDownload = async () => {
+    try {
+      if (!fileId) return;
+
+      const isConvertedPdf =
+        fileType === 'application/pdf' && fileName?.startsWith('converted-');
+
+      if (isConvertedPdf) {
+        const { url, name } = await api.downloadDocument(fileId);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
+      } else {
+        const link = document.createElement('a');
+        link.href = fileUrl!;
+        link.download = fileName ?? 'file';
+        link.click();
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
   };
 
   const renderPreview = () => {
@@ -49,7 +69,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
         <iframe
           src={fileUrl}
           style={{ width: '100%', height: '80vh', border: 'none' }}
-          title="PDF preview"
+          title="PDF Preview"
         />
       );
     }
@@ -80,7 +100,6 @@ const FileViewer: React.FC<FileViewerProps> = ({
         </pre>
       );
     }
-
     return (
       <p>
         {t(

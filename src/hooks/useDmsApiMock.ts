@@ -421,6 +421,24 @@ export default function createMockApi() {
     return { id: d.id, name: d.name, size: d.size, createdDate: d.createdDate };
   }
 
+  async function convertOfficeToPdf(
+    id: string
+  ): Promise<{ url: string; name: string; type: string }> {
+    console.log('Mock convertOfficeToPdf called for ID:', id);
+
+    // Beispiel: Fiktive PDF erzeugen
+    const blob = new Blob(['%PDF-1.4\n%Mock PDF file\n...'], {
+      type: 'application/pdf',
+    });
+    const url = URL.createObjectURL(blob);
+
+    return {
+      url,
+      name: `converted-${id}.pdf`,
+      type: 'application/pdf',
+    };
+  }
+
   async function downloadDocument(id: string) {
     const doc = documents.get(id);
     if (!doc) throw new Error('Document not found');
@@ -545,5 +563,6 @@ export default function createMockApi() {
     createFolder,
     moveDocument,
     moveFolder,
+    convertOfficeToPdf,
   };
 }
