@@ -92,7 +92,10 @@ const FileItemActions: React.FC<Props> = ({
               onManageGroups();
             }}
           >
-            {t('documentManagement.studyGroup.manageTitle', 'Manage Study Groups')}
+            {t(
+              'documentManagement.studyGroup.manageTitle',
+              'Manage Study Groups'
+            )}
           </MenuItem>
         )}
         {canManageDocuments && (
