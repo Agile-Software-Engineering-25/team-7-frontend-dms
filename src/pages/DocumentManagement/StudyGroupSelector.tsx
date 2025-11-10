@@ -137,7 +137,9 @@ const StudyGroupSelector: React.FC<Props> = ({
                 <Chip
                   key={groupName}
                   label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    >
                       <span>{groupName}</span>
                       <span
                         style={{
