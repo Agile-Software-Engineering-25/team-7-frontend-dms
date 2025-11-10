@@ -9,7 +9,10 @@ import {
   OutlinedInput,
   Typography,
   CircularProgress,
+  Checkbox,
+  ListItemText,
 } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 import { useTranslation } from 'react-i18next';
 import type { SelectChangeEvent } from '@mui/material';
 
@@ -25,7 +28,7 @@ type Props = {
   loading?: boolean;
   disabled?: boolean;
   error?: string | null;
-  parentFolderGroups?: string[]; // For restricting selection in subfolders
+  parentFolderGroups?: string[];
 };
 
 const StudyGroupSelector: React.FC<Props> = ({
@@ -54,6 +57,17 @@ const StudyGroupSelector: React.FC<Props> = ({
     onChange(typeof value === 'string' ? value.split(',') : value);
   };
 
+  // Toggle a group on/off
+  const handleToggleGroup = (groupName: string) => {
+    if (selectedGroups.includes(groupName)) {
+      // Remove the group
+      onChange(selectedGroups.filter((g) => g !== groupName));
+    } else {
+      // Add the group
+      onChange([...selectedGroups, groupName]);
+    }
+  };
+
   const handleDelete = (groupToDelete: string) => {
     onChange(selectedGroups.filter((group) => group !== groupToDelete));
   };
@@ -63,10 +77,7 @@ const StudyGroupSelector: React.FC<Props> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 2 }}>
         <CircularProgress size={20} />
         <Typography variant="body2" color="text.secondary">
-          {t(
-            'documentManagement.studyGroups.loading',
-            'Loading study groups...'
-          )}
+          {t('documentManagement.studyGroups.loading')}
         </Typography>
       </Box>
     );
@@ -85,7 +96,7 @@ const StudyGroupSelector: React.FC<Props> = ({
   return (
     <FormControl fullWidth sx={{ mt: 2 }}>
       <InputLabel id="study-group-select-label">
-        {t('documentManagement.studyGroups.label', 'Study Groups')}
+        {t('documentManagement.studyGroups.label')}
       </InputLabel>
       <Select
         labelId="study-group-select-label"
@@ -95,18 +106,13 @@ const StudyGroupSelector: React.FC<Props> = ({
         value={selectedGroups}
         onChange={handleChange}
         input={
-          <OutlinedInput
-            label={t('documentManagement.studyGroups.label', 'Study Groups')}
-          />
+          <OutlinedInput label={t('documentManagement.studyGroups.label')} />
         }
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {selected.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
-                {t(
-                  'documentManagement.studyGroups.allGroups',
-                  'All study groups'
-                )}
+                {t('documentManagement.studyGroups.allGroups')}
               </Typography>
             ) : (
               selected.map((value) => (
@@ -135,54 +141,63 @@ const StudyGroupSelector: React.FC<Props> = ({
         {selectableGroups.length === 0 ? (
           <MenuItem disabled>
             {isRestricted
-              ? t(
-                  'documentManagement.studyGroups.noGroupsFromParent',
-                  'No study groups available from parent folder'
-                )
-              : t(
-                  'documentManagement.studyGroups.noGroups',
-                  'No study groups available'
-                )}
+              ? t('documentManagement.studyGroups.noGroupsFromParent')
+              : t('documentManagement.studyGroups.noGroups')}
           </MenuItem>
         ) : (
-          selectableGroups.map((group) => (
-            <MenuItem key={group.name} value={group.name}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                  gap: 1,
-                }}
+          selectableGroups.map((group) => {
+            const isSelected = selectedGroups.includes(group.name);
+            const studentCountText =
+              group.students_count === 1
+                ? `${group.students_count} ${t('documentManagement.studyGroups.studentCount_one')}`
+                : `${group.students_count} ${t('documentManagement.studyGroups.studentCount_other')}`;
+
+            return (
+              <MenuItem
+                key={group.name}
+                value={group.name}
+                onClick={() => handleToggleGroup(group.name)}
               >
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2">{group.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {t('documentManagement.studyGroups.studentCount', {
-                      defaultValue: '{{count}} student',
-                      count: group.students_count,
-                    })}
-                  </Typography>
-                </Box>
-              </Box>
-            </MenuItem>
-          ))
+                <Checkbox
+                  checked={isSelected}
+                  sx={{
+                    color: '#002E6D',
+                    '&.Mui-checked': {
+                      color: '#4caf50',
+                    },
+                  }}
+                />
+                <ListItemText
+                  primary={group.name}
+                  secondary={studentCountText}
+                  primaryTypographyProps={{
+                    sx: {
+                      fontWeight: isSelected ? 600 : 400,
+                    },
+                  }}
+                />
+                {isSelected && (
+                  <CheckIcon
+                    sx={{
+                      color: '#4caf50',
+                      ml: 'auto',
+                      fontSize: 24,
+                    }}
+                  />
+                )}
+              </MenuItem>
+            );
+          })
         )}
       </Select>
       {isRestricted && (
         <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-          {t(
-            'documentManagement.studyGroups.restrictedInfo',
-            'Selection is restricted to study groups from parent folder'
-          )}
+          {t('documentManagement.studyGroups.restrictedInfo')}
         </Typography>
       )}
       {!isRestricted && selectedGroups.length === 0 && (
         <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-          {t(
-            'documentManagement.studyGroups.noSelectionInfo',
-            'No selection means all study groups can see this folder'
-          )}
+          {t('documentManagement.studyGroups.noSelectionInfo')}
         </Typography>
       )}
     </FormControl>

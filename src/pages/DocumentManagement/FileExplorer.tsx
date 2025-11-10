@@ -799,8 +799,8 @@ export default function FileExplorer(): React.ReactElement {
       const failedNames = failedFiles.join(', ');
       const defaultValue =
         uploadSuccessCount > 0
-          ? 'Uploaded partially. Failed for: {{fileNames}}'
-          : 'Upload failed for: {{fileNames}}';
+          ? 'Uploaded partially. Failed for file'
+          : 'Upload failed for files';
       messages.push({
         msg: t('documentManagement.snack.uploadFailed', {
           defaultValue,
@@ -1081,8 +1081,6 @@ export default function FileExplorer(): React.ReactElement {
   // Get parent folder's study groups when opening new folder dialog
   // This should be called when setNewFolderOpen(true) is triggered
   const handleOpenNewFolderDialog = async () => {
-    setNewFolderOpen(true);
-
     // Reset selections
     setNewFolderName('');
     setNewFolderStudyGroups([]);
@@ -1090,22 +1088,35 @@ export default function FileExplorer(): React.ReactElement {
     // Get parent folder's groups for restriction
     if (currentFolderIdRef.current !== 'root') {
       try {
-        const parentGroups = await getParentFolderGroups(
+        const folderData = (await api.getFolder(
           currentFolderIdRef.current
+        )) as FolderResponse;
+        const parentGroups = parseStudyGroupIds(
+          folderData.folders?.studyGroupIds
         );
 
-        // If parentGroups is undefined or empty, all groups are available
-        // Only pre-select if parent has specific restricted groups
-        if (parentGroups && parentGroups.length > 0) {
+        // If parentGroups is empty array (length === 0), the folder is public
+        // meaning ALL groups should be available - set parentGroups to undefined
+        if (parentGroups.length === 0) {
+          setManageGroupsParentGroups(undefined);
+        } else {
+          // Parent has specific groups, so restrict to those groups
+          setManageGroupsParentGroups(parentGroups);
+          // Pre-select parent's groups for convenience
           setNewFolderStudyGroups(parentGroups);
         }
-        // Note: We don't set manageGroupsParentGroups here anymore
-        // It will be set when the dialog actually needs it
       } catch (error) {
         console.error('Failed to get parent folder groups:', error);
+        // On error, allow all groups
+        setManageGroupsParentGroups(undefined);
       }
+    } else {
+      // If current folder is root, all groups are available
+      setManageGroupsParentGroups(undefined);
     }
-    // If current folder is root, parentGroups stays undefined = all groups available
+
+    // Open dialog after setting up parent groups
+    setNewFolderOpen(true);
   };
 
   const handleConflictAction = async (action: ConflictAction) => {
@@ -1521,10 +1532,7 @@ export default function FileExplorer(): React.ReactElement {
   return (
     <Box
       role="region"
-      aria-label={t(
-        'documentManagement.fileExplorerRegion',
-        'Document explorer'
-      )}
+      aria-label={t('documentManagement.fileExplorer', 'Document Explorer')}
       sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
       <Box
@@ -1589,7 +1597,7 @@ export default function FileExplorer(): React.ReactElement {
           onClick={() =>
             showSnack(
               t(
-                'documentManagement.filterPlaceholder',
+                'documentManagement.filter.placeholder',
                 'Filterfunktion folgt in Kürze'
               ),
               'info'
@@ -2081,10 +2089,10 @@ export default function FileExplorer(): React.ReactElement {
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            {t('documentManagement.uploadDocument.maxSize', {
-              defaultValue: 'Maximal {{max}} MB per file',
-              max: MAX_FILE_SIZE_MB,
-            })}
+            {t(
+              'documentManagement.uploadDocument.maxSize',
+              'Maximum 5 MB per file.'
+            )}
           </Typography>
           <Box
             sx={{
@@ -2101,7 +2109,7 @@ export default function FileExplorer(): React.ReactElement {
               >
                 {t(
                   'documentManagement.uploadDocument.noFiles',
-                  'Keine Dateien ausgewählt'
+                  'No file selected.'
                 )}
               </Typography>
             ) : (
@@ -2110,7 +2118,7 @@ export default function FileExplorer(): React.ReactElement {
                 sx={{ width: '100%' }}
                 aria-label={t(
                   'documentManagement.uploadDocument.selected',
-                  'selected files:'
+                  'Selected files:'
                 )}
               >
                 {selectedFiles.map((file, idx) => (
@@ -2121,10 +2129,7 @@ export default function FileExplorer(): React.ReactElement {
                       <Tooltip
                         title={t(
                           'documentManagement.uploadDocument.removeFile',
-                          {
-                            defaultValue: 'remove {{file}}',
-                            file: file.name,
-                          }
+                          'Remove file'
                         )}
                         sx={{
                           backgroundColor: '#ffe5e5',
@@ -2134,10 +2139,7 @@ export default function FileExplorer(): React.ReactElement {
                           edge="end"
                           aria-label={t(
                             'documentManagement.uploadDocument.removeFile',
-                            {
-                              defaultValue: 'remove {{file}}',
-                              file: file.name,
-                            }
+                            'Remove file'
                           )}
                           onClick={() => handleRemoveSelectedFile(idx)}
                           color="error"

@@ -26,7 +26,8 @@
       "queryPrefix": "für"
     },
     "filter": {
-      "button": "Filter (bald verfügbar)"
+      "button": "Filter (bald verfügbar)",
+      "placeholder": "Filter bald verfügbar."
     },
     "downloadDocument": {
       "button": "Dateien herunterladen",
@@ -68,18 +69,22 @@
     },
     "studyGroups": {
       "loading": "Studierendengruppen werden geladen...",
-      "label": "Studierendengruppen",
-      "allGroups": "Alle Studierendengruppen",
-      "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar.",
-      "noGroups": "Es sind keine Studierendengruppen verfügbar.",
-      "studentCount": "{{count}} Studenten",
-      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners.",
+      "loadError": "Fehler beim laden der Studierendengruppen.",
+      "label": "Studiengruppen",
+      "allGroups": "Alle Studiengruppen",
+      "noGroupsFromParent": "Es sind keine Studiengruppen aus dem Überordner verfügbar.",
+      "noGroups": "Es sind keine Studiengruppen verfügbar.",
+      "studentCount_one": "ein Student",
+      "studentCount_other": "Studenten",
+      "restrictedInfo": "Auswahl ist eingeschränkt auf Studiengruppen des Überordners.",
       "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für Alle sichtbar sein wird.",
-      "failedSave": "Studierendengruppen konnten nicht gespeichert werden.",
-      "manageTitle": "Studierendengruppen bearbeiten.",
-      "manageDescription": "Wähle welche Studierendengruppen den Ordner {{folder}} sehen können.",
+      "saved": "Studierendengruppe wurde erfolgreich aktualisiert",
+      "saveError": "Fehler beim Aktualisieren der Studierendengruppe",
+      "failedSave": "Studiengruppen konnten nicht gespeichert werden.",
+      "manageTitle": "Studiengruppen bearbeiten.",
+      "manageDescription": "Wähle welche Studiengruppen den Ordner {{folder}} sehen können.",
       "parentRestrictionTitle": "Überordner Einschränkung",
-      "parentRestrictionContent": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden: {{groups}}.",
+      "parentRestrictionContent": "Diesem Ordner können nur Studiengruppen aus dessen Überorder eingefügt werden: {{groups}}.",
       "save": "Speichern",
       "cancel": "Abbrechen"
     },
