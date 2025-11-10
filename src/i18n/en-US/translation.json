@@ -65,6 +65,23 @@
       "create": "Create",
       "cancel": "Cancel"
     },
+    "studyGroups": {
+      "loading": "Loading study groups...",
+      "label": "study groups",
+      "allGroups": "All study groups",
+      "noGroupsFromParent": "There are no study groups available from parent folder.",
+      "noGroups": "There are no study groups available.",
+      "studentCount": "{{count}} students",
+      "restrictedInfo": "Selection is restricted to study groups from the parent folder.",
+      "noSelectionInfo": "No selection means that the folder visible to all students.",
+      "failedSave": "Failed saving study group.",
+      "manageTitle": "Manage study group.",
+      "manageDescription": "Select what study groups can see the folder: {{folder}}.",
+      "parentRestrictionTitle": "Parent folder restriction",
+      "parentRestrictionContent": "This folder can only be assigned to study groups that are also assigned to its parent folder: {{groups}}",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
     "moveDialog": {
       "title": "Move item",
       "instruction": "Select a destination folder. You can move to parent folders or subfolders of the current directory.",

@@ -11,7 +11,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import CheckIcon from '@mui/icons-material/Check';
 import type { SelectChangeEvent } from '@mui/material';
 
 type StudyGroup = {
@@ -106,7 +105,7 @@ const StudyGroupSelector: React.FC<Props> = ({
               <Typography variant="body2" color="text.secondary">
                 {t(
                   'documentManagement.studyGroups.allGroups',
-                  'All study groups (no restriction)'
+                  'All study groups'
                 )}
               </Typography>
             ) : (
@@ -160,14 +159,11 @@ const StudyGroupSelector: React.FC<Props> = ({
                   <Typography variant="body2">{group.name}</Typography>
                   <Typography variant="caption" color="text.secondary">
                     {t('documentManagement.studyGroups.studentCount', {
-                      defaultValue: '{{count}} students',
+                      defaultValue: '{{count}} student',
                       count: group.students_count,
                     })}
                   </Typography>
                 </Box>
-                {selectedGroups.includes(group.name) && (
-                  <CheckIcon sx={{ color: '#002E6D', fontSize: 20 }} />
-                )}
               </Box>
             </MenuItem>
           ))
