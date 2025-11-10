@@ -10,11 +10,11 @@
     "uploadDocument": {
       "button": "Datei hochladen",
       "title": "Datei hochladen",
-      "maxSize": "Maximal {{max}} MB pro Datei",
+      "maxSize": "Maximal 5 MB pro Datei",
       "selectFiles": "Dateien auswählen",
       "selected": "Ausgewählte Dateien:",
       "noFiles": "Keine Dateien ausgewählt",
-      "removeFile": "{{file}} entfernen",
+      "removeFile": "Datei entfernen",
       "fileTooLarge": "zu groß",
       "cancel": "Abbrechen",
       "confirm": "Hochladen"
@@ -28,6 +28,7 @@
     "filter": {
       "button": "Filter (bald verfügbar)"
     },
+    "filterPlaceholder": "Filterfunktion folgt in Kürze",
     "downloadDocument": {
       "button": "Dateien herunterladen",
       "download": "Herunterladen",
@@ -42,7 +43,7 @@
       "download": "Herunterladen",
       "close": "Schließen",
       "noPreview": "Keine Vorschau verfügbar für "
-  },
+    },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -67,18 +68,22 @@
     },
     "studyGroups": {
       "loading": "Studierendengruppen werden geladen...",
+      "loadError": "Fehler beim Laden der Studierendengruppen",
       "label": "Studierendengruppen",
       "allGroups": "Alle Studierendengruppen",
-      "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar.",
-      "noGroups": "Es sind keine Studierendengruppen verfügbar.",
-      "studentCount": "{{count}} Studenten",
-      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners.",
-      "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für Alle sichtbar sein wird.",
-      "failedSave": "Studierendengruppen konnten nicht gespeichert werden.",
-      "manageTitle": "Studierendengruppen bearbeiten.",
-      "manageDescription": "Wähle welche Studierendengruppen den Ordner {{folder}} sehen können.",
-      "parentRestrictionTitle": "Überordner Einschränkung",
-      "parentRestrictionContent": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden: {{groups}}.",
+      "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar",
+      "noGroups": "Es sind keine Studierendengruppen verfügbar",
+      "studentCount_one": "1 Student",
+      "studentCount_other": "Studenten",
+      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners",
+      "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für alle sichtbar sein wird",
+      "saved": "Studierendengruppen erfolgreich aktualisiert",
+      "saveError": "Fehler beim Aktualisieren der Studierendengruppen",
+      "failedSave": "Studierendengruppen konnten nicht gespeichert werden",
+      "manageTitle": "Studierendengruppen bearbeiten",
+      "manageDescription": "Wähle welche Studierendengruppen den Ordner sehen können",
+      "parentRestrictionTitle": "Überordner Einschränkung:",
+      "parentRestrictionText": "Diesem Ordner können nur Studierendengruppen aus dessen Überordner zugewiesen werden",
       "save": "Speichern",
       "cancel": "Abbrechen"
     },
@@ -92,8 +97,8 @@
     },
     "conflictDialog": {
       "title": "Namenskonflikt",
-      "messageFile": "Eine Datei mit dem Namen \"{{name}}\" existiert bereits in diesem Verzeichnis.",
-      "messageFolder": "Ein Ordner mit dem Namen \"{{name}}\" existiert bereits in diesem Verzeichnis.",
+      "messageFile": "Eine Datei mit diesem Namen existiert bereits in diesem Verzeichnis",
+      "messageFolder": "Ein Ordner mit diesem Namen existiert bereits in diesem Verzeichnis",
       "question": "Was möchten Sie tun?",
       "overwrite": "Überschreiben",
       "autoRename": "Automatisch umbenennen",
@@ -105,6 +110,9 @@
       "pdf": "PDF"
     },
     "moreActions": "Mehr Aktionen",
+    "fileExplorerRegion": "Dokumenten-Explorer",
+    "root": "Startseite",
+    "fileExplorer": "Datei-Explorer",
     "snack": {
       "renamed": "Umbenannt",
       "renameFailed": "Umbenennung fehlgeschlagen",
@@ -112,10 +120,10 @@
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
       "noFiles": "Keine Dateien ausgewählt",
-  "fileTooLarge": "Datei {{fileName}} überschreitet die maximale Größe von {{maxSize}} MB",
+      "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
-      "duplicate": "Datei {{duplicateName}} existiert bereits",
+      "duplicate": "Datei existiert bereits",
       "downloaded": "Download gestartet",
       "downloadFailed": "Download fehlgeschlagen",
       "noDocsInFolder": "Es gibt keine Dateien oder Ordner im aktuellen Verzeichnis",
@@ -125,11 +133,9 @@
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",
       "moveFailed": "Verschieben fehlgeschlagen",
-      "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden.",
-      "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
-      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."
-    },
-    "root": "Startseite",
-    "fileExplorer": "Datei-Explorer"
+      "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden",
+      "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner",
+      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner"
+    }
   }
 }

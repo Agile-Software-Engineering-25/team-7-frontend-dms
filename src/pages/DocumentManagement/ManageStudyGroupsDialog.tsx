@@ -32,7 +32,6 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
   open,
   onClose,
   onSave,
-  folderName,
   currentGroups,
   availableGroups,
   loading = false,
@@ -57,13 +56,7 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       await onSave(selectedGroups);
       onClose();
     } catch (error) {
-      console.error(
-        t(
-          'documentManagement.studyGroups.failedSave',
-          'Failed to save study groups:'
-        ),
-        error
-      );
+      console.error(t('documentManagement.studyGroups.failedSave'), error);
     } finally {
       setSaving(false);
     }
@@ -82,15 +75,11 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       maxWidth="sm"
     >
       <DialogTitle id="manage-study-groups-title">
-        {t('documentManagement.studyGroups.manageTitle', 'Manage Study Groups')}
+        {t('documentManagement.studyGroups.manageTitle')}
       </DialogTitle>
       <DialogContent dividers>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('documentManagement.studyGroups.manageDescription', {
-            defaultValue:
-              'Select which study groups can see the folder "{{folderName}}"',
-            folderName,
-          })}
+          {t('documentManagement.studyGroups.manageDescription')}
         </Typography>
 
         <StudyGroupSelector
@@ -109,17 +98,10 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
           >
             <Typography variant="caption" color="text.secondary">
               <strong>
-                {t(
-                  'documentManagement.studyGroups.parentRestrictionTitle',
-                  'Parent folder restriction:'
-                )}
+                {t('documentManagement.studyGroups.parentRestrictionTitle')}
               </strong>
               <br />
-              {t('documentManagement.studyGroups.parentRestrictionText', {
-                defaultValue:
-                  'This folder can only be assigned to study groups that are also assigned to its parent folder: {{groups}}',
-                groups: parentFolderGroups.join(', '),
-              })}
+              {t('documentManagement.studyGroups.parentRestrictionText')}
             </Typography>
           </Box>
         )}
@@ -143,7 +125,7 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.studyGroups.save', 'Save')}
+          {t('documentManagement.studyGroups.save')}
         </Button>
         <Button
           onClick={onClose}
@@ -156,7 +138,7 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.studyGroups.cancel', 'Cancel')}
+          {t('documentManagement.studyGroups.cancel')}
         </Button>
       </DialogActions>
     </Dialog>

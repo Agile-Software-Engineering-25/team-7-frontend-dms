@@ -47,12 +47,12 @@ const ConflictDialog: React.FC<ConflictDialogProps> = ({
           {conflictType === 'file'
             ? t('documentManagement.conflictDialog.messageFile', {
                 defaultValue:
-                  'Eine Datei mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
+                  'Eine Datei mit dem Namen existiert bereits in diesem Verzeichnis.',
                 name: conflictName,
               })
             : t('documentManagement.conflictDialog.messageFolder', {
                 defaultValue:
-                  'Ein Ordner mit dem Namen "{{name}}" existiert bereits in diesem Verzeichnis.',
+                  'Ein Ordner mit dem Namen existiert bereits in diesem Verzeichnis.',
                 name: conflictName,
               })}
         </Typography>
