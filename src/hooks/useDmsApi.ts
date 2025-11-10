@@ -104,8 +104,30 @@ const useDmsApi = () => {
         if (match?.[1]) filename = match[1];
       }
 
-      const mimeType =
+      let mimeType =
         response.headers['Content-type'] ?? 'application/octet-stream';
+      // Fallback if backend delivers generic
+      if (mimeType === 'application/octet-stream' && filename) {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        switch (ext) {
+          case 'pdf':
+            mimeType = 'application/pdf';
+            break;
+          case 'png':
+            mimeType = 'image/png';
+            break;
+          case 'jpg':
+          case 'jpeg':
+            mimeType = 'image/jpeg';
+            break;
+          case 'svg':
+            mimeType = 'image/svg+xml';
+            break;
+          case 'txt':
+            mimeType = 'text/plain';
+            break;
+        }
+      }
 
       const url = window.URL.createObjectURL(
         new Blob([response.data], { type: mimeType })
