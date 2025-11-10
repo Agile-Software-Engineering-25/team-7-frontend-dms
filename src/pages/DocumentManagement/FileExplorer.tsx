@@ -545,7 +545,7 @@ export default function FileExplorer(): React.ReactElement {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
-      const isOfficeDoc = /\.(docx?|xlsx?|pptx?)$/i.test(doc.name);
+      const isOfficeDoc = /\.(docx?|pptx?)$/i.test(doc.name);
 
       if (!isOfficeDoc) {
         const { url, name, type } = await api.downloadDocument(docId);
