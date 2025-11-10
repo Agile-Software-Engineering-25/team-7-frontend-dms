@@ -538,12 +538,16 @@ export default function FileExplorer(): React.ReactElement {
   };
 
   const handleConvertOfficeToPdf = async (docId: string) => {
-    console.log('handleConvertOfficeToPdf triggered for', docId, api);
-    console.log('convertOfficeToPdf:', api.convertOfficeToPdf);
+    // console.log('handleConvertOfficeToPdf triggered for', docId, api);
+    // console.log('convertOfficeToPdf:', api.convertOfficeToPdf);
     try {
       setViewerLoading(true);
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
+
+      setViewerFile(null);
+      setViewerOpen(true);
+      setViewerLoading(true);
 
       const isOfficeDoc = /\.(docx?|pptx?)$/i.test(doc.name);
 
@@ -554,21 +558,20 @@ export default function FileExplorer(): React.ReactElement {
         setViewerOpen(true);
         return;
       } else {
-        console.log('Convert office-doc --> PDF:', doc.name);
+        // console.log('Convert office-doc --> PDF:', doc.name);
         const converted = await api.convertOfficeToPdf(docId);
-        console.log('result:', converted);
+        // console.log('result:', converted);
         setViewerFile({
           id: docId,
           url: converted.url,
           name: converted.name,
           type: converted.type,
         });
-        setViewerOpen(true);
+        setViewerLoading(false);
       }
     } catch (err) {
       console.error('Fehler bei PDF-Konvertierung:', err);
       showSnack('Fehler bei der Vorschau-Erstellung', 'error');
-    } finally {
       setViewerLoading(false);
     }
   };
@@ -1364,6 +1367,7 @@ export default function FileExplorer(): React.ReactElement {
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}
         loading={viewerLoading}
+        setLoading={setViewerLoading}
       />
       {/* Enhanced Move Dialog with folder tree */}
       <MoveDialog
