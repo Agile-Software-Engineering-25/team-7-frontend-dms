@@ -17,6 +17,7 @@ type Folder = {
   id: string;
   name: string;
   parentId?: string;
+  studyGroupIds?: string;
   createdDate?: string;
   subfolders: string[];
   documents: string[];
@@ -309,16 +310,20 @@ export default function createMockApi() {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     return {
-      id: f.id,
-      name: f.name,
-      parentId: f.parentId,
-      createdDate: f.createdDate,
+      folders: {
+        id: f.id,
+        name: f.name,
+        parentId: f.parentId,
+        studyGroupIds: f.studyGroupIds,
+        createdDate: f.createdDate,
+      },
       subfolders: f.subfolders.map((sid) => {
         const sf = folders.get(sid)!;
         return {
           id: sf.id,
           name: sf.name,
           parentId: sf.parentId,
+          studyGroupIds: sf.studyGroupIds,
           createdDate: sf.createdDate,
         };
       }),
@@ -533,8 +538,30 @@ export default function createMockApi() {
     return { id: f.id };
   }
 
+  const getStudyGroups = async () => {
+    // Mock study groups response
+    return {
+      group_count: 3,
+      groups: [
+        { name: 'BIN-T22', students_count: 25, students: null },
+        { name: 'BIN-T23', students_count: 30, students: null },
+        { name: 'BIN-T24', students_count: 28, students: null },
+      ],
+    };
+  };
+
+  const updateFolderStudyGroups = async (id: string, studyGroupIds: string[]) => {
+    const f = folders.get(id);
+    if (!f) throw new Error('Folder not found');
+    
+    // In a real implementation, this would update the folder's studyGroupIds
+    // For the mock, we just acknowledge the update
+    return { id: f.id, studyGroupIds };
+  };
+
   return {
     getFolder,
+    getStudyGroups,
     renameDocument,
     renameFolder,
     deleteDocument,
@@ -543,6 +570,7 @@ export default function createMockApi() {
     downloadDocument,
     downloadAsZip,
     createFolder,
+    updateFolderStudyGroups,
     moveDocument,
     moveFolder,
   };

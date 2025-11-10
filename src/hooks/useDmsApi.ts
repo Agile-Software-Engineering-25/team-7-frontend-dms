@@ -9,12 +9,14 @@ type FolderResponse = {
     id: string;
     name: string;
     parentId?: string;
+    studyGroupIds?: string;
     createdDate?: string;
   };
   subfolders: Array<{
     id: string;
     name: string;
     parentId?: string;
+    studyGroupIds?: string;
     createdDate?: string;
   }>;
   documents: Array<{
@@ -28,6 +30,15 @@ type FolderResponse = {
   }>;
 };
 
+type StudyGroupsResponse = {
+  group_count: number;
+  groups: Array<{
+    name: string;
+    students_count: number;
+    students: null;
+  }>;
+};
+
 const useDmsApi = () => {
   const axiosInstance = useAxiosInstance(BACKEND_BASE_URL);
 
@@ -36,6 +47,22 @@ const useDmsApi = () => {
     async (id: string) => {
       const response = await axiosInstance.get<FolderResponse>(
         `/dms/v1/folders/${id}`
+      );
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const getStudyGroups = useCallback(
+    // GET study groups (cohorts)
+    async () => {
+      const response = await axiosInstance.get<StudyGroupsResponse>(
+        `/api/v1/group`,
+        {
+          params: {
+            showMembers: false,
+          },
+        }
       );
       return response.data;
     },
@@ -148,11 +175,21 @@ const useDmsApi = () => {
   );
 
   const createFolder = useCallback(
-    async (name: string, parentId?: string) => {
-      // POST folder to create a folder
+    async (name: string, parentId?: string, studyGroupIds?: string[]) => {
       const response = await axiosInstance.post('/dms/v1/folders', {
         name,
         parentId,
+        studyGroupIds,
+      });
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const updateFolderStudyGroups = useCallback(
+    async (id: string, studyGroupIds: string[]) => {
+      const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
+        studyGroupIds,
       });
       return response.data;
     },
@@ -184,6 +221,7 @@ const useDmsApi = () => {
   const api = useMemo(
     () => ({
       getFolder,
+      getStudyGroups,
       renameDocument,
       renameFolder,
       deleteDocument,
@@ -192,11 +230,13 @@ const useDmsApi = () => {
       downloadDocument,
       downloadAsZip,
       createFolder,
+      updateFolderStudyGroups,
       moveDocument,
       moveFolder,
     }),
     [
       getFolder,
+      getStudyGroups,
       renameDocument,
       renameFolder,
       deleteDocument,
@@ -205,6 +245,7 @@ const useDmsApi = () => {
       downloadDocument,
       downloadAsZip,
       createFolder,
+      updateFolderStudyGroups,
       moveDocument,
       moveFolder,
     ]
