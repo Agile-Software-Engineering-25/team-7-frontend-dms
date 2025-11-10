@@ -28,6 +28,7 @@ type Props = {
   onDownload: (id: string) => void;
   onOpen?: (id: string) => void;
   onPreview?: (id: string) => void;
+  onManageGroups?: () => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
@@ -62,6 +63,7 @@ const FileListItem: React.FC<Props> = ({
   onDrop,
   onDragOver,
   onDownload,
+  onManageGroups,
 }) => {
   const { canAccess } = useCanAccess();
   const [isDragOver, setIsDragOver] = React.useState(false);
@@ -199,9 +201,11 @@ const FileListItem: React.FC<Props> = ({
         <FileItemActions
           itemId={item.id}
           itemName={item.name}
+          itemType={item.itemType}
           onRename={() => onRename(item.id)}
           onDelete={() => onDelete(item.id)}
           onDownload={() => onDownload(item.id)}
+          onManageGroups={onManageGroups}
         />
       </Box>
     </ListItem>

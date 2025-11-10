@@ -7,6 +7,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import GroupIcon from '@mui/icons-material/Group';
 import { useTranslation } from 'react-i18next';
 import { emitRequestMove } from '../../lib/dmsEvents';
 import { useCanAccess } from '@/lib/permissions';
@@ -14,22 +15,29 @@ import { useCanAccess } from '@/lib/permissions';
 type Props = {
   itemId: string;
   itemName: string;
+  itemType: 'folder' | 'document' | 'pdf' | 'other';
   onRename: () => void;
   onDelete: () => void;
   onDownload: () => void;
+  onManageGroups?: () => void; // Only for folders
 };
 
 const FileItemActions: React.FC<Props> = ({
   itemId,
   itemName,
+  itemType,
   onRename,
   onDelete,
   onDownload,
+  onManageGroups,
 }) => {
   const { canAccess } = useCanAccess();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  const canManageDocuments = canAccess('manageDocuments');
+  const isFolder = itemType === 'folder';
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
@@ -68,7 +76,7 @@ const FileItemActions: React.FC<Props> = ({
         onClose={handleClose}
         MenuListProps={{ role: 'menu' }}
       >
-        {canAccess('manageDocuments') && (
+        {canManageDocuments && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -78,7 +86,18 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.rename', 'Rename')}
           </MenuItem>
         )}
-        {canAccess('manageDocuments') && (
+        {canManageDocuments && isFolder && onManageGroups && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onManageGroups();
+            }}
+          >
+            <GroupIcon sx={{ mr: 1, fontSize: 20 }} />
+            {t('documentManagement.manageStudyGroups', 'Manage Study Groups')}
+          </MenuItem>
+        )}
+        {canManageDocuments && (
           <MenuItem
             onClick={() => {
               handleClose();
@@ -98,7 +117,7 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.downloadDocument.download', 'Download')}
           </MenuItem>
         )}
-        {canAccess('manageDocuments') && (
+        {canManageDocuments && (
           <MenuItem
             onClick={() => {
               handleClose();
