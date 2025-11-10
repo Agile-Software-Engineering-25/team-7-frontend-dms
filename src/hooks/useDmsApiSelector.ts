@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 let mockInstance: ReturnType<typeof createMockApi> | null = null;
 
-const ALLOW_MOCK_TOGGLE = true;
+const ALLOW_MOCK_TOGGLE = false;
 
 export default function useDmsApiSelector() {
   const win = window as unknown as {
