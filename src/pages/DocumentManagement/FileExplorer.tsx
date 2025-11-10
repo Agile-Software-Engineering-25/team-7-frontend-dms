@@ -418,20 +418,24 @@ export default function FileExplorer(): React.ReactElement {
       const folderData = (await api.getFolder(folderId)) as FolderResponse;
       const parentId = folderData.folders?.parentId;
 
-      // If no parent or parent is root, no restriction
+      // If no parent or parent is root, no restriction - return undefined to show all groups
       if (!parentId || parentId === 'root') {
         return undefined;
       }
 
-      const parentFolderData = (await api.getFolder(
-        parentId
-      )) as FolderResponse;
+      const parentFolderData = (await api.getFolder(parentId)) as FolderResponse;
       const parentGroups = parseStudyGroupIds(
         parentFolderData.folders?.studyGroupIds
       );
 
-      // If parent has no groups assigned, no restriction
-      return parentGroups.length > 0 ? parentGroups : undefined;
+      // If parent has no groups assigned (length === 0), it's public to all groups
+      // Return undefined to allow all groups to be selected
+      if (parentGroups.length === 0) {
+        return undefined;
+      }
+
+      // Parent has specific groups, so restrict to those groups
+      return parentGroups;
     } catch (error) {
       console.error('Failed to get parent folder groups:', error);
       return undefined;
@@ -1064,14 +1068,18 @@ export default function FileExplorer(): React.ReactElement {
           currentFolderIdRef.current
         );
 
-        // If parent has restricted groups, pre-select them
+        // If parentGroups is undefined or empty, all groups are available
+        // Only pre-select if parent has specific restricted groups
         if (parentGroups && parentGroups.length > 0) {
           setNewFolderStudyGroups(parentGroups);
         }
+        // Note: We don't set manageGroupsParentGroups here anymore
+        // It will be set when the dialog actually needs it
       } catch (error) {
         console.error('Failed to get parent folder groups:', error);
       }
     }
+    // If current folder is root, parentGroups stays undefined = all groups available
   };
 
   const handleConflictAction = async (action: ConflictAction) => {
