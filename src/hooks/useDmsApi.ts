@@ -148,10 +148,10 @@ const useDmsApi = () => {
   );
 
   const moveDocument = useCallback(
-    async (id: string, parentId?: string) => {
+    async (id: string, folderId?: string) => {
       // PATCH document to update its parent folder. Backend may support other move semantics.
       const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
-        parentId,
+        folderId,
       });
       return response.data;
     },
