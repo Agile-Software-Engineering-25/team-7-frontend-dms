@@ -26,7 +26,8 @@
       "queryPrefix": "for"
     },
     "filter": {
-      "button": "Filter (coming soon)"
+      "button": "Filter (coming soon)",
+      "Placeholder": "Filter functionality coming soon."
     },
     "downloadDocument": {
       "button": "Download files",
@@ -67,13 +68,17 @@
     },
     "studyGroups": {
       "loading": "Loading student groups...",
+      "loadError": "Error loading student group.",
       "label": "student groups",
       "allGroups": "All student groups",
       "noGroupsFromParent": "There are no student groups available from parent folder.",
       "noGroups": "There are no student groups available.",
-      "studentCount": "{{count}} students",
+      "studentCount_one": "one student",
+      "studentCount_other": "students",
       "restrictedInfo": "Selection is restricted to student groups from the parent folder.",
       "noSelectionInfo": "No selection means that the folder visible to all students.",
+      "saved": "Student group updated successfully.",
+      "saveError": "Error updateing the student group.",
       "failedSave": "Failed saving student group.",
       "manageTitle": "Manage student group.",
       "manageDescription": "Select what student groups can see the folder: {{folder}}.",

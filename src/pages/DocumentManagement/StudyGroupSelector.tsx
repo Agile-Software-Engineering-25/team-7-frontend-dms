@@ -106,9 +106,7 @@ const StudyGroupSelector: React.FC<Props> = ({
         value={selectedGroups}
         onChange={handleChange}
         input={
-          <OutlinedInput
-            label={t('documentManagement.studyGroups.label')}
-          />
+          <OutlinedInput label={t('documentManagement.studyGroups.label')} />
         }
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -149,10 +147,11 @@ const StudyGroupSelector: React.FC<Props> = ({
         ) : (
           selectableGroups.map((group) => {
             const isSelected = selectedGroups.includes(group.name);
-            const studentCountText = group.students_count === 1
-              ? `${group.students_count} ${t('documentManagement.studyGroups.studentCount_one')}`
-              : `${group.students_count} ${t('documentManagement.studyGroups.studentCount_other')}`;
-            
+            const studentCountText =
+              group.students_count === 1
+                ? `${group.students_count} ${t('documentManagement.studyGroups.studentCount_one')}`
+                : `${group.students_count} ${t('documentManagement.studyGroups.studentCount_other')}`;
+
             return (
               <MenuItem
                 key={group.name}

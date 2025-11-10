@@ -1508,10 +1508,7 @@ export default function FileExplorer(): React.ReactElement {
   return (
     <Box
       role="region"
-      aria-label={t(
-        'documentManagement.fileExplorerRegion',
-        'Document explorer'
-      )}
+      aria-label={t('documentManagement.fileExplorer', 'Document Explorer')}
       sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
     >
       <Box
@@ -1576,7 +1573,7 @@ export default function FileExplorer(): React.ReactElement {
           onClick={() =>
             showSnack(
               t(
-                'documentManagement.filterPlaceholder',
+                'documentManagement.filter.placeholder',
                 'Filterfunktion folgt in Kürze'
               ),
               'info'
@@ -2063,8 +2060,9 @@ export default function FileExplorer(): React.ReactElement {
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ mb: 1 }}>
-            {t('documentManagement.uploadDocument.maxSize',
-            "Maximum 5 MB per file."
+            {t(
+              'documentManagement.uploadDocument.maxSize',
+              'Maximum 5 MB per file.'
             )}
           </Typography>
           <Box
@@ -2102,7 +2100,7 @@ export default function FileExplorer(): React.ReactElement {
                       <Tooltip
                         title={t(
                           'documentManagement.uploadDocument.removeFile',
-                          'Remove file'                          
+                          'Remove file'
                         )}
                         sx={{
                           backgroundColor: '#ffe5e5',
