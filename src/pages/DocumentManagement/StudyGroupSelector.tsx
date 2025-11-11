@@ -56,8 +56,13 @@ const StudyGroupSelector: React.FC<Props> = ({
   // Toggle a group on/off
   const handleToggleGroup = (groupName: string) => {
     if (selectedGroups.includes(groupName)) {
-      if (selectedGroups.length == 1 && parentFolderGroups && parentFolderGroups.length >= 1) return;
-      handleDelete(groupName)
+      if (
+        selectedGroups.length == 1 &&
+        parentFolderGroups &&
+        parentFolderGroups.length >= 1
+      )
+        return;
+      handleDelete(groupName);
     } else {
       // Add the group to existing ones
       onChange([...selectedGroups, groupName]);
@@ -147,7 +152,7 @@ const StudyGroupSelector: React.FC<Props> = ({
                           color: '#ffffff',
                         },
                         // Sicherstellen, dass das Icon Klicks annimmt
-                        pointerEvents: 'auto'
+                        pointerEvents: 'auto',
                       },
                       '&.Mui-disabled': {
                         opacity: 0.6,
@@ -169,7 +174,7 @@ const StudyGroupSelector: React.FC<Props> = ({
             </MenuItem>
           ) : (
             selectableGroups?.map((group) => {
-              let isSelected = selectedGroups.includes(group);
+              const isSelected = selectedGroups.includes(group);
               return (
                 <MenuItem
                   key={group}
@@ -217,9 +222,11 @@ const StudyGroupSelector: React.FC<Props> = ({
             borderRadius: 1,
           }}
         >
-          <Typography variant="body2" color="text.secondary" >
-            {t('documentManagement.studyGroups.noSelectionInfo',
-                'No study groups selected. This folder will be public and visible to everyone.')}
+          <Typography variant="body2" color="text.secondary">
+            {t(
+              'documentManagement.studyGroups.noSelectionInfo',
+              'No study groups selected. This folder will be public and visible to everyone.'
+            )}
           </Typography>
         </Paper>
       )}

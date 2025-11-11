@@ -356,7 +356,8 @@ export default function createMockApi() {
       createdDate: nowIso(),
       subfolders: [],
       documents: [],
-      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','") }']` : '', };
+      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','")}']` : '',
+    };
     folders.set(id, folder);
     const parent = folders.get(folder.parentId!);
     if (parent) parent.subfolders.unshift(id);

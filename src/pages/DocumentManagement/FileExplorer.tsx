@@ -446,9 +446,7 @@ export default function FileExplorer(): React.ReactElement {
     try {
       // Get current folder's study groups
       const folderData = (await api.getFolder(folderId)) as FolderResponse;
-      const currentGroups = parseStudyGroupIds(
-        folderData.studyGroupIds
-      );
+      const currentGroups = parseStudyGroupIds(folderData.studyGroupIds);
       setManageGroupsCurrentGroups(currentGroups);
 
       // Get parent folder's groups for restriction
@@ -1991,9 +1989,7 @@ export default function FileExplorer(): React.ReactElement {
             availableGroups={studyGroups}
             loading={studyGroupsLoading}
             error={studyGroupsError}
-            parentFolderGroups={
-              manageGroupsParentGroups
-            }
+            parentFolderGroups={manageGroupsParentGroups}
           />
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }}>

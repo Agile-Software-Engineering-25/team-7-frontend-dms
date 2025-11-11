@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
 import StudyGroupSelector from './StudyGroupSelector';
 
-
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -78,10 +77,14 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       <DialogContent dividers>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {isRestricted
-            ? t('documentManagement.studyGroups.manageDescriptionRestricted',
-                'Select which study groups can access this folder. You can only select from groups that have access to the parent folder.')
-            : t('documentManagement.studyGroups.manageDescription',
-                'Select which study groups can access this folder. If no groups are selected, the folder will be public.')}
+            ? t(
+                'documentManagement.studyGroups.manageDescriptionRestricted',
+                'Select which study groups can access this folder. You can only select from groups that have access to the parent folder.'
+              )
+            : t(
+                'documentManagement.studyGroups.manageDescription',
+                'Select which study groups can access this folder. If no groups are selected, the folder will be public.'
+              )}
         </Typography>
 
         <StudyGroupSelector
@@ -100,11 +103,16 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
           >
             <Typography variant="caption" color="text.secondary">
               <strong>
-                {t('documentManagement.studyGroups.parentRestrictionTitle', 'Parent Folder Restriction')}
+                {t(
+                  'documentManagement.studyGroups.parentRestrictionTitle',
+                  'Parent Folder Restriction'
+                )}
               </strong>
               <br />
-              {t('documentManagement.studyGroups.parentRestrictionContent',
-                'This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.')}
+              {t(
+                'documentManagement.studyGroups.parentRestrictionContent',
+                'This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.'
+              )}
             </Typography>
           </Box>
         )}
