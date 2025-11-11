@@ -93,7 +93,7 @@ export default function FileExplorer(): React.ReactElement {
   const currentFolderIdRef = React.useRef<string>('root');
   const [currentPath, setCurrentPath] = React.useState<
     Array<{ id: string; name: string }>
-  >([{ id: 'root', name: 'Home'}]);
+  >([{ id: 'root', name: 'Home' }]);
   const currentFolderName =
     (currentPath.length > 0
       ? currentPath[currentPath.length - 1].name
@@ -958,7 +958,7 @@ export default function FileExplorer(): React.ReactElement {
               currentFolderIdRef.current,
               formatStudyGroupIds(newFolderStudyGroups)
             );
-            
+
             await refresh();
 
             showSnack(
@@ -1486,16 +1486,16 @@ export default function FileExplorer(): React.ReactElement {
 
   React.useEffect(() => {
     let mounted = true;
-    
+
     const initialize = async () => {
       if (!mounted) return;
       await refresh();
       if (!mounted) return;
       await buildPathFromId(currentFolderIdRef.current);
     };
-    
+
     initialize();
-    
+
     return () => {
       mounted = false;
     };

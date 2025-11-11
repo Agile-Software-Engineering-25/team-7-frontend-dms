@@ -130,14 +130,11 @@ const StudyGroupSelector: React.FC<Props> = ({
             selectableGroups?.map((group) => {
               const isSelected = selectedGroups.includes(group);
               // FIX: Check if this is the last selected group and parent requires at least one
-              const isLastSelected = isSelected && selectedGroups.length === 1 && isRestricted;
-              
+              const isLastSelected =
+                isSelected && selectedGroups.length === 1 && isRestricted;
+
               return (
-                <MenuItem
-                  key={group}
-                  value={group}
-                  disabled={isLastSelected}
-                >
+                <MenuItem key={group} value={group} disabled={isLastSelected}>
                   <Checkbox
                     checked={isSelected}
                     disabled={isLastSelected}
