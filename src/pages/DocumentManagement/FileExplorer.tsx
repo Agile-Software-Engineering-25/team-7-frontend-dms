@@ -155,7 +155,9 @@ export default function FileExplorer(): React.ReactElement {
     itemsRef.current = items;
   }, [items]);
   // Study Groups State
-  const [studyGroups, setStudyGroups] = React.useState<string[] | undefined>(undefined);
+  const [studyGroups, setStudyGroups] = React.useState<string[] | undefined>(
+    undefined
+  );
   const [studyGroupsLoading, setStudyGroupsLoading] = React.useState(false);
   const [studyGroupsError, setStudyGroupsError] = React.useState<string | null>(
     null
@@ -371,8 +373,8 @@ export default function FileExplorer(): React.ReactElement {
     // Splitte anhand von Kommas, entferne einfache Anführungszeichen und trimme
     return trimmed
       .split(',')
-      .map(id => id.replace(/'/g, '').trim())
-      .filter(id => id.length > 0);
+      .map((id) => id.replace(/'/g, '').trim())
+      .filter((id) => id.length > 0);
   };
 
   // Helper function to format studyGroupIds for API request
@@ -380,7 +382,6 @@ export default function FileExplorer(): React.ReactElement {
   const formatStudyGroupIds = (groups: string[]): string[] => {
     return groups;
   };
-  
   // Fetch study groups on component mount
   React.useEffect(() => {
     const fetchStudyGroups = async () => {
@@ -388,7 +389,7 @@ export default function FileExplorer(): React.ReactElement {
       setStudyGroupsError(null);
       try {
         const response = await api.getStudyGroups();
-        setStudyGroups(response.groups.map(g => g.name) || []);
+        setStudyGroups(response.groups.map((g) => g.name) || []);
       } catch (error) {
         console.error('Failed to fetch study groups:', error);
         setStudyGroupsError(
@@ -416,11 +417,9 @@ export default function FileExplorer(): React.ReactElement {
         parentId ?? 'root'
       )) as FolderResponse;
       if (parentFolderData.name === 'root') {
-        return []
+        return [];
       }
-      const parentGroups = parseStudyGroupIds(
-        parentFolderData.studyGroupIds
-      );
+      const parentGroups = parseStudyGroupIds(parentFolderData.studyGroupIds);
 
       // If parent has no groups assigned (length === 0), it's public to all groups
       // Return undefined to allow all groups to be selected

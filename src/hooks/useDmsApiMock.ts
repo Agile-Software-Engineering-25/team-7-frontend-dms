@@ -339,11 +339,15 @@ export default function createMockApi() {
           downloadUrl: undefined,
         };
       }),
-      studyGroupIds: f.studyGroupIds ?? ''
+      studyGroupIds: f.studyGroupIds ?? '',
     };
   }
 
-  async function createFolder(name: string, parentId?: string, studyGroupIds?: string[]) {
+  async function createFolder(
+    name: string,
+    parentId?: string,
+    studyGroupIds?: string[]
+  ) {
     const id = genId();
     const folder: Folder = {
       id,
@@ -352,8 +356,7 @@ export default function createMockApi() {
       createdDate: nowIso(),
       subfolders: [],
       documents: [],
-      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','") }']` : '',
-    };
+      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','") }']` : '', };
     folders.set(id, folder);
     const parent = folders.get(folder.parentId!);
     if (parent) parent.subfolders.unshift(id);
