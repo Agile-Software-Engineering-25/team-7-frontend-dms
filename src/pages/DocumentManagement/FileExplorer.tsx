@@ -385,7 +385,7 @@ export default function FileExplorer(): React.ReactElement {
   const formatStudyGroupIds = (groups: string[]): string[] => {
     return groups;
   };
-
+  
   // Fetch study groups on component mount
   React.useEffect(() => {
     const fetchStudyGroups = async () => {
@@ -406,7 +406,6 @@ export default function FileExplorer(): React.ReactElement {
         setStudyGroupsLoading(false);
       }
     };
-
     fetchStudyGroups();
   }, [api, t]);
 
@@ -1055,7 +1054,6 @@ export default function FileExplorer(): React.ReactElement {
   };
 
   // Get parent folder's study groups when opening new folder dialog
-  // This should be called when setNewFolderOpen(true) is triggered
   const handleOpenNewFolderDialog = async () => {
     // Reset selections
     setNewFolderName('');
@@ -1072,7 +1070,6 @@ export default function FileExplorer(): React.ReactElement {
         );
 
         // If parentGroups is empty array (length === 0), the folder is public
-        // meaning ALL groups should be available - set parentGroups to undefined
         if (parentGroups.length === 0) {
           setManageGroupsParentGroups(undefined);
         } else {

@@ -106,95 +106,6 @@ const StudyGroupSelector: React.FC<Props> = ({
 
   return (
     <Box>
-      {/* Current Study Groups Section */}
-      {selectedGroups.length > 0 && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 2,
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e0e0e0',
-            borderRadius: 1,
-          }}
-        >
-          <Typography
-            variant="subtitle2"
-            sx={{ mb: 1.5, fontWeight: 600, color: '#002E6D' }}
-          >
-            {t('documentManagement.studyGroups.currentGroups')} (
-            {selectedGroups.length})
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {selectedGroups.map((groupName) => {
-              const studentCount = getStudentCount(groupName);
-              const studentCountText =
-                studentCount === 1
-                  ? `${studentCount} ${t('documentManagement.studyGroups.studentCount_one')}`
-                  : `${studentCount} ${t('documentManagement.studyGroups.studentCount_other')}`;
-
-              return (
-                <Chip
-                  key={groupName}
-                  label={
-                    <Box
-                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                    >
-                      <span>{groupName}</span>
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          opacity: 0.8,
-                          marginLeft: '4px',
-                        }}
-                      >
-                        ({studentCountText})
-                      </span>
-                    </Box>
-                  }
-                  onDelete={() => handleDelete(groupName)}
-                  disabled={disabled}
-                  sx={{
-                    backgroundColor: '#002E6D',
-                    color: '#ffffff',
-                    '& .MuiChip-deleteIcon': {
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      '&:hover': {
-                        color: '#ffffff',
-                      },
-                    },
-                    '&.Mui-disabled': {
-                      opacity: 0.6,
-                      backgroundColor: '#002E6D',
-                      color: '#ffffff',
-                    },
-                  }}
-                />
-              );
-            })}
-          </Box>
-        </Paper>
-      )}
-
-      {selectedGroups.length === 0 && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 2,
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffc107',
-            borderRadius: 1,
-          }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            {t('documentManagement.studyGroups.noSelectionInfo')}
-          </Typography>
-        </Paper>
-      )}
-
-      <Divider sx={{ my: 2 }} />
-
       {/* Add Study Groups Section */}
       <Typography
         variant="subtitle2"
@@ -284,6 +195,100 @@ const StudyGroupSelector: React.FC<Props> = ({
           </Typography>
         )}
       </FormControl>
+
+      {/* Warning box for no selection */}
+      {selectedGroups.length === 0 && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mt: 2,
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: 1,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            {isRestricted
+              ? t('documentManagement.studyGroups.noSelectionInfoRestricted', 
+                  'No study groups selected. This folder will be visible to all groups that have access to the parent folder.')
+              : t('documentManagement.studyGroups.noSelectionInfo', 
+                  'No study groups selected. This folder will be public and visible to everyone.')}
+          </Typography>
+        </Paper>
+      )}
+
+      {/* Current Study Groups Section - MOVED TO BOTTOM */}
+      {selectedGroups.length > 0 && (
+        <>
+          <Divider sx={{ my: 2 }} />
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2,
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #e0e0e0',
+              borderRadius: 1,
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1.5, fontWeight: 600, color: '#002E6D' }}
+            >
+              {t('documentManagement.studyGroups.currentGroups')} (
+              {selectedGroups.length})
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {selectedGroups.map((groupName) => {
+                const studentCount = getStudentCount(groupName);
+                const studentCountText =
+                  studentCount === 1
+                    ? `${studentCount} ${t('documentManagement.studyGroups.studentCount_one')}`
+                    : `${studentCount} ${t('documentManagement.studyGroups.studentCount_other')}`;
+
+                return (
+                  <Chip
+                    key={groupName}
+                    label={
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                      >
+                        <span>{groupName}</span>
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            opacity: 0.8,
+                            marginLeft: '4px',
+                          }}
+                        >
+                          ({studentCountText})
+                        </span>
+                      </Box>
+                    }
+                    onDelete={() => handleDelete(groupName)}
+                    disabled={disabled}
+                    sx={{
+                      backgroundColor: '#002E6D',
+                      color: '#ffffff',
+                      '& .MuiChip-deleteIcon': {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': {
+                          color: '#ffffff',
+                        },
+                      },
+                      '&.Mui-disabled': {
+                        opacity: 0.6,
+                        backgroundColor: '#002E6D',
+                        color: '#ffffff',
+                      },
+                    }}
+                  />
+                );
+              })}
+            </Box>
+          </Paper>
+        </>
+      )}
     </Box>
   );
 };

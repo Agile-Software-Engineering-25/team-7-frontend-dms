@@ -66,6 +66,8 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
     JSON.stringify([...selectedGroups].sort()) !==
     JSON.stringify([...currentGroups].sort());
 
+  const isRestricted = parentFolderGroups && parentFolderGroups.length > 0;
+
   return (
     <Dialog
       open={open}
@@ -79,7 +81,11 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       </DialogTitle>
       <DialogContent dividers>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('documentManagement.studyGroups.manageDescription')}
+          {isRestricted
+            ? t('documentManagement.studyGroups.manageDescriptionRestricted',
+                'Select which study groups can access this folder. You can only select from groups that have access to the parent folder.')
+            : t('documentManagement.studyGroups.manageDescription',
+                'Select which study groups can access this folder. If no groups are selected, the folder will be public.')}
         </Typography>
 
         <StudyGroupSelector
@@ -92,16 +98,17 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
           parentFolderGroups={parentFolderGroups}
         />
 
-        {parentFolderGroups && parentFolderGroups.length > 0 && (
+        {isRestricted && (
           <Box
-            sx={{ mt: 2, p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}
+            sx={{ mt: 2, p: 1.5, backgroundColor: '#e3f2fd', borderRadius: 1 }}
           >
             <Typography variant="caption" color="text.secondary">
               <strong>
-                {t('documentManagement.studyGroups.parentRestrictionTitle')}
+                {t('documentManagement.studyGroups.parentRestrictionTitle', 'Parent Folder Restriction')}
               </strong>
               <br />
-              {t('documentManagement.studyGroups.parentRestrictionText')}
+              {t('documentManagement.studyGroups.parentRestrictionText',
+                'This folder is within a restricted parent folder. You can only assign groups that have access to the parent folder.')}
             </Typography>
           </Box>
         )}
