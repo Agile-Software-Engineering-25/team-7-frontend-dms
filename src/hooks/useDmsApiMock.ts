@@ -103,6 +103,7 @@ export default function createMockApi() {
     createdDate: nowIso(),
     subfolders: [],
     documents: [],
+    studyGroupIds: "['BIN-T24', 'BIN-T23', 'BIN-T22']",
   };
   folders.set(infId, infFolder);
   root.subfolders.push(infId);
@@ -338,10 +339,15 @@ export default function createMockApi() {
           downloadUrl: undefined,
         };
       }),
+      studyGroupIds: f.studyGroupIds ?? '',
     };
   }
 
-  async function createFolder(name: string, parentId?: string) {
+  async function createFolder(
+    name: string,
+    parentId?: string,
+    studyGroupIds?: string[]
+  ) {
     const id = genId();
     const folder: Folder = {
       id,
@@ -350,6 +356,7 @@ export default function createMockApi() {
       createdDate: nowIso(),
       subfolders: [],
       documents: [],
+      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','")}']` : '',
     };
     folders.set(id, folder);
     const parent = folders.get(folder.parentId!);
@@ -575,8 +582,7 @@ export default function createMockApi() {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
 
-    // In a real implementation, this would update the folder's studyGroupIds
-    // For the mock, we just acknowledge the update
+    f.studyGroupIds = `['${studyGroupIds.join("','")}']`;
     return { id: f.id, studyGroupIds };
   };
 

@@ -11,18 +11,13 @@ import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
 import StudyGroupSelector from './StudyGroupSelector';
 
-type StudyGroup = {
-  name: string;
-  students_count: number;
-};
-
 type Props = {
   open: boolean;
   onClose: () => void;
   onSave: (selectedGroups: string[]) => Promise<void>;
   folderName: string;
   currentGroups: string[];
-  availableGroups: StudyGroup[];
+  availableGroups: string[] | undefined;
   loading?: boolean;
   error?: string | null;
   parentFolderGroups?: string[];
@@ -66,6 +61,8 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
     JSON.stringify([...selectedGroups].sort()) !==
     JSON.stringify([...currentGroups].sort());
 
+  const isRestricted = parentFolderGroups && parentFolderGroups.length > 0;
+
   return (
     <Dialog
       open={open}
@@ -79,7 +76,15 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
       </DialogTitle>
       <DialogContent dividers>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('documentManagement.studyGroups.manageDescription')}
+          {isRestricted
+            ? t(
+                'documentManagement.studyGroups.manageDescriptionRestricted',
+                'Select which study groups can access this folder. You can only select from groups that have access to the parent folder.'
+              )
+            : t(
+                'documentManagement.studyGroups.manageDescription',
+                'Select which study groups can access this folder. If no groups are selected, the folder will be public.'
+              )}
         </Typography>
 
         <StudyGroupSelector
@@ -92,16 +97,22 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
           parentFolderGroups={parentFolderGroups}
         />
 
-        {parentFolderGroups && parentFolderGroups.length > 0 && (
+        {isRestricted && (
           <Box
-            sx={{ mt: 2, p: 1.5, backgroundColor: '#f5f5f5', borderRadius: 1 }}
+            sx={{ mt: 2, p: 1.5, backgroundColor: '#e3f2fd', borderRadius: 1 }}
           >
             <Typography variant="caption" color="text.secondary">
               <strong>
-                {t('documentManagement.studyGroups.parentRestrictionTitle')}
+                {t(
+                  'documentManagement.studyGroups.parentRestrictionTitle',
+                  'Parent Folder Restriction'
+                )}
               </strong>
               <br />
-              {t('documentManagement.studyGroups.parentRestrictionText')}
+              {t(
+                'documentManagement.studyGroups.parentRestrictionContent',
+                'This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.'
+              )}
             </Typography>
           </Box>
         )}

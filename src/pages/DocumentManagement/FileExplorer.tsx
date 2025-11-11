@@ -49,6 +49,8 @@ type Item = {
 };
 
 type FolderResponse = {
+  id?: string;
+  name?: string;
   folders?: {
     id: string;
     name: string;
@@ -70,6 +72,7 @@ type FolderResponse = {
     studyGroupIds?: string;
   }>;
   parentId?: string;
+  studyGroupIds?: string;
 };
 
 type DocForZip = {
@@ -154,9 +157,9 @@ export default function FileExplorer(): React.ReactElement {
     itemsRef.current = items;
   }, [items]);
   // Study Groups State
-  const [studyGroups, setStudyGroups] = React.useState<
-    Array<{ name: string; students_count: number }>
-  >([]);
+  const [studyGroups, setStudyGroups] = React.useState<string[] | undefined>(
+    undefined
+  );
   const [studyGroupsLoading, setStudyGroupsLoading] = React.useState(false);
   const [studyGroupsError, setStudyGroupsError] = React.useState<string | null>(
     null
@@ -366,20 +369,14 @@ export default function FileExplorer(): React.ReactElement {
 
   // Helper function to parse studyGroupIds from API response
   const parseStudyGroupIds = (studyGroupIds?: string): string[] => {
-    if (!studyGroupIds) return [];
-    try {
-      // Remove outer quotes if present and parse as JSON
-      const cleaned = studyGroupIds.replace(/^'|'$/g, '');
-      const parsed = JSON.parse(cleaned);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // Fallback: try to extract group names manually
-      const match = studyGroupIds.match(/\['([^']+)'/g);
-      if (match) {
-        return match.map((m) => m.replace(/\[?'([^']+)'/, '$1'));
-      }
-      return [];
-    }
+    if (!studyGroupIds || studyGroupIds.length == 0) return [];
+    // Entferne die äußeren Klammern und Leerzeichen
+    const trimmed = studyGroupIds.trim().replace(/^\[|\]$/g, '');
+    // Splitte anhand von Kommas, entferne einfache Anführungszeichen und trimme
+    return trimmed
+      .split(',')
+      .map((id) => id.replace(/'/g, '').trim())
+      .filter((id) => id.length > 0);
   };
 
   // Helper function to format studyGroupIds for API request
@@ -387,7 +384,6 @@ export default function FileExplorer(): React.ReactElement {
   const formatStudyGroupIds = (groups: string[]): string[] => {
     return groups;
   };
-
   // Fetch study groups on component mount
   React.useEffect(() => {
     const fetchStudyGroups = async () => {
@@ -395,7 +391,7 @@ export default function FileExplorer(): React.ReactElement {
       setStudyGroupsError(null);
       try {
         const response = await api.getStudyGroups();
-        setStudyGroups(response.groups || []);
+        setStudyGroups(response.groups.map((g) => g.name) || []);
       } catch (error) {
         console.error('Failed to fetch study groups:', error);
         setStudyGroupsError(
@@ -408,7 +404,6 @@ export default function FileExplorer(): React.ReactElement {
         setStudyGroupsLoading(false);
       }
     };
-
     fetchStudyGroups();
   }, [api, t]);
 
@@ -420,22 +415,18 @@ export default function FileExplorer(): React.ReactElement {
       const folderData = (await api.getFolder(folderId)) as FolderResponse;
       const parentId = folderData.folders?.parentId;
 
-      // If no parent or parent is root, no restriction - return undefined to show all groups
-      if (!parentId || parentId === 'root') {
-        return undefined;
-      }
-
       const parentFolderData = (await api.getFolder(
-        parentId
+        parentId ?? 'root'
       )) as FolderResponse;
-      const parentGroups = parseStudyGroupIds(
-        parentFolderData.folders?.studyGroupIds
-      );
+      if (parentFolderData.name === 'root') {
+        return [];
+      }
+      const parentGroups = parseStudyGroupIds(parentFolderData.studyGroupIds);
 
       // If parent has no groups assigned (length === 0), it's public to all groups
       // Return undefined to allow all groups to be selected
       if (parentGroups.length === 0) {
-        return undefined;
+        return [];
       }
 
       // Parent has specific groups, so restrict to those groups
@@ -457,9 +448,7 @@ export default function FileExplorer(): React.ReactElement {
     try {
       // Get current folder's study groups
       const folderData = (await api.getFolder(folderId)) as FolderResponse;
-      const currentGroups = parseStudyGroupIds(
-        folderData.folders?.studyGroupIds
-      );
+      const currentGroups = parseStudyGroupIds(folderData.studyGroupIds);
       setManageGroupsCurrentGroups(currentGroups);
 
       // Get parent folder's groups for restriction
@@ -1079,7 +1068,6 @@ export default function FileExplorer(): React.ReactElement {
   };
 
   // Get parent folder's study groups when opening new folder dialog
-  // This should be called when setNewFolderOpen(true) is triggered
   const handleOpenNewFolderDialog = async () => {
     // Reset selections
     setNewFolderName('');
@@ -1096,9 +1084,8 @@ export default function FileExplorer(): React.ReactElement {
         );
 
         // If parentGroups is empty array (length === 0), the folder is public
-        // meaning ALL groups should be available - set parentGroups to undefined
         if (parentGroups.length === 0) {
-          setManageGroupsParentGroups(undefined);
+          setManageGroupsParentGroups([]);
         } else {
           // Parent has specific groups, so restrict to those groups
           setManageGroupsParentGroups(parentGroups);
@@ -2031,11 +2018,7 @@ export default function FileExplorer(): React.ReactElement {
             availableGroups={studyGroups}
             loading={studyGroupsLoading}
             error={studyGroupsError}
-            parentFolderGroups={
-              currentFolderIdRef.current !== 'root'
-                ? manageGroupsParentGroups
-                : undefined
-            }
+            parentFolderGroups={manageGroupsParentGroups}
           />
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end' }}>

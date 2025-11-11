@@ -60,8 +60,8 @@ const useDmsApi = () => {
         `/team-11-api/api/v1/group`,
         {
           params: {
-            showMembers: false,
-            with_details: false,
+            show_members: false,
+            withDetails: false,
           },
         }
       );

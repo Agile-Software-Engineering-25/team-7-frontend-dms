@@ -94,7 +94,7 @@ const FileItemActions: React.FC<Props> = ({
           >
             {t(
               'documentManagement.studyGroups.manageTitle',
-              'Manage student groups'
+              'Restrict visibility'
             )}
           </MenuItem>
         )}
