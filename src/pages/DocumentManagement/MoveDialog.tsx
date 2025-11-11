@@ -83,7 +83,7 @@ const MoveDialog: React.FC<Props> = ({
       if (currentFolderId !== 'root') {
         availableFolders.push({
           id: 'root',
-          name: t('documentManagement.root', 'Home'),
+          name: 'Home',
           children: [],
         });
       }
