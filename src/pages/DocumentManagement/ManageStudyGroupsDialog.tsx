@@ -11,10 +11,6 @@ import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
 import StudyGroupSelector from './StudyGroupSelector';
 
-type StudyGroup = {
-  name: string;
-  students_count: number;
-};
 
 type Props = {
   open: boolean;
@@ -22,7 +18,7 @@ type Props = {
   onSave: (selectedGroups: string[]) => Promise<void>;
   folderName: string;
   currentGroups: string[];
-  availableGroups: StudyGroup[];
+  availableGroups: string[] | undefined;
   loading?: boolean;
   error?: string | null;
   parentFolderGroups?: string[];
@@ -107,8 +103,8 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
                 {t('documentManagement.studyGroups.parentRestrictionTitle', 'Parent Folder Restriction')}
               </strong>
               <br />
-              {t('documentManagement.studyGroups.parentRestrictionText',
-                'This folder is within a restricted parent folder. You can only assign groups that have access to the parent folder.')}
+              {t('documentManagement.studyGroups.parentRestrictionContent',
+                'This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.')}
             </Typography>
           </Box>
         )}
