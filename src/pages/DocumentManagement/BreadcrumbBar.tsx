@@ -85,7 +85,11 @@ const BreadcrumbBar: React.FC<{
           return (
             <Chip
               key={item.id}
-              label={item.name == 'root' ? t('documentManagement.root', 'Home') : item.name}
+              label={
+                item.name == 'root'
+                  ? t('documentManagement.root', 'Home')
+                  : item.name
+              }
               onClick={() => onNavigate(item.id, item.name)}
               clickable
               component="button"

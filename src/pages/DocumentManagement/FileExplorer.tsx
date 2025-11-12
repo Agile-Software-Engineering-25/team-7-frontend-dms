@@ -299,7 +299,7 @@ export default function FileExplorer(): React.ReactElement {
     (id: string, name: string) => {
       if (name == 'root') return;
       if (!id || !name) return;
-      const newElement = { id: id, name: name}
+      const newElement = { id: id, name: name };
       currentPath.push(newElement);
     },
     [api, t]
@@ -1116,13 +1116,13 @@ export default function FileExplorer(): React.ReactElement {
     if (id != currentFolderIdRef.current) {
       try {
         currentFolderIdRef.current = id;
-        buildPathFromFolder(id, name)
+        buildPathFromFolder(id, name);
         refresh();
       } catch {
         //sleep
         await sleep(200);
         currentFolderIdRef.current = id;
-        buildPathFromFolder(id, name)
+        buildPathFromFolder(id, name);
         refresh();
       }
     }
@@ -1462,13 +1462,12 @@ export default function FileExplorer(): React.ReactElement {
   // Provide per-row drop handler by cloning items into a wrapper that accepts drops
 
   const handleNavigatePath = (id: string, name: string) => {
-
     if (currentFolderIdRef.current != id) {
-      let newPath: {id: string, name: string}[] = [];
+      let newPath: { id: string; name: string }[] = [];
 
-      let finished = false
+      let finished = false;
       if (name != 'root' && id != 'root') {
-        for (let p of currentPath) {
+        for (const p of currentPath) {
           if (finished) continue;
           if (p.id == id) {
             finished = true;
@@ -1481,9 +1480,9 @@ export default function FileExplorer(): React.ReactElement {
 
       currentFolderIdRef.current = id;
       setCurrentPath(newPath);
-      refresh()
+      refresh();
     } else {
-      refresh()
+      refresh();
     }
   };
 
