@@ -182,11 +182,10 @@ const StudyGroupSelector: React.FC<Props> = ({
                 isSelected && selectedGroups.length === 1 && isRestricted;
 
               return (
-                <MenuItem key={group} value={group} disabled={isLastSelected}>
-              return (
                 <MenuItem
                   key={group}
                   value={group}
+                  disabled={isLastSelected}
                   onClick={() => handleToggleGroup(group)}
                 >
                   <Checkbox
