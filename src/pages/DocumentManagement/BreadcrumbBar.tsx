@@ -2,6 +2,7 @@ import * as React from 'react';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
+import { useTranslation } from 'react-i18next';
 import { emitDropOnBreadcrumb, parseDragData } from '../../lib/dmsEvents';
 import { useCanAccess } from '@/lib/permissions';
 
@@ -31,13 +32,14 @@ type PathItem = { id: string; name: string };
 
 const BreadcrumbBar: React.FC<{
   path: PathItem[];
-  onNavigate: (id: string) => void;
+  onNavigate: (id: string, name: string) => void;
 }> = ({ path, onNavigate }) => {
   const { canAccess } = useCanAccess();
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const lastItemRef = React.useRef<HTMLButtonElement | null>(null);
   const liveRef = React.useRef<HTMLDivElement | null>(null);
   const [dragOverId, setDragOverId] = React.useState<string | null>(null);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -83,8 +85,8 @@ const BreadcrumbBar: React.FC<{
           return (
             <Chip
               key={item.id}
-              label={item.name}
-              onClick={() => onNavigate(item.id)}
+              label={item.name == 'root' ? t('documentManagement.root', 'Home') : item.name}
+              onClick={() => onNavigate(item.id, item.name)}
               clickable
               component="button"
               size="medium"

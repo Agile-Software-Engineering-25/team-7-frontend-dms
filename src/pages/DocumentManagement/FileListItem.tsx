@@ -26,7 +26,7 @@ type Props = {
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
   onDownload: (id: string) => void;
-  onOpen?: (id: string) => void;
+  onOpen?: (id: string, name: string) => void;
   onPreview?: (id: string) => void;
   onManageGroups?: () => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -88,7 +88,7 @@ const FileListItem: React.FC<Props> = ({
       draggable={canAccess('manageDocuments')}
       onClick={() => {
         if (item.itemType === 'folder' && canAccess('navigateFolders')) {
-          onOpen?.(item.id);
+          onOpen?.(item.id, item.name);
         } else if (
           item.itemType === 'document' ||
           item.itemType === 'pdf' ||
@@ -167,7 +167,7 @@ const FileListItem: React.FC<Props> = ({
               tabIndex={item.itemType === 'folder' ? 0 : undefined}
               onClick={() => {
                 if (item.itemType === 'folder') {
-                  onOpen?.(item.id);
+                  onOpen?.(item.id, item.name);
                 } else if (onPreview) {
                   onPreview(item.id);
                 }
@@ -178,7 +178,7 @@ const FileListItem: React.FC<Props> = ({
                   (e.key === 'Enter' || e.key === ' ')
                 ) {
                   e.preventDefault();
-                  onOpen?.(item.id);
+                  onOpen?.(item.id, item.name);
                 }
               }}
             >
