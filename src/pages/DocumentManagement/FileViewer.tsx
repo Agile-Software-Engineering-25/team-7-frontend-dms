@@ -29,11 +29,20 @@ const FileViewer: React.FC<FileViewerProps> = ({
   fileUrl,
   fileName,
   fileType,
+  loading,
+  setLoading,
 }) => {
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [internalLoading, setInternalLoading] = React.useState(true);
+  const isLoading = loading ?? internalLoading;
+
+  useEffect(() => {
+    if (open && fileUrl) {
+      setInternalLoading(true);
+    }
+  }, [open, fileUrl]);
 
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
@@ -71,49 +80,75 @@ const FileViewer: React.FC<FileViewerProps> = ({
   };
 
   const renderPreview = () => {
-    if (loading) {
-      return (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height="80vh"
-          role="status"
-          aria-live="polite"
-        >
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>
-            {t(
-              'documentManagement.fileViewer.loading',
-              'Vorschau wird erstellt...'
-            )}
-          </Typography>
-        </Box>
-      );
-    }
     // console.log("renderPreview called with:", { fileUrl, fileType, fileName });
     if (!fileUrl || !fileType) return null;
 
     if (fileType === 'application/pdf') {
       return (
-        <iframe
-          src={fileUrl}
-          style={{ width: '100%', height: '80vh', border: 'none' }}
-          title="PDF Preview"
-          onLoad={() => setLoading(false)}
-        />
+        <Box sx={{ position: 'relative', height: '80vh' }}>
+          {isLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(255,255,255,0.85)',
+                zIndex: 2,
+              }}
+            >
+              <CircularProgress />
+              <Typography sx={{ mt: 2 }}>
+                {t('documentManagement.viewer.loading', 'Vorschau wird erstellt...')}
+              </Typography>
+            </Box>
+          )}
+          <iframe
+            src={fileUrl}
+            style={{ width: '100%', height: '80vh', border: 'none' }}
+            title="PDF Preview"
+            onLoad={() => {
+              setLoading?.(false);
+              setInternalLoading(false);
+            }}
+          />
+        </Box>
       );
     }
 
     if (fileType.startsWith('image/')) {
       return (
-        <Box display="flex" justifyContent={'center'}>
-          <img
-            src={fileUrl}
-            alt={fileName ?? 'preview'}
-            style={{ maxWidth: '100%', maxHeight: '80vh' }}
-            onLoad={() => setLoading(false)}
-          />
+        <Box sx={{display: "flex", justifyContent: "center"}}>
+          {isLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(255,255,255,0.85)',
+                zIndex: 2,
+              }}
+            >
+              <CircularProgress />
+              <Typography sx={{ mt: 2 }}>
+                {t('documentManagement.viewer.loading', 'Vorschau wird erstellt...')}
+              </Typography>
+            </Box>
+          )}
+            <img
+              src={fileUrl}
+              alt={fileName ?? 'preview'}
+              style={{ maxWidth: '100%', maxHeight: '80vh' }}
+              onLoad={() => {
+                setLoading?.(false);
+                setInternalLoading(false);
+              }}
+            />
         </Box>
       );
     }

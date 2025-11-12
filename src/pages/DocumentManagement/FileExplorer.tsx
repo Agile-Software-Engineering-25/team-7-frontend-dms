@@ -553,17 +553,21 @@ export default function FileExplorer(): React.ReactElement {
 
       if (!isOfficeDoc) {
         const { url, name, type } = await api.downloadDocument(docId);
-
-        setViewerFile({ id: docId, url, name, type });
+        const namedUrl = `${url}#${name}`;
+        setViewerFile({ id: docId, url: namedUrl, name, type });
         setViewerOpen(true);
         return;
       } else {
         // console.log('Convert office-doc --> PDF:', doc.name);
         const converted = await api.convertOfficeToPdf(docId);
+        const blob = await fetch(converted.url).then(r => r.blob());
+        const blobUrl = URL.createObjectURL(blob);
         // console.log('result:', converted);
+        // namedUrl for preview title
+        const namedUrl = `${blobUrl}#${converted.name}`;
         setViewerFile({
           id: docId,
-          url: converted.url,
+          url: namedUrl,
           name: converted.name,
           type: converted.type,
         });
