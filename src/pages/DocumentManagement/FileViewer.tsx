@@ -1,25 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Dialog, DialogContent, DialogActions } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
 type FileViewerProps = {
   open: boolean;
   onClose: () => void;
+  fileId?: string | null;
   fileUrl: string | null;
   fileName: string | null;
   fileType: string | null;
+  loading?: boolean;
+  setLoading?: (v: boolean) => void;
 };
 
 const FileViewer: React.FC<FileViewerProps> = ({
   open,
   onClose,
+  fileId,
   fileUrl,
   fileName,
   fileType,
 }) => {
   const { t } = useTranslation();
+  const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
@@ -32,15 +46,51 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   }, [open, fileType, fileUrl]);
 
-  const handleDownload = () => {
-    if (!fileUrl || !fileName) return;
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.click();
+  const handleDownload = async () => {
+    try {
+      if (!fileId) return;
+
+      const isConvertedPdf =
+        fileType === 'application/pdf' && fileName?.startsWith('converted-');
+
+      if (isConvertedPdf) {
+        const { url, name } = await api.downloadDocument(fileId);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        link.click();
+      } else {
+        const link = document.createElement('a');
+        link.href = fileUrl!;
+        link.download = fileName ?? 'file';
+        link.click();
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
   };
 
   const renderPreview = () => {
+    if (loading) {
+      return (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="80vh"
+          role="status"
+          aria-live="polite"
+        >
+          <CircularProgress />
+          <Typography sx={{ ml: 2 }}>
+            {t(
+              'documentManagement.fileViewer.loading',
+              'Vorschau wird erstellt...'
+            )}
+          </Typography>
+        </Box>
+      );
+    }
     // console.log("renderPreview called with:", { fileUrl, fileType, fileName });
     if (!fileUrl || !fileType) return null;
 
@@ -49,7 +99,8 @@ const FileViewer: React.FC<FileViewerProps> = ({
         <iframe
           src={fileUrl}
           style={{ width: '100%', height: '80vh', border: 'none' }}
-          title="PDF preview"
+          title="PDF Preview"
+          onLoad={() => setLoading(false)}
         />
       );
     }
@@ -61,6 +112,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             src={fileUrl}
             alt={fileName ?? 'preview'}
             style={{ maxWidth: '100%', maxHeight: '80vh' }}
+            onLoad={() => setLoading(false)}
           />
         </Box>
       );
@@ -80,7 +132,6 @@ const FileViewer: React.FC<FileViewerProps> = ({
         </pre>
       );
     }
-
     return (
       <p>
         {t(

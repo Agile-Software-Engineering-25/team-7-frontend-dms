@@ -41,6 +41,7 @@
     },
     "fileViewer": {
       "download": "Download",
+      "loading": "Preview is created",
       "close": "Close",
       "noPreview": "No preview available for "
     },

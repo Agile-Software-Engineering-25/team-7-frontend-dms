@@ -107,8 +107,10 @@ export default function FileExplorer(): React.ReactElement {
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
   const [downloadDialogOpen, setDownloadDialogOpen] = React.useState(false);
+  const [viewerLoading, setViewerLoading] = React.useState(false);
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const [viewerFile, setViewerFile] = React.useState<{
+    id: string;
     url: string;
     name: string;
     type: string;
@@ -352,7 +354,7 @@ export default function FileExplorer(): React.ReactElement {
 
   // Helper function to parse studyGroupIds from API response
   const parseStudyGroupIds = (studyGroupIds?: string): string[] => {
-    if (!studyGroupIds || studyGroupIds.length === 0) return [];
+    if (!studyGroupIds || studyGroupIds.length == 0) return [];
     // Entferne die äußeren Klammern und Leerzeichen
     const trimmed = studyGroupIds.trim().replace(/^\[|\]$/g, '');
     // Splitte anhand von Kommas, entferne einfache Anführungszeichen und trimme
@@ -663,23 +665,6 @@ export default function FileExplorer(): React.ReactElement {
     handleClose();
   };
 
-  const handleOpenViewer = async (docId: string) => {
-    // console.log("handleOpenViewer called with:", docId)
-    try {
-      const { url, name, type } = await api.downloadDocument(docId);
-      const doc = items.find((i) => i.id === docId);
-      if (!doc) return;
-
-      setViewerFile({ url, name, type });
-      setViewerOpen(true);
-    } catch {
-      showSnack(
-        t('documentManagement.snack.previewFailed', 'Preview failed'),
-        'error'
-      );
-    }
-  };
-
   const handleCloseViewer = () => {
     setViewerFile(null);
     setViewerOpen(false);
@@ -829,6 +814,45 @@ export default function FileExplorer(): React.ReactElement {
     setSelectedFiles([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConvertOfficeToPdf = async (docId: string) => {
+    // console.log('handleConvertOfficeToPdf triggered for', docId, api);
+    // console.log('convertOfficeToPdf:', api.convertOfficeToPdf);
+    try {
+      setViewerLoading(true);
+      const doc = items.find((i) => i.id === docId);
+      if (!doc) return;
+
+      setViewerFile(null);
+      setViewerOpen(true);
+      setViewerLoading(true);
+
+      const isOfficeDoc = /\.(docx?|pptx?)$/i.test(doc.name);
+
+      if (!isOfficeDoc) {
+        const { url, name, type } = await api.downloadDocument(docId);
+
+        setViewerFile({ id: docId, url, name, type });
+        setViewerOpen(true);
+        return;
+      } else {
+        // console.log('Convert office-doc --> PDF:', doc.name);
+        const converted = await api.convertOfficeToPdf(docId);
+        // console.log('result:', converted);
+        setViewerFile({
+          id: docId,
+          url: converted.url,
+          name: converted.name,
+          type: converted.type,
+        });
+        setViewerLoading(false);
+      }
+    } catch (err) {
+      console.error('Fehler bei PDF-Konvertierung:', err);
+      showSnack('Fehler bei der Vorschau-Erstellung', 'error');
+      setViewerLoading(false);
     }
   };
 
@@ -1743,7 +1767,9 @@ export default function FileExplorer(): React.ReactElement {
                 onOpen={handleOpenFolder}
                 onDownload={handleDownload}
                 onPreview={
-                  item.itemType !== 'folder' ? handleOpenViewer : undefined
+                  item.itemType !== 'folder'
+                    ? () => handleConvertOfficeToPdf(item.id)
+                    : undefined
                 }
                 onManageGroups={
                   item.itemType === 'folder' && canAccess('manageDocuments')
@@ -1779,9 +1805,12 @@ export default function FileExplorer(): React.ReactElement {
       <FileViewer
         open={viewerOpen}
         onClose={handleCloseViewer}
+        fileId={viewerFile?.id ?? null}
         fileUrl={viewerFile?.url ?? null}
         fileName={viewerFile?.name ?? null}
         fileType={viewerFile?.type ?? null}
+        loading={viewerLoading}
+        setLoading={setViewerLoading}
       />
       {/* Enhanced Move Dialog with folder tree */}
       <MoveDialog

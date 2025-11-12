@@ -139,8 +139,30 @@ const useDmsApi = () => {
         if (match?.[1]) filename = match[1];
       }
 
-      const mimeType =
+      let mimeType =
         response.headers['Content-type'] ?? 'application/octet-stream';
+      // Fallback if backend delivers generic
+      if (mimeType === 'application/octet-stream' && filename) {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        switch (ext) {
+          case 'pdf':
+            mimeType = 'application/pdf';
+            break;
+          case 'png':
+            mimeType = 'image/png';
+            break;
+          case 'jpg':
+          case 'jpeg':
+            mimeType = 'image/jpeg';
+            break;
+          case 'svg':
+            mimeType = 'image/svg+xml';
+            break;
+          case 'txt':
+            mimeType = 'text/plain';
+            break;
+        }
+      }
 
       const url = window.URL.createObjectURL(
         new Blob([response.data], { type: mimeType })
@@ -219,6 +241,24 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const convertOfficeToPdf = useCallback(
+    async (
+      id: string
+    ): Promise<{ url: string; name: string; type: string }> => {
+      const response = await axiosInstance.get(
+        `/dms/v1/documents/${id}/pdfconverter`,
+        {
+          responseType: 'blob',
+        }
+      );
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      return { url, name: `converted-${id}.pdf`, type: 'application/pdf' };
+    },
+    [axiosInstance]
+  );
+
   const api = useMemo(
     () => ({
       getFolder,
@@ -234,6 +274,7 @@ const useDmsApi = () => {
       updateFolderStudyGroups,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     }),
     [
       getFolder,
@@ -249,6 +290,7 @@ const useDmsApi = () => {
       updateFolderStudyGroups,
       moveDocument,
       moveFolder,
+      convertOfficeToPdf,
     ]
   );
 
