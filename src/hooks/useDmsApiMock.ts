@@ -86,7 +86,7 @@ export default function createMockApi() {
   // Root-Ordner
   const root: Folder = {
     id: 'XRoot',
-    name: 'Home',
+    name: 'root',
     parentId: undefined,
     createdDate: nowIso(),
     subfolders: [],
@@ -311,6 +311,9 @@ export default function createMockApi() {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
     return {
+      id: f.id,
+      name: f.name,
+      parentId: f.parentId,
       folders: {
         id: f.id,
         name: f.name,

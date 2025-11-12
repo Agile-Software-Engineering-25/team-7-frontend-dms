@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 let mockInstance: ReturnType<typeof createMockApi> | null = null;
 
-const ALLOW_MOCK_TOGGLE = false;
+const ALLOW_MOCK_TOGGLE = false; // toggle true to allow mock locally. DO NOT PUSH THIS CHANGE!
 
 export default function useDmsApiSelector() {
   const win = window as unknown as {

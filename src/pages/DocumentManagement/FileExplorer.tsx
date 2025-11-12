@@ -87,13 +87,13 @@ const MAX_FILE_SIZE_MB = 5;
 
 export default function FileExplorer(): React.ReactElement {
   const { canAccess } = useCanAccess();
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [items, setItems] = React.useState<Item[]>([]);
   const currentFolderIdRef = React.useRef<string>('root');
   const [currentPath, setCurrentPath] = React.useState<
     Array<{ id: string; name: string }>
-  >([{ id: 'root', name: t('documentManagement.root', 'Home') }]);
+  >([{ id: 'root', name: 'root' }]);
   const currentFolderName =
     (currentPath.length > 0
       ? currentPath[currentPath.length - 1].name
@@ -263,12 +263,15 @@ export default function FileExplorer(): React.ReactElement {
     // empty deps so listeners are registered once on mount
   }, []);
 
+  const refreshInProgressRef = React.useRef(false);
   const refresh = React.useCallback(async () => {
+    if (refreshInProgressRef.current) return;
+    refreshInProgressRef.current = true;
     try {
       const folder = (await api.getFolder(
         currentFolderIdRef.current
       )) as FolderResponse;
-      currentFolderIdRef.current = folder.folders?.id ?? 'root';
+      currentFolderIdRef.current = folder.id ?? 'root';
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,
@@ -289,35 +292,17 @@ export default function FileExplorer(): React.ReactElement {
       setSearchQuery('');
     } catch {
       // ignore for now
+    } finally {
+      refreshInProgressRef.current = false;
     }
   }, [api]);
 
-  const buildPathFromId = React.useCallback(
-    async (id: string) => {
-      try {
-        const path: Array<{ id: string; name: string }> = [];
-        let currentId: string | undefined = id;
-        const iterationLimit = MAX_PATH_DEPTH;
-        let iteration = 0;
-        while (currentId && iteration < iterationLimit) {
-          const folderData = (await api.getFolder(currentId)) as FolderResponse;
-          const md = parseFolderMetadata(folderData, currentId);
-          if (md.name === 'root') {
-            path.push({
-              id: md.id,
-              name: t('documentManagement.root', 'Home'),
-            });
-            break;
-          }
-          path.push({ id: md.id, name: md.name });
-          currentId = md.parentId;
-          iteration += 1;
-        }
-        const reversed = path.reverse();
-        setCurrentPath(reversed);
-      } catch {
-        // fallback
-      }
+  const buildPathFromFolder = React.useCallback(
+    (id: string, name: string) => {
+      if (name == 'root') return;
+      if (!id || !name) return;
+      const newElement = { id: id, name: name };
+      currentPath.push(newElement);
     },
     [api, t]
   );
@@ -1147,15 +1132,23 @@ export default function FileExplorer(): React.ReactElement {
     setConflictPendingAction(null);
   };
 
-  const handleOpenFolder = async (id: string) => {
-    try {
-      currentFolderIdRef.current = id;
-      await buildPathFromId(id);
-      refresh();
-    } catch {
-      currentFolderIdRef.current = id;
-      setCurrentPath((p) => [...p, { id, name: 'Folder' }]);
-      refresh();
+  const sleep = (ms: number): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
+  const handleOpenFolder = async (id: string, name: string) => {
+    if (id != currentFolderIdRef.current) {
+      try {
+        currentFolderIdRef.current = id;
+        buildPathFromFolder(id, name);
+        refresh();
+      } catch {
+        //sleep
+        await sleep(200);
+        currentFolderIdRef.current = id;
+        buildPathFromFolder(id, name);
+        refresh();
+      }
     }
   };
 
@@ -1492,29 +1485,48 @@ export default function FileExplorer(): React.ReactElement {
 
   // Provide per-row drop handler by cloning items into a wrapper that accepts drops
 
-  const handleNavigatePath = (id: string) => {
-    setCurrentPath((p) => {
-      const idx = p.findIndex((x) => x.id === id);
-      if (idx === -1) return p;
-      const newPath = p.slice(0, idx + 1);
+  const handleNavigatePath = (id: string, name: string) => {
+    if (currentFolderIdRef.current != id) {
+      let newPath: { id: string; name: string }[] = [];
+
+      let finished = false;
+      if (name != 'root' && id != 'root') {
+        for (const p of currentPath) {
+          if (finished) continue;
+          if (p.id == id) {
+            finished = true;
+          }
+          newPath.push(p);
+        }
+      } else {
+        newPath = [{ id: 'root', name: 'root' }];
+      }
+
       currentFolderIdRef.current = id;
+      setCurrentPath(newPath);
       refresh();
-      return newPath;
-    });
+    } else {
+      refresh();
+    }
   };
 
   React.useEffect(() => {
-    // Run once on mount. navigation and folder changes explicitly call refresh/buildPathFromId.
-    (async () => {
-      await refresh();
-      await buildPathFromId(currentFolderIdRef.current);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let mounted = true;
 
-  React.useEffect(() => {
-    buildPathFromId(currentFolderIdRef.current);
-  }, [i18n.language, buildPathFromId]);
+    const initialize = async () => {
+      if (!mounted) return;
+      await refresh();
+      // if (!mounted) return;
+      // buildPathFromFolder(currentFolderIdRef.current);
+    };
+
+    initialize();
+
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once
 
   return (
     <Box

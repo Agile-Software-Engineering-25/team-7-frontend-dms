@@ -23,7 +23,7 @@ type Props = {
   loading?: boolean;
   disabled?: boolean;
   error?: string | null;
-  parentFolderGroups?: string[];
+  parentFolderGroups?: string[] | undefined;
 };
 
 const StudyGroupSelector: React.FC<Props> = ({
@@ -45,6 +45,7 @@ const StudyGroupSelector: React.FC<Props> = ({
     return parentFolderGroups;
   }, [availableGroups, parentFolderGroups]);
 
+  // FIX: Simplified handleChange that doesn't append, just sets the value
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
     const newGroups = typeof value === 'string' ? value.split(',') : value;
@@ -114,6 +115,7 @@ const StudyGroupSelector: React.FC<Props> = ({
           multiple
           value={selectedGroups}
           onChange={handleChange}
+          disabled={disabled}
           input={
             <OutlinedInput
               label={t('documentManagement.studyGroups.selectLabel')}
@@ -175,14 +177,20 @@ const StudyGroupSelector: React.FC<Props> = ({
           ) : (
             selectableGroups?.map((group) => {
               const isSelected = selectedGroups.includes(group);
+              // FIX: Check if this is the last selected group and parent requires at least one
+              const isLastSelected =
+                isSelected && selectedGroups.length === 1 && isRestricted;
+
               return (
                 <MenuItem
                   key={group}
                   value={group}
+                  disabled={isLastSelected}
                   onClick={() => handleToggleGroup(group)}
                 >
                   <Checkbox
                     checked={isSelected}
+                    disabled={isLastSelected}
                     sx={{
                       color: '#002E6D',
                       '&.Mui-checked': {
