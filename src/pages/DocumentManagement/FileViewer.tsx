@@ -101,7 +101,10 @@ const FileViewer: React.FC<FileViewerProps> = ({
             >
               <CircularProgress />
               <Typography sx={{ mt: 2 }}>
-                {t('documentManagement.viewer.loading', 'Vorschau wird erstellt...')}
+                {t(
+                  'documentManagement.viewer.loading',
+                  'Vorschau wird erstellt...'
+                )}
               </Typography>
             </Box>
           )}
@@ -120,7 +123,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     if (fileType.startsWith('image/')) {
       return (
-        <Box sx={{display: "flex", justifyContent: "center"}}>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           {isLoading && (
             <Box
               display="flex"
@@ -136,19 +139,22 @@ const FileViewer: React.FC<FileViewerProps> = ({
             >
               <CircularProgress />
               <Typography sx={{ mt: 2 }}>
-                {t('documentManagement.viewer.loading', 'Vorschau wird erstellt...')}
+                {t(
+                  'documentManagement.viewer.loading',
+                  'Vorschau wird erstellt...'
+                )}
               </Typography>
             </Box>
           )}
-            <img
-              src={fileUrl}
-              alt={fileName ?? 'preview'}
-              style={{ maxWidth: '100%', maxHeight: '80vh' }}
-              onLoad={() => {
-                setLoading?.(false);
-                setInternalLoading(false);
-              }}
-            />
+          <img
+            src={fileUrl}
+            alt={fileName ?? 'preview'}
+            style={{ maxWidth: '100%', maxHeight: '80vh' }}
+            onLoad={() => {
+              setLoading?.(false);
+              setInternalLoading(false);
+            }}
+          />
         </Box>
       );
     }

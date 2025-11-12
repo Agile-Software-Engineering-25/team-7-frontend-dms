@@ -560,7 +560,7 @@ export default function FileExplorer(): React.ReactElement {
       } else {
         // console.log('Convert office-doc --> PDF:', doc.name);
         const converted = await api.convertOfficeToPdf(docId);
-        const blob = await fetch(converted.url).then(r => r.blob());
+        const blob = await fetch(converted.url).then((r) => r.blob());
         const blobUrl = URL.createObjectURL(blob);
         // console.log('result:', converted);
         // namedUrl for preview title
