@@ -24,11 +24,9 @@ export default function useDmsApiSelector(): DmsApi {
         typeof qpMock === 'string' &&
         ['1', 'true', 'yes'].includes(qpMock.toLowerCase());
 
-      // redirect user if toggle is disabled
       if (wantsMock && !ALLOW_MOCK_TOGGLE) {
         const url = new URL(win.location.href);
         url.searchParams.delete('mock');
-        // use history.replaceState to avoid page reload
         win.history.replaceState({}, '', url.toString());
         console.info(
           'Mock deactivited by config: redirecting to',
@@ -44,15 +42,19 @@ export default function useDmsApiSelector(): DmsApi {
     return false;
   }
 
+  const useMock = readUseMock();
+  
   const real = useDmsApi();
   const realMemo = useMemo(() => real, [real]);
 
-  const useMock = readUseMock();
-  if (useMock) {
-    mockInstance = createMockApi();
-    console.info('DMS: using mock API');
+  // ✅ Mock-API wird nur einmal erstellt
+  const mockMemo = useMemo(() => {
+    if (!mockInstance) {
+      mockInstance = createMockApi();
+      console.info('DMS: using mock API');
+    }
     return mockInstance;
-  }
+  }, []);
 
-  return realMemo;
+  return useMock ? mockMemo : realMemo;
 }
