@@ -80,7 +80,6 @@ const FileViewer: React.FC<FileViewerProps> = ({
   };
 
   const renderPreview = () => {
-
     if (!fileUrl || !fileType) return null;
 
     if (fileType === 'application/pdf') {
