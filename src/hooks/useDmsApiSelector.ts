@@ -1,12 +1,13 @@
 import useDmsApi from './useDmsApi';
 import createMockApi from './useDmsApiMock';
 import { useMemo } from 'react';
+import type { DmsApi } from '@/@types/dmsApi';
 
 let mockInstance: ReturnType<typeof createMockApi> | null = null;
 
 const ALLOW_MOCK_TOGGLE = false; // toggle true to allow mock locally. DO NOT PUSH THIS CHANGE!
 
-export default function useDmsApiSelector() {
+export default function useDmsApiSelector(): DmsApi {
   const win = window as unknown as {
     __USE_DMS_MOCK__?: boolean;
     location: Location;

@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
-import type { Item } from './FileListItem';
+import type { Item } from '../FileListItem/FileListItem';
 
 type DownloadDialogProps = {
   open: boolean;
