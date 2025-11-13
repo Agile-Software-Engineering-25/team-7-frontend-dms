@@ -18,7 +18,7 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
     id: string;
     url: string;
     name: string;
-    type: string;
+    type: string | undefined;
   } | null>(null);
 
   const handleCloseViewer = () => {
@@ -40,20 +40,18 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
 
       if (!isOfficeDoc) {
         const { url, name, type } = await api.downloadDocument(docId);
-
-        setViewerFile({
-          id: docId,
-          url,
-          name,
-          type: type ?? 'application/octet-stream',
-        });
+        const namedUrl = `${url}#${name}`;
+        setViewerFile({ id: docId, url: namedUrl, name, type });
         setViewerOpen(true);
         return;
       } else {
         const converted = await api.convertOfficeToPdf(docId);
+        const blob = await fetch(converted.url).then((r) => r.blob());
+        const blobUrl = URL.createObjectURL(blob);
+        const namedUrl = `${blobUrl}#${converted.name}`;
         setViewerFile({
           id: docId,
-          url: converted.url,
+          url: namedUrl,
           name: converted.name,
           type: converted.type,
         });

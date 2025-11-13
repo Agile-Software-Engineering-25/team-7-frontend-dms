@@ -161,6 +161,13 @@ const useDmsApi = () => {
           case 'txt':
             mimeType = 'text/plain';
             break;
+          case 'html':
+          case 'htm':
+            mimeType = 'text/html';
+            break;
+          case 'csv':
+            mimeType = 'text/csv';
+            break;
         }
       }
 
