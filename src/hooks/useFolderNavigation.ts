@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Item, FolderResponse, PathItem } from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { sleep } from '@utils/fileHelpers';
 
 /**
  * Custom hook for folder navigation
- * @param api - DMS API instance
  * @returns Folder navigation state and handlers
  */
-export function useFolderNavigation(api: any) {
+export function useFolderNavigation() {
+  const api = useDmsApiSelector();
   const [items, setItems] = useState<Item[]>([]);
   const currentFolderIdRef = useRef<string>('root');
   const [currentPath, setCurrentPath] = useState<PathItem[]>([

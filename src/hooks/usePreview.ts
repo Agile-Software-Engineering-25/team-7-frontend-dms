@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { Item } from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
 type UsePreviewProps = {
-  api: any;
   items: Item[];
   showSnack: (msg: string, severity: 'success' | 'error' | 'info') => void;
 };
@@ -10,7 +10,8 @@ type UsePreviewProps = {
 /**
  * Custom hook for document preview and PDF conversion
  */
-export function usePreview({ api, items, showSnack }: UsePreviewProps) {
+export function usePreview({ items, showSnack }: UsePreviewProps) {
+  const api = useDmsApiSelector();
   const [viewerLoading, setViewerLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerFile, setViewerFile] = useState<{
@@ -40,7 +41,12 @@ export function usePreview({ api, items, showSnack }: UsePreviewProps) {
       if (!isOfficeDoc) {
         const { url, name, type } = await api.downloadDocument(docId);
 
-        setViewerFile({ id: docId, url, name, type });
+        setViewerFile({
+          id: docId,
+          url,
+          name,
+          type: type ?? 'application/octet-stream',
+        });
         setViewerOpen(true);
         return;
       } else {

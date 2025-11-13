@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Item, DocForZip } from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { collectDocsFromFolderWithPaths } from '@utils/fileHelpers';
 
 type UseDownloadProps = {
-  api: any;
   items: Item[];
   showSnack: (msg: string, severity: 'success' | 'error' | 'info') => void;
 };
@@ -13,7 +13,8 @@ type UseDownloadProps = {
  * Custom hook for download operations
  * Handles single document, folder, and multi-file downloads
  */
-export function useDownload({ api, items, showSnack }: UseDownloadProps) {
+export function useDownload({ items, showSnack }: UseDownloadProps) {
+  const api = useDmsApiSelector();
   const { t } = useTranslation();
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 

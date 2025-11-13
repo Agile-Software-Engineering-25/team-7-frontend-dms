@@ -45,7 +45,7 @@ export default function FileExplorer(): React.ReactElement {
   const api = useDmsApiSelector();
 
   // Navigation hook
-  const navigation = useFolderNavigation(api);
+  const navigation = useFolderNavigation();
   const {
     items,
     setItems,
@@ -63,11 +63,10 @@ export default function FileExplorer(): React.ReactElement {
     useSearch(items);
 
   // Study groups hook
-  const studyGroupsHook = useStudyGroups(api);
+  const studyGroupsHook = useStudyGroups();
 
   // File operations hook
   const fileOps = useFileOperations({
-    api,
     items,
     setItems,
     currentFolderIdRef,
@@ -76,21 +75,18 @@ export default function FileExplorer(): React.ReactElement {
 
   // Download hook
   const download = useDownload({
-    api,
     items,
     showSnack: fileOps.showSnack,
   });
 
   // Preview hook
   const preview = usePreview({
-    api,
     items,
     showSnack: fileOps.showSnack,
   });
 
   // Create folder hook
   const createFolder = useCreateFolder({
-    api,
     items,
     setItems,
     currentFolderIdRef,
@@ -328,9 +324,9 @@ export default function FileExplorer(): React.ReactElement {
       } else {
         // Document move logic
         // Note: getDocumentMetadata is optional, so we skip parent check if not available
-        if (typeof (api as any).getDocumentMetadata === 'function') {
+        if (api.getDocumentMetadata) {
           try {
-            const docData = await (api as any).getDocumentMetadata(sourceId);
+            const docData = await api.getDocumentMetadata(sourceId);
             const docParent = docData?.folderId ?? 'root';
             if (docParent === targetFolderId) {
               fileOps.showSnack(

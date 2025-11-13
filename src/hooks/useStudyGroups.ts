@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FolderResponse } from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { parseStudyGroupIds } from '@utils/studyGroupHelpers';
 
 /**
  * Custom hook for study group management
- * @param api - DMS API instance
  * @returns Study groups state and handlers
  */
-export function useStudyGroups(api: any) {
+export function useStudyGroups() {
+  const api = useDmsApiSelector();
   const { t } = useTranslation();
   const [studyGroups, setStudyGroups] = useState<string[] | undefined>(
     undefined
@@ -21,7 +22,8 @@ export function useStudyGroups(api: any) {
   const [manageGroupsFolderId, setManageGroupsFolderId] = useState<
     string | null
   >(null);
-  const [manageGroupsFolderName, setManageGroupsFolderName] = useState<string>('');
+  const [manageGroupsFolderName, setManageGroupsFolderName] =
+    useState<string>('');
   const [manageGroupsCurrentGroups, setManageGroupsCurrentGroups] = useState<
     string[]
   >([]);
@@ -36,7 +38,7 @@ export function useStudyGroups(api: any) {
       setStudyGroupsError(null);
       try {
         const response = await api.getStudyGroups();
-        setStudyGroups(response.groups.map((g: any) => g.name) || []);
+        setStudyGroups(response.groups.map((g) => g.name) || []);
       } catch (error) {
         console.error('Failed to fetch study groups:', error);
         setStudyGroupsError(

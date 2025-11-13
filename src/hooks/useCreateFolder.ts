@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Item, FolderResponse, ConflictPendingAction } from '@/@types/fileExplorer';
-import { parseStudyGroupIds, formatStudyGroupIds } from '@utils/studyGroupHelpers';
+import type {
+  Item,
+  FolderResponse,
+  ConflictPendingAction,
+} from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
+import {
+  parseStudyGroupIds,
+  formatStudyGroupIds,
+} from '@utils/studyGroupHelpers';
 
 type UseCreateFolderProps = {
-  api: any;
   items: Item[];
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
   currentFolderIdRef: React.MutableRefObject<string>;
@@ -20,7 +27,6 @@ type UseCreateFolderProps = {
  * Custom hook for folder creation with conflict handling
  */
 export function useCreateFolder({
-  api,
   items,
   setItems,
   currentFolderIdRef,
@@ -31,11 +37,16 @@ export function useCreateFolder({
   setConflictType,
   setConflictPendingAction,
 }: UseCreateFolderProps) {
+  const api = useDmsApiSelector();
   const { t } = useTranslation();
   const [newFolderOpen, setNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [newFolderStudyGroups, setNewFolderStudyGroups] = useState<string[]>([]);
-  const [manageGroupsParentGroups, setManageGroupsParentGroups] = useState<string[] | undefined>(undefined);
+  const [newFolderStudyGroups, setNewFolderStudyGroups] = useState<string[]>(
+    []
+  );
+  const [manageGroupsParentGroups, setManageGroupsParentGroups] = useState<
+    string[] | undefined
+  >(undefined);
 
   const handleOpenNewFolderDialog = async () => {
     // Reset selections

@@ -2,6 +2,7 @@
  * Helper functions for file operations
  */
 
+import type { DmsApi } from '@/@types/dmsApi';
 import type { DocForZip, FolderResponse } from '@/@types/fileExplorer';
 
 /**
@@ -12,7 +13,7 @@ import type { DocForZip, FolderResponse } from '@/@types/fileExplorer';
  * @returns Array of documents with their URLs and paths
  */
 export async function collectDocsFromFolderWithPaths(
-  api: any,
+  api: DmsApi,
   folderId: string,
   prefix: string
 ): Promise<DocForZip[]> {
@@ -26,7 +27,11 @@ export async function collectDocsFromFolderWithPaths(
   const nested: DocForZip[] = [];
   for (const sf of folder.subfolders || []) {
     const childPrefix = `${prefix}/${sf.name}`;
-    const inside = await collectDocsFromFolderWithPaths(api, sf.id, childPrefix);
+    const inside = await collectDocsFromFolderWithPaths(
+      api,
+      sf.id,
+      childPrefix
+    );
     nested.push(...inside);
   }
   return [...docsHere, ...nested];

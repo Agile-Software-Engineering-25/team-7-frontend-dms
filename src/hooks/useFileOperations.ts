@@ -7,9 +7,9 @@ import type {
   ConflictPendingAction,
   ConflictPendingActionWithoutOverwrite,
 } from '@/@types/fileExplorer';
+import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
 type UseFileOperationsProps = {
-  api: any;
   items: Item[];
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
   currentFolderIdRef: React.MutableRefObject<string>;
@@ -21,12 +21,12 @@ type UseFileOperationsProps = {
  * Handles upload, download, rename, delete, move operations
  */
 export function useFileOperations({
-  api,
   items,
   setItems,
   currentFolderIdRef,
   refresh,
 }: UseFileOperationsProps) {
+  const api = useDmsApiSelector();
   const { t } = useTranslation();
 
   // Active item state
