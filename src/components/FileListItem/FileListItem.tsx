@@ -10,8 +10,9 @@ import {
 import FolderIcon from '@mui/icons-material/Folder';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import FileItemActions from './FileItemActions';
+import FileItemActions from '../FileItemActions/FileItemActions';
 import { useCanAccess } from '@/lib/permissions';
+import { formatSize, formatDate } from '@utils/formatters';
 
 export type Item = {
   id: string;
@@ -32,27 +33,6 @@ type Props = {
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
-
-function formatSize(bytes: number) {
-  if (bytes === 0) return '-';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let i = 0;
-  let val = bytes;
-  while (val >= 1024 && i < units.length - 1) {
-    val /= 1024;
-    i++;
-  }
-  return `${val.toFixed(val < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
-}
-
-function formatDate(iso: string) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString();
-  } catch {
-    return iso;
-  }
-}
 
 const FileListItem: React.FC<Props> = ({
   item,

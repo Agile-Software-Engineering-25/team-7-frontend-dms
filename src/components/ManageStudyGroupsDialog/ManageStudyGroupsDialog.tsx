@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
-import StudyGroupSelector from './StudyGroupSelector';
+import StudyGroupSelector from '../StudyGroupSelector/StudyGroupSelector';
 
 type Props = {
   open: boolean;
