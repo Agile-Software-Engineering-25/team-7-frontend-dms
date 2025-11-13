@@ -51,7 +51,6 @@ export default function FileExplorer(): React.ReactElement {
     setItems,
     currentFolderIdRef,
     currentPath,
-    currentFolderName,
     itemsRef,
     refresh,
     handleOpenFolder,
@@ -510,15 +509,6 @@ export default function FileExplorer(): React.ReactElement {
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
-
-      <Typography
-        variant="h6"
-        sx={{ mb: 1, mt: 2, fontWeight: 700, color: '#002E6D' }}
-        role="heading"
-        aria-level={2}
-      >
-        {currentFolderName}
-      </Typography>
 
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         <List sx={{ width: '100%' }} role="list">
