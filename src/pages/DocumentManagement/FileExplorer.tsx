@@ -23,7 +23,11 @@ import ConflictDialogWithoutOverwrite from '@components/ConflictDialogWithoutOve
 import MoveDialog from '@components/MoveDialog/MoveDialog';
 import ManageStudyGroupsDialog from '@components/ManageStudyGroupsDialog/ManageStudyGroupsDialog';
 import FileExplorerToolbar from '@components/FileExplorerToolbar/FileExplorerToolbar';
-import FileExplorerDialogs from '@components/FileExplorerDialogs/FileExplorerDialogs';
+import RenameDialog from '@components/RenameDialog/RenameDialog';
+import DeleteConfirmDialog from '@components/DeleteConfirmDialog/DeleteConfirmDialog';
+import DeleteFolderConfirmDialog from '@components/DeleteFolderConfirmDialog/DeleteFolderConfirmDialog';
+import NewFolderDialog from '@components/NewFolderDialog/NewFolderDialog';
+import UploadDialog from '@components/UploadDialog/UploadDialog';
 
 // Types and utils
 import type {
@@ -561,38 +565,50 @@ export default function FileExplorer(): React.ReactElement {
       </Box>
 
       {/* All dialogs */}
-      <FileExplorerDialogs
-        renameOpen={fileOps.renameOpen}
-        renameValue={fileOps.renameValue}
-        onRenameValueChange={fileOps.setRenameValue}
-        onRenameClose={() => fileOps.setRenameOpen(false)}
-        onRenameConfirm={fileOps.handleRename}
-        deleteConfirmOpen={fileOps.deleteConfirmOpen}
-        onDeleteClose={() => fileOps.setDeleteConfirmOpen(false)}
-        onDeleteConfirm={fileOps.handleDelete}
-        deleteFolderConfirmOpen={fileOps.deleteFolderConfirmOpen}
-        onDeleteFolderClose={() => fileOps.setDeleteFolderConfirmOpen(false)}
-        onDeleteFolderConfirm={fileOps.handleDeleteFolderConfirmed}
-        newFolderOpen={createFolder.newFolderOpen}
-        newFolderName={createFolder.newFolderName}
-        newFolderStudyGroups={createFolder.newFolderStudyGroups}
-        onNewFolderNameChange={createFolder.setNewFolderName}
-        onNewFolderStudyGroupsChange={createFolder.setNewFolderStudyGroups}
-        onNewFolderClose={createFolder.handleCloseNewFolderDialog}
-        onNewFolderConfirm={createFolder.handleCreateFolder}
-        studyGroups={studyGroupsHook.studyGroups}
+      <RenameDialog
+        open={fileOps.renameOpen}
+        value={fileOps.renameValue}
+        onValueChange={fileOps.setRenameValue}
+        onClose={() => fileOps.setRenameOpen(false)}
+        onConfirm={fileOps.handleRename}
+      />
+
+      <DeleteConfirmDialog
+        open={fileOps.deleteConfirmOpen}
+        onClose={() => fileOps.setDeleteConfirmOpen(false)}
+        onConfirm={fileOps.handleDelete}
+      />
+
+      <DeleteFolderConfirmDialog
+        open={fileOps.deleteFolderConfirmOpen}
+        onClose={() => fileOps.setDeleteFolderConfirmOpen(false)}
+        onConfirm={fileOps.handleDeleteFolderConfirmed}
+      />
+
+      <NewFolderDialog
+        open={createFolder.newFolderOpen}
+        folderName={createFolder.newFolderName}
+        studyGroups={createFolder.newFolderStudyGroups}
+        onFolderNameChange={createFolder.setNewFolderName}
+        onStudyGroupsChange={createFolder.setNewFolderStudyGroups}
+        onClose={createFolder.handleCloseNewFolderDialog}
+        onConfirm={createFolder.handleCreateFolder}
+        availableGroups={studyGroupsHook.studyGroups}
         studyGroupsLoading={studyGroupsHook.studyGroupsLoading}
         studyGroupsError={studyGroupsHook.studyGroupsError}
-        manageGroupsParentGroups={createFolder.manageGroupsParentGroups}
-        uploadOpen={fileOps.uploadOpen}
+        parentFolderGroups={createFolder.manageGroupsParentGroups}
+      />
+
+      <UploadDialog
+        open={fileOps.uploadOpen}
         selectedFiles={fileOps.selectedFiles}
         fileInputRef={fileOps.fileInputRef}
         onFileSelection={(files) =>
           fileOps.setSelectedFiles((prev) => [...prev, ...files])
         }
         onRemoveFile={fileOps.handleRemoveSelectedFile}
-        onUploadClose={fileOps.handleCloseUpload}
-        onUploadConfirm={fileOps.handleUploadDocument}
+        onClose={fileOps.handleCloseUpload}
+        onConfirm={fileOps.handleUploadDocument}
       />
 
       <DownloadDialog

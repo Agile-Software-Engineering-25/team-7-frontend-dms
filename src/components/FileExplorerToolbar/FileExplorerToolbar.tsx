@@ -43,10 +43,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
     >
       <TextField
         size="small"
-        placeholder={t(
-          'documentManagement.search.searchPlaceholder',
-          'search'
-        )}
+        placeholder={t('documentManagement.search.searchPlaceholder', 'search')}
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         InputProps={{
@@ -152,17 +149,11 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
         onClick={onDownloadClick}
         startDecorator={<DownloadIcon fontSize="small" />}
       >
-        {t(
-          'documentManagement.downloadDocument.button',
-          'Download documents'
-        )}
+        {t('documentManagement.downloadDocument.button', 'Download documents')}
       </Button>
       {canManage && (
         <IconButton
-          aria-label={t(
-            'documentManagement.newFolder.title',
-            'Create folder'
-          )}
+          aria-label={t('documentManagement.newFolder.title', 'Create folder')}
           title={t('documentManagement.newFolder.title', 'Create folder')}
           onClick={onCreateFolderClick}
           sx={{
