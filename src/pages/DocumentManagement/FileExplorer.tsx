@@ -559,6 +559,7 @@ export default function FileExplorer(): React.ReactElement {
         availableTags={tagsHook.tags}
         selectedTags={selectedTags}
         onTagFilterChange={setSelectedTags}
+        onRefetchTags={tagsHook.fetchTags}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />

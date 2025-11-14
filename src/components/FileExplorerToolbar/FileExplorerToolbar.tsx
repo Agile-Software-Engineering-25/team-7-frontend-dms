@@ -27,6 +27,7 @@ type FileExplorerToolbarProps = {
   availableTags?: TagEntity[];
   selectedTags?: TagEntity[];
   onTagFilterChange?: (tags: TagEntity[]) => void;
+  onRefetchTags?: () => void;
 };
 
 const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
@@ -40,6 +41,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
   availableTags = [],
   selectedTags = [],
   onTagFilterChange,
+  onRefetchTags,
 }) => {
   const { t } = useTranslation();
 
@@ -90,6 +92,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
           options={availableTags}
           value={selectedTags}
           onChange={(_event, newValue) => onTagFilterChange(newValue)}
+          onOpen={() => onRefetchTags?.()}
           getOptionLabel={(option) => option.name}
           isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
           renderTags={(value, getTagProps) =>
