@@ -45,31 +45,14 @@ const StudyGroupSelector: React.FC<Props> = ({
     return parentFolderGroups;
   }, [availableGroups, parentFolderGroups]);
 
-  // FIX: Simplified handleChange that doesn't append, just sets the value
+  // Simplified handleChange from new version (1) - just sets the value
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
     const newGroups = typeof value === 'string' ? value.split(',') : value;
-    // Append new groups to existing ones instead of replacing
-    const updatedGroups = [...new Set([...selectedGroups, ...newGroups])];
-    onChange(updatedGroups);
+    onChange(newGroups);
   };
 
-  // Toggle a group on/off
-  const handleToggleGroup = (groupName: string) => {
-    if (selectedGroups.includes(groupName)) {
-      if (
-        selectedGroups.length == 1 &&
-        parentFolderGroups &&
-        parentFolderGroups.length >= 1
-      )
-        return;
-      handleDelete(groupName);
-    } else {
-      // Add the group to existing ones
-      onChange([...selectedGroups, groupName]);
-    }
-  };
-
+  // Delete handler from old version for X-button functionality
   const handleDelete = (groupToDelete: string) => {
     onChange(selectedGroups.filter((group) => group !== groupToDelete));
   };
@@ -121,50 +104,39 @@ const StudyGroupSelector: React.FC<Props> = ({
               label={t('documentManagement.studyGroups.selectLabel')}
             />
           }
-          renderValue={() => (
+          renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {selectedGroups.map((groupName) => {
-                return (
-                  <Chip
-                    key={groupName}
-                    label={
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                      >
-                        <span>{groupName}</span>
-                      </Box>
-                    }
-                    onMouseDown={(e) => {
-                      // Verhindert, dass MUI Select beim MouseDown toggelt
-                      e.stopPropagation();
-                    }}
-                    onDelete={(e) => {
-                      // Verhindert das Öffnen/Schließen des Selects bevor delete verarbeitet wird
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDelete(groupName);
-                    }}
-                    disabled={disabled}
-                    sx={{
-                      backgroundColor: '#002E6D',
-                      color: '#ffffff',
-                      '& .MuiChip-deleteIcon': {
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        '&:hover': {
-                          color: '#ffffff',
-                        },
-                        // Sicherstellen, dass das Icon Klicks annimmt
-                        pointerEvents: 'auto',
-                      },
-                      '&.Mui-disabled': {
-                        opacity: 0.6,
-                        backgroundColor: '#002E6D',
+              {selected.map((groupName) => (
+                <Chip
+                  key={groupName}
+                  label={groupName}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onDelete={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete(groupName);
+                  }}
+                  disabled={disabled}
+                  sx={{
+                    backgroundColor: '#002E6D',
+                    color: '#ffffff',
+                    '& .MuiChip-deleteIcon': {
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      '&:hover': {
                         color: '#ffffff',
                       },
-                    }}
-                  />
-                );
-              })}
+                      pointerEvents: 'auto',
+                    },
+                    '&.Mui-disabled': {
+                      opacity: 0.6,
+                      backgroundColor: '#002E6D',
+                      color: '#ffffff',
+                    },
+                  }}
+                />
+              ))}
             </Box>
           )}
         >
@@ -177,17 +149,11 @@ const StudyGroupSelector: React.FC<Props> = ({
           ) : (
             selectableGroups?.map((group) => {
               const isSelected = selectedGroups.includes(group);
-              // FIX: Check if this is the last selected group and parent requires at least one
               const isLastSelected =
                 isSelected && selectedGroups.length === 1 && isRestricted;
 
               return (
-                <MenuItem
-                  key={group}
-                  value={group}
-                  disabled={isLastSelected}
-                  onClick={() => handleToggleGroup(group)}
-                >
+                <MenuItem key={group} value={group} disabled={isLastSelected}>
                   <Checkbox
                     checked={isSelected}
                     disabled={isLastSelected}
