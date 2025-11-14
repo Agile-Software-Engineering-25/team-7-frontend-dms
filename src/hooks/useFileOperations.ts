@@ -36,6 +36,7 @@ export function useFileOperations({
   // Rename dialog state
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
+  const [originalExtension, setOriginalExtension] = useState<string | null>(null);
 
   // Delete dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -77,6 +78,7 @@ export function useFileOperations({
 
   const handleClose = () => {
     setActiveId(null);
+    setOriginalExtension(null);
   };
 
   const getItemById = (id?: string | null) =>
@@ -100,11 +102,47 @@ export function useFileOperations({
     }
   };
 
+  /**
+   * Extract file extension from filename
+   */
+  const getFileExtension = (filename: string): string | null => {
+    const lastDotIndex = filename.lastIndexOf('.');
+    if (lastDotIndex > 0 && lastDotIndex < filename.length - 1) {
+      return filename.substring(lastDotIndex);
+    }
+    return null;
+  };
+
+  /**
+   * Ensure filename has the correct extension
+   */
+  const ensureExtension = (name: string, extension: string | null): string => {
+    if (!extension) return name;
+    
+    // If name already ends with the extension, return as is
+    if (name.endsWith(extension)) {
+      return name;
+    }
+    
+    // Otherwise, append the extension
+    return name + extension;
+  };
+
   // Rename operations
   const handleOpenRename = (id: string) => {
     setActiveId(id);
     const it = getItemById(id);
-    setRenameValue(it?.name ?? '');
+    const itemName = it?.name ?? '';
+    
+    // For documents (not folders), store the original extension
+    if (it && it.itemType !== 'folder') {
+      const ext = getFileExtension(itemName);
+      setOriginalExtension(ext);
+    } else {
+      setOriginalExtension(null);
+    }
+    
+    setRenameValue(itemName);
     setRenameOpen(true);
   };
 
@@ -112,7 +150,14 @@ export function useFileOperations({
     if (!activeId) return handleClose();
     const it = items.find((i) => i.id === activeId);
     if (!it) return handleClose();
-    const newName = renameValue.trim();
+    
+    let newName = renameValue.trim();
+    
+    // For documents, ensure the extension is preserved
+    if (it.itemType !== 'folder' && originalExtension) {
+      newName = ensureExtension(newName, originalExtension);
+    }
+    
     if (newName && it) {
       setItems((prev) =>
         prev.map((p) => (p.id === it.id ? { ...p, name: newName } : p))
@@ -145,7 +190,7 @@ export function useFileOperations({
                 );
               },
               rename: async () => {
-                let newName2 = renameValue.trim();
+                let newName2 = newName;
                 const lastDotIndex = newName2.lastIndexOf('.');
                 const baseName =
                   lastDotIndex > 0
@@ -173,6 +218,13 @@ export function useFileOperations({
             setConflictDialogOpen(true);
             setMoveChooserOpen(false);
             setMoveSourceId(null);
+          } else {
+            await api.renameFolder(activeId, newName);
+            await refresh();
+            showSnack(
+              t('documentManagement.snack.renamed', 'Renamed'),
+              'success'
+            );
           }
         } else {
           const parentFolderData = (await api.getFolder(
@@ -198,7 +250,7 @@ export function useFileOperations({
                 );
               },
               rename: async () => {
-                let newName2 = renameValue.trim();
+                let newName2 = newName;
                 const lastDotIndex = newName2.lastIndexOf('.');
                 const baseName =
                   lastDotIndex > 0
@@ -226,6 +278,13 @@ export function useFileOperations({
             setConflictDialogOpen(true);
             setMoveChooserOpen(false);
             setMoveSourceId(null);
+          } else {
+            await api.renameDocument(activeId, newName);
+            await refresh();
+            showSnack(
+              t('documentManagement.snack.renamed', 'Renamed'),
+              'success'
+            );
           }
         }
       } catch {
@@ -314,7 +373,7 @@ export function useFileOperations({
       return;
     }
 
-    const maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024; // Use constant from types
+    const maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
 
     const validFiles: File[] = [];
     const oversizedFiles: File[] = [];

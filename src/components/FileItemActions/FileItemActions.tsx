@@ -37,7 +37,6 @@ const FileItemActions: React.FC<Props> = ({
 
   const canManageDocuments = canAccess('manageDocuments');
   const isFolder = itemType === 'folder';
-  const isDocument = itemType !== 'folder';
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
@@ -104,17 +103,10 @@ const FileItemActions: React.FC<Props> = ({
             )}
           </MenuItem>
         )}
-        
-        {/* Separate menu items for folder and document moves */}
-        {canManageDocuments && isFolder && (
+
+        {canManageDocuments && (
           <MenuItem onClick={handleMoveClick}>
-            {t('documentManagement.moveFolder', 'Move Folder')}
-          </MenuItem>
-        )}
-        
-        {canManageDocuments && isDocument && (
-          <MenuItem onClick={handleMoveClick}>
-            {t('documentManagement.moveDocument', 'Move Document')}
+            {t('documentManagement.move', 'Move')}
           </MenuItem>
         )}
         
