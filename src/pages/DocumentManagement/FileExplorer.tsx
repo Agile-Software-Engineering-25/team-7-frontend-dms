@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Typography, List, Snackbar, Alert } from '@mui/material';
+import { Alert, Box, List, Snackbar, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { useCanAccess } from '@/lib/permissions';
@@ -33,9 +33,9 @@ import TagEditor from '@components/TagEditor/TagEditor';
 
 // Types and utils
 import type {
-  Item,
-  FolderResponse,
   DmsDragPayload,
+  FolderResponse,
+  Item,
   TagEntity,
 } from '@/@types/fileExplorer';
 import { MAX_PATH_DEPTH } from '@/@types/fileExplorer';
@@ -71,8 +71,10 @@ export default function FileExplorer(): React.ReactElement {
   >([]);
 
   // Search hook (now includes tag filtering)
-  const { searchQuery, filteredItems, handleSearch, clearSearch } =
-    useSearch(items, selectedTags);
+  const { searchQuery, filteredItems, handleSearch, clearSearch } = useSearch(
+    items,
+    selectedTags
+  );
 
   // Study groups hook
   const studyGroupsHook = useStudyGroups();

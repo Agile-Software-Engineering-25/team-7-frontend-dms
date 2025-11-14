@@ -1,15 +1,15 @@
 import * as React from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   Autocomplete,
-  TextField,
-  Chip,
   Box,
+  Button,
+  Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
   Typography,
 } from '@mui/material';
 import type { TagEntity } from '@/@types/fileExplorer';
@@ -27,7 +27,6 @@ type Props = {
 const TagEditor: React.FC<Props> = ({
   open,
   onClose,
-  documentId: _documentId,
   documentName,
   currentTags,
   onSave,
@@ -154,7 +153,10 @@ const TagEditor: React.FC<Props> = ({
               />
             )}
             renderOption={(props, option) => (
-              <li {...props} key={typeof option === 'string' ? option : option.uuid}>
+              <li
+                {...props}
+                key={typeof option === 'string' ? option : option.uuid}
+              >
                 {typeof option === 'string' ? option : option.name}
               </li>
             )}
