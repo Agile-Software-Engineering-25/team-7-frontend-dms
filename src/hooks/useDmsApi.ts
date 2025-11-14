@@ -270,7 +270,7 @@ const useDmsApi = () => {
   const getAllTags = useCallback(
     // GET all tags
     async () => {
-      const response = await axiosInstance.get<TagEntity[]>(`/v1/tags`);
+      const response = await axiosInstance.get<TagEntity[]>(`/dms/v1/tags`);
       return response.data;
     },
     [axiosInstance]
@@ -280,7 +280,7 @@ const useDmsApi = () => {
     // POST create a new tag
     async (tagName: string) => {
       const response = await axiosInstance.post<TagEntity>(
-        `/v1/tags/${tagName}`
+        `/dms/v1/tags/${tagName}`
       );
       return response.data;
     },
@@ -291,7 +291,7 @@ const useDmsApi = () => {
     // PUT update a tag
     async (tagUuid: string, tagName: string) => {
       const response = await axiosInstance.put<TagEntity>(
-        `/v1/tags/${tagUuid}`,
+        `/dms/v1/tags/${tagUuid}`,
         tagName,
         {
           headers: { 'Content-Type': 'text/plain' },
@@ -305,7 +305,7 @@ const useDmsApi = () => {
   const deleteTag = useCallback(
     // DELETE a tag
     async (tagUuid: string) => {
-      await axiosInstance.delete(`/v1/tags/${tagUuid}`);
+      await axiosInstance.delete(`/dms/v1/tags/${tagUuid}`);
     },
     [axiosInstance]
   );
