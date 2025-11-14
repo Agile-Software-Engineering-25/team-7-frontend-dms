@@ -38,6 +38,9 @@ const NewFolderDialog: React.FC<NewFolderDialogProps> = ({
   parentFolderGroups,
 }) => {
   const { t } = useTranslation();
+  
+  // Check if folder name is empty or only whitespace
+  const isCreateDisabled = folderName.trim() === '';
 
   return (
     <Dialog
@@ -59,7 +62,7 @@ const NewFolderDialog: React.FC<NewFolderDialogProps> = ({
           value={folderName}
           onChange={(e) => onFolderNameChange(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isCreateDisabled) {
               onConfirm();
             }
           }}
@@ -78,6 +81,7 @@ const NewFolderDialog: React.FC<NewFolderDialogProps> = ({
         <Button
           onClick={onConfirm}
           variant="solid"
+          disabled={isCreateDisabled}
           sx={{
             '--Button-radius': '8px',
             '--Button-shadow': 'none',
