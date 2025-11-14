@@ -43,7 +43,6 @@ export default function useDmsApiSelector(): DmsApi {
   }
 
   const useMock = readUseMock();
-  
   const real = useDmsApi();
   const realMemo = useMemo(() => real, [real]);
 
