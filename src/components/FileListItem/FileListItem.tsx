@@ -6,6 +6,7 @@ import {
   ListItemText,
   Box,
   Typography,
+  Chip,
 } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -13,6 +14,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import FileItemActions from '../FileItemActions/FileItemActions';
 import { useCanAccess } from '@/lib/permissions';
 import { formatSize, formatDate } from '@utils/formatters';
+import type { TagEntity } from '@/@types/fileExplorer';
 
 export type Item = {
   id: string;
@@ -20,6 +22,7 @@ export type Item = {
   size: number;
   uploadDate: string;
   itemType: 'folder' | 'document' | 'pdf' | 'other';
+  tags?: TagEntity[];
 };
 
 type Props = {
@@ -30,6 +33,7 @@ type Props = {
   onOpen?: (id: string, name: string) => void;
   onPreview?: (id: string) => void;
   onManageGroups?: () => void;
+  onManageTags?: () => void;
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 };
@@ -44,6 +48,7 @@ const FileListItem: React.FC<Props> = ({
   onDragOver,
   onDownload,
   onManageGroups,
+  onManageTags,
 }) => {
   const { canAccess } = useCanAccess();
   const [isDragOver, setIsDragOver] = React.useState(false);
@@ -129,41 +134,60 @@ const FileListItem: React.FC<Props> = ({
       </ListItemAvatar>
       <ListItemText
         primary={
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1,
-              alignItems: 'baseline',
-              flexWrap: 'wrap',
-            }}
-          >
-            <Typography
-              component="span"
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Box
               sx={{
-                fontWeight: 600,
-                cursor: item.itemType === 'folder' ? 'pointer' : 'default',
-              }}
-              role={item.itemType === 'folder' ? 'button' : undefined}
-              tabIndex={item.itemType === 'folder' ? 0 : undefined}
-              onClick={() => {
-                if (item.itemType === 'folder') {
-                  onOpen?.(item.id, item.name);
-                } else if (onPreview) {
-                  onPreview(item.id);
-                }
-              }}
-              onKeyDown={(e) => {
-                if (
-                  item.itemType === 'folder' &&
-                  (e.key === 'Enter' || e.key === ' ')
-                ) {
-                  e.preventDefault();
-                  onOpen?.(item.id, item.name);
-                }
+                display: 'flex',
+                gap: 1,
+                alignItems: 'baseline',
+                flexWrap: 'wrap',
               }}
             >
-              {item.name}
-            </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontWeight: 600,
+                  cursor: item.itemType === 'folder' ? 'pointer' : 'default',
+                }}
+                role={item.itemType === 'folder' ? 'button' : undefined}
+                tabIndex={item.itemType === 'folder' ? 0 : undefined}
+                onClick={() => {
+                  if (item.itemType === 'folder') {
+                    onOpen?.(item.id, item.name);
+                  } else if (onPreview) {
+                    onPreview(item.id);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    item.itemType === 'folder' &&
+                    (e.key === 'Enter' || e.key === ' ')
+                  ) {
+                    e.preventDefault();
+                    onOpen?.(item.id, item.name);
+                  }
+                }}
+              >
+                {item.name}
+              </Typography>
+            </Box>
+            {item.tags && item.tags.length > 0 && (
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {item.tags.map((tag) => (
+                  <Chip
+                    key={tag.uuid}
+                    label={tag.name}
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: '0.75rem',
+                      backgroundColor: '#E3F2FD',
+                      color: '#1976D2',
+                    }}
+                  />
+                ))}
+              </Box>
+            )}
           </Box>
         }
         secondary={
@@ -186,6 +210,7 @@ const FileListItem: React.FC<Props> = ({
           onDelete={() => onDelete(item.id)}
           onDownload={() => onDownload(item.id)}
           onManageGroups={onManageGroups}
+          onManageTags={onManageTags}
         />
       </Box>
     </ListItem>

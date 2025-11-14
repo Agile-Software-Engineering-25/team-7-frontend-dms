@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Typography, List, Snackbar, Alert } from '@mui/material';
+import { Alert, Box, List, Snackbar, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 import { useCanAccess } from '@/lib/permissions';
@@ -12,6 +12,7 @@ import { useFileOperations } from '@hooks/useFileOperations';
 import { useDownload } from '@hooks/useDownload';
 import { usePreview } from '@hooks/usePreview';
 import { useCreateFolder } from '@hooks/useCreateFolder';
+import useTags from '@hooks/useTags';
 
 // Components
 import FileListItem from '@components/FileListItem/FileListItem';
@@ -28,12 +29,14 @@ import DeleteConfirmDialog from '@components/DeleteConfirmDialog/DeleteConfirmDi
 import DeleteFolderConfirmDialog from '@components/DeleteFolderConfirmDialog/DeleteFolderConfirmDialog';
 import NewFolderDialog from '@components/NewFolderDialog/NewFolderDialog';
 import UploadDialog from '@components/UploadDialog/UploadDialog';
+import TagEditor from '@components/TagEditor/TagEditor';
 
 // Types and utils
 import type {
-  Item,
-  FolderResponse,
   DmsDragPayload,
+  FolderResponse,
+  Item,
+  TagEntity,
 } from '@/@types/fileExplorer';
 import { MAX_PATH_DEPTH } from '@/@types/fileExplorer';
 import { parseFolderMetadata } from '@utils/folderMetadata';
@@ -57,9 +60,21 @@ export default function FileExplorer(): React.ReactElement {
     handleNavigatePath,
   } = navigation;
 
-  // Search hook
-  const { searchQuery, filteredItems, handleSearch, clearSearch } =
-    useSearch(items);
+  // Tags hook
+  const tagsHook = useTags();
+  const [selectedTags, setSelectedTags] = React.useState<TagEntity[]>([]);
+  const [tagEditorOpen, setTagEditorOpen] = React.useState(false);
+  const [tagEditorDocumentId, setTagEditorDocumentId] = React.useState('');
+  const [tagEditorDocumentName, setTagEditorDocumentName] = React.useState('');
+  const [tagEditorCurrentTags, setTagEditorCurrentTags] = React.useState<
+    TagEntity[]
+  >([]);
+
+  // Search hook (now includes tag filtering)
+  const { searchQuery, filteredItems, handleSearch, clearSearch } = useSearch(
+    items,
+    selectedTags
+  );
 
   // Study groups hook
   const studyGroupsHook = useStudyGroups();
@@ -158,6 +173,35 @@ export default function FileExplorer(): React.ReactElement {
           'documentManagement.studyGroups.saveFailed',
           'Failed to update groups'
         ),
+        'error'
+      );
+      throw error;
+    }
+  };
+
+  // Tag management handlers
+  const handleOpenTagEditor = (documentId: string) => {
+    const document = items.find((i) => i.id === documentId);
+    if (!document || document.itemType === 'folder') return;
+
+    setTagEditorDocumentId(documentId);
+    setTagEditorDocumentName(document.name);
+    setTagEditorCurrentTags(document.tags || []);
+    setTagEditorOpen(true);
+  };
+
+  const handleSaveTags = async (tagUuids: string[]) => {
+    try {
+      await tagsHook.updateDocumentTags(tagEditorDocumentId, tagUuids);
+      fileOps.showSnack(
+        t('documentManagement.tags.saved', 'Tags updated'),
+        'success'
+      );
+      await refresh();
+    } catch (error) {
+      console.error('Failed to save tags:', error);
+      fileOps.showSnack(
+        t('documentManagement.tags.saveFailed', 'Failed to update tags'),
         'error'
       );
       throw error;
@@ -512,17 +556,12 @@ export default function FileExplorer(): React.ReactElement {
         onUploadClick={() => fileOps.setUploadOpen(true)}
         onDownloadClick={() => download.setDownloadDialogOpen(true)}
         onCreateFolderClick={createFolder.handleOpenNewFolderDialog}
-        onFilterClick={() =>
-          fileOps.showSnack(
-            t(
-              'documentManagement.filter.placeholder',
-              'Filterfunktion folgt in Kürze'
-            ),
-            'info'
-          )
-        }
         canUpload={canAccess('uploadDocuments')}
         canManage={canAccess('manageDocuments')}
+        availableTags={tagsHook.tags}
+        selectedTags={selectedTags}
+        onTagFilterChange={setSelectedTags}
+        onRefetchTags={tagsHook.fetchTags}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
@@ -549,6 +588,11 @@ export default function FileExplorer(): React.ReactElement {
                 onManageGroups={
                   item.itemType === 'folder'
                     ? () => handleOpenManageGroups(item.id)
+                    : undefined
+                }
+                onManageTags={
+                  item.itemType !== 'folder'
+                    ? () => handleOpenTagEditor(item.id)
                     : undefined
                 }
                 onDrop={
@@ -663,6 +707,15 @@ export default function FileExplorer(): React.ReactElement {
         loading={studyGroupsHook.studyGroupsLoading}
         error={studyGroupsHook.studyGroupsError}
         parentFolderGroups={studyGroupsHook.manageGroupsParentGroups}
+      />
+
+      <TagEditor
+        open={tagEditorOpen}
+        onClose={() => setTagEditorOpen(false)}
+        documentId={tagEditorDocumentId}
+        documentName={tagEditorDocumentName}
+        currentTags={tagEditorCurrentTags}
+        onSave={handleSaveTags}
       />
 
       <FileViewer

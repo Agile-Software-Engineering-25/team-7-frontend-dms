@@ -589,6 +589,36 @@ export default function createMockApi() {
     return { id: f.id, studyGroupIds };
   };
 
+  // Tag management (mock implementation)
+  const mockTags = new Map<string, { uuid: string; name: string }>();
+
+  const getAllTags = async () => {
+    return Array.from(mockTags.values());
+  };
+
+  const createTag = async (tagName: string) => {
+    const uuid = genId();
+    const tag = { uuid, name: tagName };
+    mockTags.set(uuid, tag);
+    return tag;
+  };
+
+  const updateTag = async (tagUuid: string, tagName: string) => {
+    const tag = mockTags.get(tagUuid);
+    if (!tag) throw new Error('Tag not found');
+    tag.name = tagName;
+    return tag;
+  };
+
+  const deleteTag = async (tagUuid: string) => {
+    mockTags.delete(tagUuid);
+  };
+
+  const updateDocumentTags = async () => {
+    // Mock implementation - in reality this would update document tags
+    return { success: true };
+  };
+
   return {
     getFolder,
     getStudyGroups,
@@ -604,5 +634,10 @@ export default function createMockApi() {
     moveDocument,
     moveFolder,
     convertOfficeToPdf,
+    getAllTags,
+    createTag,
+    updateTag,
+    deleteTag,
+    updateDocumentTags,
   };
 }

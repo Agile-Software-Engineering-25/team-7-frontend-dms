@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { Box, TextField, IconButton, InputAdornment } from '@mui/material';
+import {
+  Box,
+  TextField,
+  IconButton,
+  InputAdornment,
+  Autocomplete,
+  Chip,
+} from '@mui/material';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -7,6 +14,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
 import Button from '@mui/joy/Button';
 import { useTranslation } from 'react-i18next';
+import type { TagEntity } from '@/@types/fileExplorer';
 
 type FileExplorerToolbarProps = {
   searchQuery: string;
@@ -14,9 +22,12 @@ type FileExplorerToolbarProps = {
   onUploadClick: () => void;
   onDownloadClick: () => void;
   onCreateFolderClick: () => void;
-  onFilterClick: () => void;
   canUpload: boolean;
   canManage: boolean;
+  availableTags?: TagEntity[];
+  selectedTags?: TagEntity[];
+  onTagFilterChange?: (tags: TagEntity[]) => void;
+  onRefetchTags?: () => void;
 };
 
 const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
@@ -25,9 +36,12 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
   onUploadClick,
   onDownloadClick,
   onCreateFolderClick,
-  onFilterClick,
   canUpload,
   canManage,
+  availableTags = [],
+  selectedTags = [],
+  onTagFilterChange,
+  onRefetchTags,
 }) => {
   const { t } = useTranslation();
 
@@ -71,27 +85,63 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
           },
         }}
       />
-      <Button
-        size="md"
-        variant="outlined"
-        startDecorator={<FilterListIcon fontSize="medium" />}
-        sx={{
-          '--Button-radius': '8px',
-          '--Button-shadow': 'none',
-          '--Button-hoverShadow': 'none',
-          '--Button-borderWidth': '1px',
-          '--Button-color': '#002E6D',
-          '--Button-borderColor': '#002E6D',
-          '--Button-hoverBg': 'rgba(0, 46, 109, 0.08)',
-          '--Button-hoverBorderColor': '#001f56',
-          '--Button-activeBg': 'rgba(0, 46, 109, 0.12)',
-          '--Button-minHeight': '40px',
-          fontWeight: 600,
-        }}
-        onClick={onFilterClick}
-      >
-        {t('documentManagement.filter.button', 'Filter (bald verfügbar)')}
-      </Button>
+      {onTagFilterChange && (
+        <Autocomplete
+          multiple
+          size="small"
+          options={availableTags}
+          value={selectedTags}
+          onChange={(_event, newValue) => onTagFilterChange(newValue)}
+          onOpen={() => onRefetchTags?.()}
+          getOptionLabel={(option) => option.name}
+          isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                label={option.name}
+                size="small"
+                {...getTagProps({ index })}
+                key={option.uuid}
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder={t(
+                'documentManagement.filter.tagPlaceholder',
+                'Filter by tags...'
+              )}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: (
+                  <>
+                    <InputAdornment position="start">
+                      <FilterListIcon
+                        fontSize="medium"
+                        sx={{ color: '#002E6D' }}
+                      />
+                    </InputAdornment>
+                    {params.InputProps.startAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
+          sx={{
+            minWidth: { xs: '100%', md: 200 },
+            maxWidth: { xs: '100%', md: 300 },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '999px',
+              backgroundColor: '#ffffff',
+              minHeight: 40,
+              '& fieldset': { borderColor: '#d1d9e6' },
+              '&:hover fieldset': { borderColor: '#002E6D' },
+              '&.Mui-focused fieldset': { borderColor: '#002E6D' },
+            },
+          }}
+        />
+      )}
       <Box sx={{ flexGrow: 1 }} />
       {canUpload && (
         <Button

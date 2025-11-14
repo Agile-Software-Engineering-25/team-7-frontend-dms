@@ -3,6 +3,7 @@ import { BACKEND_BASE_URL } from '@/config';
 import { useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import type { TagEntity } from '@/@types/fileExplorer';
 
 type FolderResponse = {
   folders: {
@@ -266,6 +267,61 @@ const useDmsApi = () => {
     [axiosInstance]
   );
 
+  const getAllTags = useCallback(
+    // GET all tags
+    async () => {
+      const response = await axiosInstance.get<TagEntity[]>(`/dms/v1/tags`);
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const createTag = useCallback(
+    // POST create a new tag
+    async (tagName: string) => {
+      const response = await axiosInstance.post<TagEntity>(
+        `/dms/v1/tags/${tagName}`
+      );
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const updateTag = useCallback(
+    // PUT update a tag
+    async (tagUuid: string, tagName: string) => {
+      const response = await axiosInstance.put<TagEntity>(
+        `/dms/v1/tags/${tagUuid}`,
+        tagName,
+        {
+          headers: { 'Content-Type': 'text/plain' },
+        }
+      );
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
+  const deleteTag = useCallback(
+    // DELETE a tag
+    async (tagUuid: string) => {
+      await axiosInstance.delete(`/dms/v1/tags/${tagUuid}`);
+    },
+    [axiosInstance]
+  );
+
+  const updateDocumentTags = useCallback(
+    // PUT document tags
+    async (id: string, tags: string[]) => {
+      const response = await axiosInstance.put(
+        `/dms/v1/documents/${id}/tags`,
+        tags
+      );
+      return response.data;
+    },
+    [axiosInstance]
+  );
+
   const api = useMemo(
     () => ({
       getFolder,
@@ -282,6 +338,11 @@ const useDmsApi = () => {
       moveDocument,
       moveFolder,
       convertOfficeToPdf,
+      getAllTags,
+      createTag,
+      updateTag,
+      deleteTag,
+      updateDocumentTags,
     }),
     [
       getFolder,
@@ -298,6 +359,11 @@ const useDmsApi = () => {
       moveDocument,
       moveFolder,
       convertOfficeToPdf,
+      getAllTags,
+      createTag,
+      updateTag,
+      deleteTag,
+      updateDocumentTags,
     ]
   );
 

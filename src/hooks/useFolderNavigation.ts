@@ -41,6 +41,7 @@ export function useFolderNavigation() {
         size: d.size,
         uploadDate: d.createdDate ?? new Date().toISOString(),
         itemType: d.type === 'application/pdf' ? 'pdf' : 'document',
+        tags: d.tags || [],
       }));
       const subfolders: Item[] = (folder.subfolders || []).map((f) => ({
         id: f.id,
