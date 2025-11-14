@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FolderResponse } from '@/@types/fileExplorer';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
@@ -16,6 +16,7 @@ export function useStudyGroups() {
   );
   const [studyGroupsLoading, setStudyGroupsLoading] = useState(false);
   const [studyGroupsError, setStudyGroupsError] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   // Manage Study Groups Dialog State
   const [manageGroupsDialogOpen, setManageGroupsDialogOpen] = useState(false);
@@ -31,66 +32,67 @@ export function useStudyGroups() {
     string[] | undefined
   >(undefined);
 
-  // Fetch study groups on mount
-  useEffect(() => {
-    const fetchStudyGroups = async () => {
-      setStudyGroupsLoading(true);
-      setStudyGroupsError(null);
-      try {
-        const response = await api.getStudyGroups();
-        setStudyGroups(response.groups.map((g) => g.name) || []);
-      } catch (error) {
-        console.error('Failed to fetch study groups:', error);
-        setStudyGroupsError(
-          t(
-            'documentManagement.studyGroups.loadError',
-            'Failed to load study groups'
-          )
-        );
-      } finally {
-        setStudyGroupsLoading(false);
-      }
-    };
-    fetchStudyGroups();
-  }, [api, t]);
+  // Lazy fetch function - only fetches once
+  const fetchStudyGroups = useCallback(async () => {
+    if (hasFetched) return; // Skip if already fetched
+
+    setStudyGroupsLoading(true);
+    setStudyGroupsError(null);
+    try {
+      const response = await api.getStudyGroups();
+      setStudyGroups(response.groups.map((g) => g.name) || []);
+      setHasFetched(true);
+    } catch (error) {
+      console.error('Failed to fetch study groups:', error);
+      setStudyGroupsError(
+        t(
+          'documentManagement.studyGroups.loadError',
+          'Failed to load study groups'
+        )
+      );
+    } finally {
+      setStudyGroupsLoading(false);
+    }
+  }, [api, t, hasFetched]);
 
   // Get parent folder's study groups for restriction
-  const getParentFolderGroups = async (
-    folderId: string
-  ): Promise<string[] | undefined> => {
-    try {
-      const folderData = (await api.getFolder(folderId)) as FolderResponse;
-      const parentId = folderData.folders?.parentId;
+  const getParentFolderGroups = useCallback(
+    async (folderId: string): Promise<string[] | undefined> => {
+      try {
+        const folderData = (await api.getFolder(folderId)) as FolderResponse;
+        const parentId = folderData.folders?.parentId;
 
-      const parentFolderData = (await api.getFolder(
-        parentId ?? 'root'
-      )) as FolderResponse;
-      if (parentFolderData.name === 'root') {
-        return [];
+        const parentFolderData = (await api.getFolder(
+          parentId ?? 'root'
+        )) as FolderResponse;
+        if (parentFolderData.name === 'root') {
+          return [];
+        }
+        const parentGroups = parseStudyGroupIds(parentFolderData.studyGroupIds);
+
+        // If parent has no groups assigned (length === 0), it's public to all groups
+        // Return undefined to allow all groups to be selected
+        if (parentGroups.length === 0) {
+          return [];
+        }
+
+        // Parent has specific groups, so restrict to those groups
+        return parentGroups;
+      } catch (error) {
+        console.error('Failed to get parent folder groups:', error);
+        return undefined;
       }
-      const parentGroups = parseStudyGroupIds(parentFolderData.studyGroupIds);
+    },
+    [api]
+  );
 
-      // If parent has no groups assigned (length === 0), it's public to all groups
-      // Return undefined to allow all groups to be selected
-      if (parentGroups.length === 0) {
-        return [];
-      }
-
-      // Parent has specific groups, so restrict to those groups
-      return parentGroups;
-    } catch (error) {
-      console.error('Failed to get parent folder groups:', error);
-      return undefined;
-    }
-  };
-
-  const closeManageGroupsDialog = () => {
+  const closeManageGroupsDialog = useCallback(() => {
     setManageGroupsDialogOpen(false);
     setManageGroupsFolderId(null);
     setManageGroupsFolderName('');
     setManageGroupsCurrentGroups([]);
     setManageGroupsParentGroups(undefined);
-  };
+  }, []);
 
   return {
     studyGroups,
@@ -108,5 +110,6 @@ export function useStudyGroups() {
     setManageGroupsParentGroups,
     getParentFolderGroups,
     closeManageGroupsDialog,
+    fetchStudyGroups,
   };
 }

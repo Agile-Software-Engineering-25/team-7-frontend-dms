@@ -43,17 +43,19 @@ export default function useDmsApiSelector(): DmsApi {
   }
 
   const useMock = readUseMock();
-  const real = useDmsApi();
-  const realMemo = useMemo(() => real, [real]);
+  const realApi = useDmsApi();
 
-  // ✅ Mock-API wird nur einmal erstellt
-  const mockMemo = useMemo(() => {
+  // Memoize the real API
+  const realMemo = useMemo(() => realApi, [realApi]);
+
+  // Only create mock instance when actually using mock
+  if (useMock) {
     if (!mockInstance) {
       mockInstance = createMockApi();
       console.info('DMS: using mock API');
     }
     return mockInstance;
-  }, []);
+  }
 
-  return useMock ? mockMemo : realMemo;
+  return realMemo;
 }

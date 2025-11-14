@@ -128,6 +128,7 @@
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei existiert bereits",
       "downloaded": "Download gestartet",
+      "downloadStarting": "Download wir vorbereitet...",
       "downloadFailed": "Download fehlgeschlagen",
       "noDocsInFolder": "Es gibt keine Dateien oder Ordner im aktuellen Verzeichnis",
       "noSelection": "Keine Auswahl",

@@ -21,6 +21,7 @@ type UseCreateFolderProps = {
   setConflictName: (name: string) => void;
   setConflictType: (type: 'file' | 'folder') => void;
   setConflictPendingAction: (action: ConflictPendingAction | null) => void;
+  fetchStudyGroups: () => Promise<void>;
 };
 
 /**
@@ -36,6 +37,7 @@ export function useCreateFolder({
   setConflictName,
   setConflictType,
   setConflictPendingAction,
+  fetchStudyGroups,
 }: UseCreateFolderProps) {
   const api = useDmsApiSelector();
   const { t } = useTranslation();
@@ -52,6 +54,9 @@ export function useCreateFolder({
     // Reset selections
     setNewFolderName('');
     setNewFolderStudyGroups([]);
+
+    // Fetch study groups if not already loaded
+    await fetchStudyGroups();
 
     // Get parent folder's groups for restriction
     if (currentFolderIdRef.current !== 'root') {

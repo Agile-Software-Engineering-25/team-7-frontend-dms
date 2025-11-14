@@ -11,7 +11,7 @@ export function parseStudyGroupIds(studyGroupIds?: string): string[] {
   if (!studyGroupIds || studyGroupIds.length == 0) return [];
   // Remove outer brackets and spaces
   const trimmed = studyGroupIds.trim().replace(/^\[|\]$/g, '');
-  console.log('studyGroupIds type:', typeof studyGroupIds, studyGroupIds);
+  console.info('studyGroupIds type:', typeof studyGroupIds, studyGroupIds);
   // Split by commas, remove single quotes and trim
   return trimmed
     .split(',')

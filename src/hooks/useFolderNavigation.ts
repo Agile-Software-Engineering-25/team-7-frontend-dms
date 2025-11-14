@@ -34,7 +34,7 @@ export function useFolderNavigation() {
       const folder = (await api.getFolder(
         currentFolderIdRef.current
       )) as FolderResponse;
-      currentFolderIdRef.current = folder.id ?? 'root';
+      currentFolderIdRef.current = folder.folders?.id ?? folder.id ?? 'root';
       const docs: Item[] = (folder.documents || []).map((d) => ({
         id: d.id,
         name: d.name,

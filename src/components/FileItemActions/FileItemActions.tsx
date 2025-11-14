@@ -44,6 +44,11 @@ const FileItemActions: React.FC<Props> = ({
   };
   const handleClose = () => setAnchorEl(null);
 
+  const handleMoveClick = () => {
+    handleClose();
+    emitRequestMove(itemId, itemType);
+  };
+
   return (
     <ListItemSecondaryAction>
       <Tooltip title={t('documentManagement.moreActions', 'More actions')}>
@@ -98,16 +103,13 @@ const FileItemActions: React.FC<Props> = ({
             )}
           </MenuItem>
         )}
+
         {canManageDocuments && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              emitRequestMove(itemId);
-            }}
-          >
+          <MenuItem onClick={handleMoveClick}>
             {t('documentManagement.move', 'Move')}
           </MenuItem>
         )}
+
         {canAccess('downloadDocuments') && (
           <MenuItem
             onClick={() => {
