@@ -614,7 +614,7 @@ export default function createMockApi() {
     mockTags.delete(tagUuid);
   };
 
-  const updateDocumentTags = async (_documentId: string, _tags: string[]) => {
+  const updateDocumentTags = async () => {
     // Mock implementation - in reality this would update document tags
     return { success: true };
   };
