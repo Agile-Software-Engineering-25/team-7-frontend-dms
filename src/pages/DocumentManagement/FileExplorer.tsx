@@ -425,12 +425,25 @@ export default function FileExplorer(): React.ReactElement {
   // Event listeners for drag-and-drop
   React.useEffect(() => {
     const onRequestMove = (e: Event) => {
-      const ce = e as CustomEvent<{ id?: string }>;
+      const ce = e as CustomEvent<{ id?: string; itemType?: Item['itemType'] }>;
       const id = ce?.detail?.id as string | undefined;
+      const itemType = ce?.detail?.itemType;
+      
       if (id) {
         fileOps.setMoveSourceId(id);
-        const found = itemsRef.current.find((x) => x.id === id);
-        fileOps.setMoveSourceType(found?.itemType ?? 'document');
+        
+        if (itemType) {
+          fileOps.setMoveSourceType(itemType);
+        } else {
+          // Fallback: try to find the item in current items
+          const found = itemsRef.current.find((x) => x.id === id);
+          if (found) {
+            fileOps.setMoveSourceType(found.itemType);
+          } else {
+            fileOps.setMoveSourceType('document');
+          }
+        }
+        
         fileOps.setMoveChooserOpen(true);
       }
     };

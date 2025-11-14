@@ -13,9 +13,9 @@ export const MIME_DMS_ITEM = 'application/x-dms-item';
 export const EVENT_REQUEST_MOVE = 'dms:request-move';
 export const EVENT_DROP_ON_BREADCRUMB = 'dms:drop-on-breadcrumb';
 
-export function emitRequestMove(id: string) {
+export function emitRequestMove(id: string, itemType: string) {
   const ev = new CustomEvent(EVENT_REQUEST_MOVE, {
-    detail: { id },
+    detail: { id, itemType},
     bubbles: true,
   });
   // dispatch on document so components don't need direct refs

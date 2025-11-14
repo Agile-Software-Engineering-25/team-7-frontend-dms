@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type {
-  Item,
-  FolderResponse,
-  SnackState,
-  ConflictPendingAction,
-  ConflictPendingActionWithoutOverwrite,
+import {
+  type Item,
+  type FolderResponse,
+  type SnackState,
+  type ConflictPendingAction,
+  type ConflictPendingActionWithoutOverwrite,
+  MAX_FILE_SIZE_MB,
 } from '@/@types/fileExplorer';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
@@ -313,7 +314,7 @@ export function useFileOperations({
       return;
     }
 
-    const maxSizeBytes = 5 * 1024 * 1024; // Use constant from types
+    const maxSizeBytes = MAX_FILE_SIZE_MB * 1024 * 1024; // Use constant from types
 
     const validFiles: File[] = [];
     const oversizedFiles: File[] = [];

@@ -37,12 +37,18 @@ const FileItemActions: React.FC<Props> = ({
 
   const canManageDocuments = canAccess('manageDocuments');
   const isFolder = itemType === 'folder';
+  const isDocument = itemType !== 'folder';
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setAnchorEl(e.currentTarget);
   };
   const handleClose = () => setAnchorEl(null);
+
+  const handleMoveClick = () => {
+    handleClose();
+    emitRequestMove(itemId, itemType);
+  };
 
   return (
     <ListItemSecondaryAction>
@@ -98,16 +104,20 @@ const FileItemActions: React.FC<Props> = ({
             )}
           </MenuItem>
         )}
-        {canManageDocuments && (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              emitRequestMove(itemId);
-            }}
-          >
-            {t('documentManagement.move', 'Move')}
+        
+        {/* Separate menu items for folder and document moves */}
+        {canManageDocuments && isFolder && (
+          <MenuItem onClick={handleMoveClick}>
+            {t('documentManagement.moveFolder', 'Move Folder')}
           </MenuItem>
         )}
+        
+        {canManageDocuments && isDocument && (
+          <MenuItem onClick={handleMoveClick}>
+            {t('documentManagement.moveDocument', 'Move Document')}
+          </MenuItem>
+        )}
+        
         {canAccess('downloadDocuments') && (
           <MenuItem
             onClick={() => {
