@@ -311,11 +311,12 @@ const useDmsApi = () => {
   );
 
   const updateDocumentTags = useCallback(
-    // PATCH document to update tags
+    // PUT document tags
     async (id: string, tags: string[]) => {
-      const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
-        tags,
-      });
+      const response = await axiosInstance.put(
+        `/dms/v1/documents/${id}/tags`,
+        tags
+      );
       return response.data;
     },
     [axiosInstance]
