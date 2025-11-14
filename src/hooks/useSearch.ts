@@ -20,7 +20,10 @@ export function useSearch(items: Item[], selectedTags: TagEntity[] = []) {
     if (tags.length > 0) {
       const tagUuids = tags.map((t) => t.uuid);
       filtered = filtered.filter((item) => {
-        // Only documents have tags, folders don't
+        // Always show folders regardless of tag selection
+        if (item.itemType === 'folder') return true;
+
+        // For documents, filter by tags
         if (!item.tags || item.tags.length === 0) return false;
         // Check if item has at least one of the selected tags
         return item.tags.some((tag) => tagUuids.includes(tag.uuid));
