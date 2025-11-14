@@ -19,6 +19,12 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 
   const handleDownload = async (docId: string) => {
+    // Show feedback immediately
+    showSnack(
+      t('documentManagement.snack.downloadStarting', 'Preparing download...'),
+      'info'
+    );
+
     try {
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
@@ -40,7 +46,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
         showSnack(
-          t('documentManagement.snack.downloaded', 'Download started'),
+          t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
           'success'
         );
       } else if (doc.itemType === 'folder') {
@@ -54,7 +60,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
           showSnack(
             t(
               'documentManagement.snack.noDocsInSelection',
-              'No documents in folder'
+              'No files to download'
             ),
             'error'
           );
@@ -64,19 +70,25 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
         await api.downloadAsZip(docsForZip, doc.name);
 
         showSnack(
-          t('documentManagement.snack.downloaded', 'Download started'),
+          t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
           'success'
         );
       }
     } catch {
       showSnack(
-        t('documentManagement.snack.downloadFailed', 'Download failed'),
+        t('documentManagement.snack.downloadFailed', 'Download fehlgeschlagen'),
         'error'
       );
     }
   };
 
   const handleDownloadSelected = async (selectedIds: string[]) => {
+    // Show feedback immediately
+    showSnack(
+      t('documentManagement.snack.downloadStarting', 'Download wird vorbereitet...'),
+      'info'
+    );
+
     try {
       const allDocs: DocForZip[] = [];
 
@@ -99,7 +111,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
 
       if (allDocs.length === 0) {
         showSnack(
-          t('documentManagement.snack.noDocsInSelection', 'No documents'),
+          t('documentManagement.snack.noDocsInSelection', 'Keine Dokumente'),
           'error'
         );
         return;
@@ -107,12 +119,12 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
 
       await api.downloadAsZip(allDocs, 'documents');
       showSnack(
-        t('documentManagement.snack.downloaded', 'Download started'),
+        t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
         'success'
       );
     } catch {
       showSnack(
-        t('documentManagement.snack.downloadFailed', 'Download failed'),
+        t('documentManagement.snack.downloadFailed', 'Download fehlgeschlagen'),
         'error'
       );
     }
