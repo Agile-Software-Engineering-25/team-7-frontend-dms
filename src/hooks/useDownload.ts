@@ -85,7 +85,10 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
   const handleDownloadSelected = async (selectedIds: string[]) => {
     // Show feedback immediately
     showSnack(
-      t('documentManagement.snack.downloadStarting', 'Download wird vorbereitet...'),
+      t(
+        'documentManagement.snack.downloadStarting',
+        'Download wird vorbereitet...'
+      ),
       'info'
     );
 

@@ -109,7 +109,7 @@ const FileItemActions: React.FC<Props> = ({
             {t('documentManagement.move', 'Move')}
           </MenuItem>
         )}
-        
+
         {canAccess('downloadDocuments') && (
           <MenuItem
             onClick={() => {

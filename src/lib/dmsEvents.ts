@@ -15,7 +15,7 @@ export const EVENT_DROP_ON_BREADCRUMB = 'dms:drop-on-breadcrumb';
 
 export function emitRequestMove(id: string, itemType: string) {
   const ev = new CustomEvent(EVENT_REQUEST_MOVE, {
-    detail: { id, itemType},
+    detail: { id, itemType },
     bubbles: true,
   });
   // dispatch on document so components don't need direct refs

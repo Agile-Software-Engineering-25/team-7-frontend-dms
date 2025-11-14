@@ -36,7 +36,9 @@ export function useFileOperations({
   // Rename dialog state
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
-  const [originalExtension, setOriginalExtension] = useState<string | null>(null);
+  const [originalExtension, setOriginalExtension] = useState<string | null>(
+    null
+  );
 
   // Delete dialog state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -118,12 +120,12 @@ export function useFileOperations({
    */
   const ensureExtension = (name: string, extension: string | null): string => {
     if (!extension) return name;
-    
+
     // If name already ends with the extension, return as is
     if (name.endsWith(extension)) {
       return name;
     }
-    
+
     // Otherwise, append the extension
     return name + extension;
   };
@@ -133,7 +135,7 @@ export function useFileOperations({
     setActiveId(id);
     const it = getItemById(id);
     const itemName = it?.name ?? '';
-    
+
     // For documents (not folders), store the original extension
     if (it && it.itemType !== 'folder') {
       const ext = getFileExtension(itemName);
@@ -141,7 +143,7 @@ export function useFileOperations({
     } else {
       setOriginalExtension(null);
     }
-    
+
     setRenameValue(itemName);
     setRenameOpen(true);
   };
@@ -150,14 +152,14 @@ export function useFileOperations({
     if (!activeId) return handleClose();
     const it = items.find((i) => i.id === activeId);
     if (!it) return handleClose();
-    
+
     let newName = renameValue.trim();
-    
+
     // For documents, ensure the extension is preserved
     if (it.itemType !== 'folder' && originalExtension) {
       newName = ensureExtension(newName, originalExtension);
     }
-    
+
     if (newName && it) {
       setItems((prev) =>
         prev.map((p) => (p.id === it.id ? { ...p, name: newName } : p))

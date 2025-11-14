@@ -38,7 +38,7 @@ const NewFolderDialog: React.FC<NewFolderDialogProps> = ({
   parentFolderGroups,
 }) => {
   const { t } = useTranslation();
-  
+
   // Check if folder name is empty or only whitespace
   const isCreateDisabled = folderName.trim() === '';
 

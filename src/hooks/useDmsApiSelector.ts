@@ -44,10 +44,10 @@ export default function useDmsApiSelector(): DmsApi {
 
   const useMock = readUseMock();
   const realApi = useDmsApi();
-  
+
   // Memoize the real API
   const realMemo = useMemo(() => realApi, [realApi]);
-  
+
   // Only create mock instance when actually using mock
   if (useMock) {
     if (!mockInstance) {
