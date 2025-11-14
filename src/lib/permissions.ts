@@ -32,7 +32,7 @@ export const useCanAccess = () => {
 
   const canAccess = (action: Action): boolean => {
     // return true below to always give access locally. <DO NOT PUSH THIS CHANGE!
-    // return true
+    // return true;
     const allowedRoles = permissionsMap[action];
     return allowedRoles.some((role) => hasRole(role));
   };

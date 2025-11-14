@@ -19,6 +19,7 @@ type Props = {
   onDelete: () => void;
   onDownload: () => void;
   onManageGroups?: () => void; // Only for folders
+  onManageTags?: () => void; // Only for documents
 };
 
 const FileItemActions: React.FC<Props> = ({
@@ -29,6 +30,7 @@ const FileItemActions: React.FC<Props> = ({
   onDelete,
   onDownload,
   onManageGroups,
+  onManageTags,
 }) => {
   const { canAccess } = useCanAccess();
   const { t } = useTranslation();
@@ -101,6 +103,17 @@ const FileItemActions: React.FC<Props> = ({
               'documentManagement.studyGroups.manageTitle',
               'Restrict visibility'
             )}
+          </MenuItem>
+        )}
+
+        {canManageDocuments && !isFolder && onManageTags && (
+          <MenuItem
+            onClick={() => {
+              handleClose();
+              onManageTags();
+            }}
+          >
+            {t('documentManagement.tags.manageTitle', 'Manage Tags')}
           </MenuItem>
         )}
 

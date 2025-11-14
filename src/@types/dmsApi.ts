@@ -2,7 +2,7 @@
  * Type definition for DMS API
  */
 
-import type { FolderResponse } from './fileExplorer';
+import type { FolderResponse, TagEntity } from './fileExplorer';
 
 export interface DmsApi {
   // Folder operations
@@ -51,4 +51,11 @@ export interface DmsApi {
 
   // Study groups
   getStudyGroups: () => Promise<{ groups: Array<{ name: string }> }>;
+
+  // Tag operations
+  getAllTags: () => Promise<TagEntity[]>;
+  createTag: (tagName: string) => Promise<TagEntity>;
+  updateTag: (tagUuid: string, tagName: string) => Promise<TagEntity>;
+  deleteTag: (tagUuid: string) => Promise<void>;
+  updateDocumentTags: (documentId: string, tags: string[]) => Promise<unknown>;
 }

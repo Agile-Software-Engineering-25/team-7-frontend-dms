@@ -4,12 +4,18 @@
 
 export type ItemType = 'folder' | 'document' | 'pdf' | 'other';
 
+export type TagEntity = {
+  uuid: string;
+  name: string;
+};
+
 export type Item = {
   id: string;
   name: string;
   size: number; // bytes
   uploadDate: string; // ISO
   itemType: ItemType;
+  tags?: TagEntity[];
 };
 
 export type FolderResponse = {
@@ -28,6 +34,7 @@ export type FolderResponse = {
     size: number;
     createdDate?: string;
     type?: string;
+    tags?: TagEntity[];
   }>;
   subfolders?: Array<{
     id: string;
