@@ -1,16 +1,22 @@
 import * as React from 'react';
 import {
-  Autocomplete,
   Box,
   Chip,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
   Typography,
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import Button from '@mui/joy/Button';
 import type { TagEntity } from '@/@types/fileExplorer';
 import { useTranslation } from 'react-i18next';
@@ -58,45 +64,57 @@ const TagEditor: React.FC<Props> = ({
     }
   };
 
-  const handleTagChange = async (
-    _event: React.SyntheticEvent,
-    value: (string | TagEntity)[],
-    reason: string
-  ) => {
-    // Handle creating new tags
-    if (reason === 'createOption') {
-      const newTagNames = value.filter(
-        (v): v is string => typeof v === 'string'
-      );
-
-      if (newTagNames.length > 0) {
-        try {
-          // Create new tags
-          const newTags: TagEntity[] = [];
-          for (const tagName of newTagNames) {
-            const newTag = await createTag(tagName);
-            newTags.push(newTag);
-          }
-
-          // Add existing TagEntity objects
-          const existingTags = value.filter(
-            (v): v is TagEntity => typeof v !== 'string'
-          );
-
-          setSelectedTags([...existingTags, ...newTags]);
-        } catch (error) {
-          console.error('Failed to create tag:', error);
-        }
+  const handleChange = async (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    const selectedUuids = typeof value === 'string' ? value.split(',') : value;
+    
+    // Check if a new tag needs to be created
+    const newTagName = selectedUuids.find(uuid => !availableTags.some(tag => tag.uuid === uuid));
+    
+    if (newTagName && typeof newTagName === 'string' && newTagName.startsWith('__new__:')) {
+      const tagName = newTagName.replace('__new__:', '');
+      try {
+        const newTag = await createTag(tagName);
+        const otherSelectedTags = availableTags.filter(tag => 
+          selectedUuids.includes(tag.uuid)
+        );
+        setSelectedTags([...otherSelectedTags, newTag]);
+      } catch (error) {
+        console.error('Failed to create tag:', error);
       }
     } else {
-      // Normal selection
-      setSelectedTags(value as TagEntity[]);
+      const newSelectedTags = availableTags.filter(tag => 
+        selectedUuids.includes(tag.uuid)
+      );
+      setSelectedTags(newSelectedTags);
+    }
+  };
+
+  const handleDelete = (tagToDelete: TagEntity) => {
+    setSelectedTags(selectedTags.filter((tag) => tag.uuid !== tagToDelete.uuid));
+  };
+
+  const handleInputKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && inputValue.trim()) {
+      event.preventDefault();
+      const tagExists = availableTags.some(
+        tag => tag.name.toLowerCase() === inputValue.trim().toLowerCase()
+      );
+      
+      if (!tagExists) {
+        createTag(inputValue.trim()).then(newTag => {
+          setSelectedTags([...selectedTags, newTag]);
+          setInputValue('');
+        }).catch(error => {
+          console.error('Failed to create tag:', error);
+        });
+      }
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
+      <DialogTitle sx={{ fontWeight: 600, color: '#ffffff' }}>
         {t('documentManagement.tagging.manage', 'Manage Tags')}
       </DialogTitle>
       <DialogContent>
@@ -109,80 +127,139 @@ const TagEditor: React.FC<Props> = ({
             <strong>{documentName}</strong>
           </Typography>
 
-          <Autocomplete
-            multiple
-            freeSolo
-            options={availableTags}
-            value={selectedTags}
-            onChange={handleTagChange}
-            inputValue={inputValue}
-            onInputChange={(_event, newInputValue) =>
-              setInputValue(newInputValue)
-            }
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.name
-            }
-            isOptionEqualToValue={(option, value) =>
-              typeof option !== 'string' &&
-              typeof value !== 'string' &&
-              option.uuid === value.uuid
-            }
-            loading={loading}
-            disabled={saving}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => {
-                const tag = typeof option === 'string' ? option : option.name;
-                return (
-                  <Chip
-                    label={tag}
-                    size="small"
-                    {...getTagProps({ index })}
-                    key={typeof option === 'string' ? option : option.uuid}
-                  />
-                );
-              })
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Tags"
-                placeholder={t(
-                  'documentManagement.tagging.tagPlaceholder',
-                  'Type to search or create new tag...'
-                )}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-            renderOption={(props, option) => (
-              <li
-                {...props}
-                key={typeof option === 'string' ? option : option.uuid}
-              >
-                {typeof option === 'string' ? option : option.name}
-              </li>
-            )}
-          />
-
+          {/* Add Tags Section */}
           <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 1, display: 'block' }}
+            variant="subtitle2"
+            sx={{ mb: 1.5, fontWeight: 600, color: '#002E6D' }}
           >
-            {t(
-              'documentManagement.tagging.tutorial',
-              'Type a tag here and press enter to create a new tag'
-            )}
+            {t('documentManagement.tagging.addTags', 'Add Tags')}
           </Typography>
+
+          <FormControl fullWidth>
+            <InputLabel id="tag-select-label">
+              {t('documentManagement.tagging.selectLabel', 'Select Tags')}
+            </InputLabel>
+            <Select
+              labelId="tag-select-label"
+              id="tag-select"
+              multiple
+              value={selectedTags.map(tag => tag.uuid)}
+              onChange={handleChange}
+              disabled={saving || loading}
+              input={
+                <OutlinedInput
+                  label={t('documentManagement.tagging.selectLabel', 'Select Tags')}
+                  onKeyDown={handleInputKeyDown}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                />
+              }
+              renderValue={() => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {selectedTags.map((tag) => (
+                    <Chip
+                      key={tag.uuid}
+                      label={tag.name}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onDelete={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDelete(tag);
+                      }}
+                      disabled={saving}
+                      sx={{
+                        backgroundColor: '#002E6D',
+                        color: '#ffffff',
+                        '& .MuiChip-deleteIcon': {
+                          color: 'rgba(255, 255, 255, 0.7)',
+                          '&:hover': {
+                            color: '#ffffff',
+                          },
+                          pointerEvents: 'auto',
+                        },
+                        '&.Mui-disabled': {
+                          opacity: 0.6,
+                          backgroundColor: '#002E6D',
+                          color: '#ffffff',
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+            >
+              {loading ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  {t('documentManagement.tagging.loading', 'Loading tags...')}
+                </MenuItem>
+              ) : availableTags.length === 0 ? (
+                <MenuItem disabled>
+                  {t('documentManagement.tagging.noTags', 'No tags available')}
+                </MenuItem>
+              ) : (
+                availableTags.map((tag) => {
+                  const isSelected = selectedTags.some(t => t.uuid === tag.uuid);
+                  
+                  return (
+                    <MenuItem key={tag.uuid} value={tag.uuid}>
+                      <Checkbox
+                        checked={isSelected}
+                        sx={{
+                          color: '#002E6D',
+                          '&.Mui-checked': {
+                            color: '#4caf50',
+                          },
+                        }}
+                      />
+                      <ListItemText
+                        primary={tag.name}
+                        primaryTypographyProps={{
+                          sx: {
+                            fontWeight: isSelected ? 600 : 400,
+                          },
+                        }}
+                      />
+                    </MenuItem>
+                  );
+                })
+              )}
+            </Select>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              {t(
+                'documentManagement.tagging.tutorial',
+                'Type a tag here and press enter to create a new tag'
+              )}
+            </Typography>
+          </FormControl>
+
+          {/* Warning box for no selection */}
+          {selectedTags.length >= 0 && (
+              <Box
+                sx={{ mt: 2, p: 1.5, backgroundColor: '#e3f2fd', borderRadius: 1 }}
+              >
+                <Typography variant="caption" color="text.secondary">
+                  <strong>
+                    {t(
+                      'documentManagement.tagging.hintTitle',
+                      'Note'
+                    )}
+                  </strong>
+                  <br />
+                  {t(
+                    'documentManagement.tagging.hintContent1',
+                    'This folder can only be assigned to student groups that are also assigned to its parent folder.'
+                  )}
+                  <br />
+                  {t(
+                    'documentManagement.tagging.hintContent2',
+                    'There has to be at least one student group assigned.'
+                  )}
+                </Typography>
+              </Box>
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
