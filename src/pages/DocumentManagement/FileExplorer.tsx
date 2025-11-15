@@ -390,10 +390,19 @@ export default function FileExplorer(): React.ReactElement {
           }
         }
 
-        const targetFolderData = (await api.getFolder(
-          targetFolderId
-        )) as FolderResponse;
-        const targetDocuments = targetFolderData.documents || [];
+        // For root folder, use items directly instead of calling getFolder('root')
+        let targetDocuments: Array<{id: string; name: string}> = [];
+        if (targetFolderId === 'root') {
+          targetDocuments = items
+            .filter((i) => i.itemType === 'document')
+            .map((i) => ({ id: i.id, name: i.name }));
+        } else {
+          const targetFolderData = (await api.getFolder(
+            targetFolderId
+          )) as FolderResponse;
+          targetDocuments = targetFolderData.documents || [];
+        }
+
         const sourceDoc = items.find((i) => i.id === sourceId);
         const sourceDocName = sourceDoc?.name ?? '';
         const existingDoc = targetDocuments.find(
@@ -406,7 +415,7 @@ export default function FileExplorer(): React.ReactElement {
           fileOps.setConflictPendingAction({
             overwrite: async () => {
               await api.deleteDocument(existingDoc.id);
-              await api.moveDocument(sourceId, targetFolderId);
+              await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -431,7 +440,7 @@ export default function FileExplorer(): React.ReactElement {
               }
 
               await api.renameDocument(sourceId, newName);
-              await api.moveDocument(sourceId, targetFolderId);
+              await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -446,7 +455,7 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveDocument(sourceId, targetFolderId);
+        await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
       }
 
       setItems((prev) => prev.filter((i) => i.id !== sourceId));

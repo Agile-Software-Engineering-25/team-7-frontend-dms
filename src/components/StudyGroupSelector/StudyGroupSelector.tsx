@@ -37,12 +37,13 @@ const StudyGroupSelector: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Filter available groups based on parent folder restrictions
+  // Filter available groups based on parent folder restrictions and sort alphabetically
   const selectableGroups = React.useMemo(() => {
-    if (!parentFolderGroups || parentFolderGroups.length === 0) {
-      return availableGroups;
-    }
-    return parentFolderGroups;
+    const groups =
+      !parentFolderGroups || parentFolderGroups.length === 0
+        ? availableGroups
+        : parentFolderGroups;
+    return groups ? [...groups].sort((a, b) => a.localeCompare(b)) : groups;
   }, [availableGroups, parentFolderGroups]);
 
   // Simplified handleChange from new version (1) - just sets the value
