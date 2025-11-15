@@ -110,8 +110,13 @@ const ManageStudyGroupsDialog: React.FC<Props> = ({
               </strong>
               <br />
               {t(
-                'documentManagement.studyGroups.parentRestrictionContent',
-                'This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.'
+                'documentManagement.studyGroups.parentRestrictionContent1',
+                'This folder can only be assigned to student groups that are also assigned to its parent folder.'
+              )}
+              <br />
+              {t(
+                'documentManagement.studyGroups.parentRestrictionContent2',
+                'There has to be at least one student group assigned.'
               )}
             </Typography>
           </Box>

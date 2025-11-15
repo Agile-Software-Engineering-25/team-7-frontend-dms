@@ -35,7 +35,7 @@ export interface DmsApi {
   renameDocument: (documentId: string, newName: string) => Promise<unknown>;
   moveDocument: (
     documentId: string,
-    targetFolderId: string
+    targetFolderId?: string
   ) => Promise<unknown>;
   convertOfficeToPdf: (documentId: string) => Promise<{
     url: string;

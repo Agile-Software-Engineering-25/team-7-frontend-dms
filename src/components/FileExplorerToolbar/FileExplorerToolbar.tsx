@@ -119,7 +119,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
           alignItems: 'center',
           gap: 1.5,
           mb: 2,
-          flexWrap: { xs: 'wrap', md: 'nowrap' },
+          flexWrap: 'nowrap',
         }}
       >
         <TextField
@@ -165,8 +165,41 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             onOpen={() => onRefetchTags?.()}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
+            disableCloseOnSelect
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              maxWidth: { xs: '100%', md: 300 },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '999px',
+                backgroundColor: '#ffffff',
+                height: 40,
+                minHeight: 40,
+                maxHeight: 40,
+                display: 'flex',
+                flexWrap: 'nowrap',
+                alignItems: 'center',
+                paddingRight: '8px',
+                '& .MuiAutocomplete-input': {
+                  padding: '0 8px',
+                  minWidth: 30,
+                },
+                '& .MuiAutocomplete-endAdornment': {
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                },
+                '& fieldset': { borderColor: '#d1d9e6' },
+                '&:hover fieldset': { borderColor: '#002E6D' },
+                '&.Mui-focused fieldset': { borderColor: '#002E6D' },
+              },
+            }}
             renderOption={(props, option) => {
               const { key, ...otherProps } = props;
+              const isSelected = selectedTags.some(
+                (tag) => tag.uuid === option.uuid
+              );
               return (
                 <li
                   key={key}
@@ -176,94 +209,179 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     width: '100%',
+                    backgroundColor: 'transparent',
                   }}
                 >
-                  <span
-                    style={{
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      lineHeight: '1.5',
-                      paddingTop: '2px',
-                      paddingBottom: '2px',
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      width: '100%',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: isSelected ? '#002E6D' : 'transparent',
+                      transition: 'background-color 0.2s',
+                      '&:hover': {
+                        backgroundColor: isSelected
+                          ? '#001f56'
+                          : 'rgba(17, 43, 215, 0.08)',
+                      },
                     }}
                   >
-                    {option.name}
-                  </span>
-                  {canManageDocuments && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: 0.5,
-                        ml: 1,
-                        flexShrink: 0,
+                    <span
+                      style={{
+                        flex: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        lineHeight: '1.5',
+                        color: isSelected ? '#ffffff' : 'inherit',
+                        minWidth: 0,
                       }}
                     >
-                      {onUpdateTag && (
-                        <IconButton
-                          onClick={(e) => handleEditClick(option, e)}
-                          sx={{
-                            padding: '2px',
-                            borderRadius: '100%',
-                            border: '1px solid rgba(0, 46, 109, 0.3)',
-                            backgroundColor: 'transparent',
-                            '&:hover': {
-                              backgroundColor: 'rgba(0, 46, 109, 0.08)',
-                              borderColor: '#002E6D',
-                            },
-                          }}
-                          aria-label={t(
-                            'documentManagement.tagging.editTag',
-                            'Tag bearbeiten'
-                          )}
-                        >
-                          <EditIcon
-                            sx={{ fontSize: '20px', color: '#002E6D' }}
-                          />
-                        </IconButton>
-                      )}
-                      {onDeleteTag && (
-                        <IconButton
-                          onClick={(e) => handleDeleteClick(option, e)}
-                          sx={{
-                            padding: '2px',
-                            borderRadius: '50%',
-                            border: '1px solid rgba(211, 47, 47, 0.3)',
-                            backgroundColor: 'transparent',
-                            '&:hover': {
-                              backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                              borderColor: '#d32f2f',
-                            },
-                          }}
-                          aria-label={t(
-                            'documentManagement.tagging.deleteTag',
-                            'Tag löschen'
-                          )}
-                        >
-                          <DeleteIcon
-                            sx={{ fontSize: '20px', color: '#d32f2f' }}
-                          />
-                        </IconButton>
-                      )}
-                    </Box>
-                  )}
+                      {option.name}
+                    </span>
+                    {canManageDocuments && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          gap: 0.5,
+                          ml: 1,
+                          flexShrink: 0,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 'auto',
+                        }}
+                      >
+                        {onUpdateTag && (
+                          <IconButton
+                            onClick={(e) => handleEditClick(option, e)}
+                            sx={{
+                              padding: '2px',
+                              borderRadius: '100%',
+                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 46, 109, 0.3)'}`,
+                              backgroundColor: 'transparent',
+                              width: '24px',
+                              height: '24px',
+                              minWidth: '24px',
+                              '&:hover': {
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.15)'
+                                  : 'rgba(0, 46, 109, 0.08)',
+                                borderColor: isSelected ? '#ffffff' : '#002E6D',
+                              },
+                            }}
+                            aria-label={t(
+                              'documentManagement.tagging.editTag',
+                              'Tag bearbeiten'
+                            )}
+                          >
+                            <EditIcon
+                              sx={{
+                                fontSize: '16px',
+                                color: isSelected ? '#ffffff' : '#002E6D',
+                              }}
+                            />
+                          </IconButton>
+                        )}
+                        {onDeleteTag && (
+                          <IconButton
+                            onClick={(e) => handleDeleteClick(option, e)}
+                            sx={{
+                              padding: '2px',
+                              borderRadius: '50%',
+                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.5)' : 'rgba(211, 47, 47, 0.3)'}`,
+                              backgroundColor: 'transparent',
+                              width: '24px',
+                              height: '24px',
+                              minWidth: '24px',
+                              '&:hover': {
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.15)'
+                                  : 'rgba(211, 47, 47, 0.08)',
+                                borderColor: isSelected ? '#ffffff' : '#d32f2f',
+                              },
+                            }}
+                            aria-label={t(
+                              'documentManagement.tagging.deleteTag',
+                              'Tag löschen'
+                            )}
+                          >
+                            <DeleteIcon
+                              sx={{
+                                fontSize: '16px',
+                                color: isSelected ? '#ffffff' : '#d32f2f',
+                              }}
+                            />
+                          </IconButton>
+                        )}
+                      </Box>
+                    )}
+                  </Box>
                 </li>
               );
             }}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => {
-                const { key, ...chipProps } = getTagProps({ index });
-                return (
-                  <Chip
-                    key={key}
-                    label={option.name}
-                    size="small"
-                    {...chipProps}
-                  />
-                );
-              })
-            }
+            renderTags={(value, getTagProps) => {
+              const maxVisibleTags = 1;
+              const visibleTags = value.slice(0, maxVisibleTags);
+              const hiddenCount = value.length - maxVisibleTags;
+
+              return (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    width: 'auto',
+                    overflow: 'hidden',
+                    minWidth: 0,
+                    maxWidth: '100%',
+                    marginRight: 0.5,
+                  }}
+                >
+                  {visibleTags.map((option, index) => {
+                    const { key, ...chipProps } = getTagProps({ index });
+                    return (
+                      <Chip
+                        key={key}
+                        label={option.name}
+                        size="small"
+                        {...chipProps}
+                        sx={{
+                          maxWidth: '100px',
+                          minWidth: 0,
+                          height: '24px',
+                          flexShrink: 1,
+                          '& .MuiChip-label': {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            padding: '0 8px',
+                            display: 'block',
+                            maxWidth: '100%',
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                  {hiddenCount > 0 && (
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: '0.875rem',
+                        color: 'text.secondary',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      +{hiddenCount}
+                    </Box>
+                  )}
+                </Box>
+              );
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -290,16 +408,25 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                 }}
               />
             )}
-            sx={{
-              minWidth: { xs: '100%', md: 200 },
-              maxWidth: { xs: '100%', md: 300 },
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '999px',
-                backgroundColor: '#ffffff',
-                minHeight: 40,
-                '& fieldset': { borderColor: '#d1d9e6' },
-                '&:hover fieldset': { borderColor: '#002E6D' },
-                '&.Mui-focused fieldset': { borderColor: '#002E6D' },
+            slotProps={{
+              paper: {
+                sx: {
+                  borderRadius: '12px',
+                  marginTop: '0px',
+                  boxShadow: 'none',
+                  backgroundColor: 'rgba(252, 252, 252, 0.8)',
+                  border: 'none',
+                  '& .MuiAutocomplete-listbox': {
+                    borderRadius: '0px 0px 12px 12px',
+                    padding: '8px 0',
+                  },
+                },
+              },
+            }}
+            disableListWrap
+            ListboxProps={{
+              sx: {
+                borderRadius: '0px 0px 12px 12px',
               },
             }}
           />

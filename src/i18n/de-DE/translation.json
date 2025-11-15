@@ -82,7 +82,8 @@
       "manageTitle": "Sichtbarkeit einschränken",
       "manageDescription": "Wähle welche Studierendengruppen den Ordner sehen können sollen.",
       "parentRestrictionTitle": "Überordner Einschränkung",
-      "parentRestrictionContent": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden. Es muss mindestens eine hinzugefügt werden.",
+      "parentRestrictionContent1": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden.",
+      "parentRestrictionContent2": "Es muss mindestens eine hinzugefügt werden.",
       "save": "Speichern",
       "cancel": "Abbrechen",
       "currentGroups": "Zugewiesene Studierendengruppen",
@@ -125,12 +126,17 @@
       "delete": "Löschen",
       "filterPlaceholder": "Filter nach Tags",
       "tagPlaceholder": "Tag hinzufügen oder erstellen...",
+      "addTags": "Füge Tags hinzu",
       "editTag": "Tag bearbeiten",
       "deleteTag": "Tag löschen",
       "editTagTitle": "Tag bearbeiten",
       "deleteTagTitle": "Tag löschen",
+      "selectLabel": "Wähle Tags",
       "deleteTagMessage": "Möchten Sie den Tag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "tagName": "Tag-Name"
+      "tagName": "Tag-Name",
+      "hintTitle": "Hinweis",
+      "hintContent1": "Tags helfen dabei, Dokumente zu organisieren und zu filtern.",
+      "hintContent2": "Sie sind für alle BenutzerInnen sichtbar, die Zugriff auf betroffene Dokumente haben."
     },
     "snack": {
       "renamed": "Umbenannt",
