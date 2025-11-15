@@ -67,15 +67,21 @@ const TagEditor: React.FC<Props> = ({
   const handleChange = async (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
     const selectedUuids = typeof value === 'string' ? value.split(',') : value;
-    
+
     // Check if a new tag needs to be created
-    const newTagName = selectedUuids.find(uuid => !availableTags.some(tag => tag.uuid === uuid));
-    
-    if (newTagName && typeof newTagName === 'string' && newTagName.startsWith('__new__:')) {
+    const newTagName = selectedUuids.find(
+      (uuid) => !availableTags.some((tag) => tag.uuid === uuid)
+    );
+
+    if (
+      newTagName &&
+      typeof newTagName === 'string' &&
+      newTagName.startsWith('__new__:')
+    ) {
       const tagName = newTagName.replace('__new__:', '');
       try {
         const newTag = await createTag(tagName);
-        const otherSelectedTags = availableTags.filter(tag => 
+        const otherSelectedTags = availableTags.filter((tag) =>
           selectedUuids.includes(tag.uuid)
         );
         setSelectedTags([...otherSelectedTags, newTag]);
@@ -83,7 +89,7 @@ const TagEditor: React.FC<Props> = ({
         console.error('Failed to create tag:', error);
       }
     } else {
-      const newSelectedTags = availableTags.filter(tag => 
+      const newSelectedTags = availableTags.filter((tag) =>
         selectedUuids.includes(tag.uuid)
       );
       setSelectedTags(newSelectedTags);
@@ -91,23 +97,27 @@ const TagEditor: React.FC<Props> = ({
   };
 
   const handleDelete = (tagToDelete: TagEntity) => {
-    setSelectedTags(selectedTags.filter((tag) => tag.uuid !== tagToDelete.uuid));
+    setSelectedTags(
+      selectedTags.filter((tag) => tag.uuid !== tagToDelete.uuid)
+    );
   };
 
   const handleInputKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && inputValue.trim()) {
       event.preventDefault();
       const tagExists = availableTags.some(
-        tag => tag.name.toLowerCase() === inputValue.trim().toLowerCase()
+        (tag) => tag.name.toLowerCase() === inputValue.trim().toLowerCase()
       );
-      
+
       if (!tagExists) {
-        createTag(inputValue.trim()).then(newTag => {
-          setSelectedTags([...selectedTags, newTag]);
-          setInputValue('');
-        }).catch(error => {
-          console.error('Failed to create tag:', error);
-        });
+        createTag(inputValue.trim())
+          .then((newTag) => {
+            setSelectedTags([...selectedTags, newTag]);
+            setInputValue('');
+          })
+          .catch((error) => {
+            console.error('Failed to create tag:', error);
+          });
       }
     }
   };
@@ -143,12 +153,15 @@ const TagEditor: React.FC<Props> = ({
               labelId="tag-select-label"
               id="tag-select"
               multiple
-              value={selectedTags.map(tag => tag.uuid)}
+              value={selectedTags.map((tag) => tag.uuid)}
               onChange={handleChange}
               disabled={saving || loading}
               input={
                 <OutlinedInput
-                  label={t('documentManagement.tagging.selectLabel', 'Select Tags')}
+                  label={t(
+                    'documentManagement.tagging.selectLabel',
+                    'Select Tags'
+                  )}
                   onKeyDown={handleInputKeyDown}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
@@ -201,8 +214,10 @@ const TagEditor: React.FC<Props> = ({
                 </MenuItem>
               ) : (
                 availableTags.map((tag) => {
-                  const isSelected = selectedTags.some(t => t.uuid === tag.uuid);
-                  
+                  const isSelected = selectedTags.some(
+                    (t) => t.uuid === tag.uuid
+                  );
+
                   return (
                     <MenuItem key={tag.uuid} value={tag.uuid}>
                       <Checkbox
@@ -227,7 +242,11 @@ const TagEditor: React.FC<Props> = ({
                 })
               )}
             </Select>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 0.5 }}
+            >
               {t(
                 'documentManagement.tagging.tutorial',
                 'Type a tag here and press enter to create a new tag'
@@ -237,28 +256,30 @@ const TagEditor: React.FC<Props> = ({
 
           {/* Warning box for no selection */}
           {selectedTags.length >= 0 && (
-              <Box
-                sx={{ mt: 2, p: 1.5, backgroundColor: '#e3f2fd', borderRadius: 1 }}
-              >
-                <Typography variant="caption" color="text.secondary">
-                  <strong>
-                    {t(
-                      'documentManagement.tagging.hintTitle',
-                      'Note'
-                    )}
-                  </strong>
-                  <br />
-                  {t(
-                    'documentManagement.tagging.hintContent1',
-                    'This folder can only be assigned to student groups that are also assigned to its parent folder.'
-                  )}
-                  <br />
-                  {t(
-                    'documentManagement.tagging.hintContent2',
-                    'There has to be at least one student group assigned.'
-                  )}
-                </Typography>
-              </Box>
+            <Box
+              sx={{
+                mt: 2,
+                p: 1.5,
+                backgroundColor: '#e3f2fd',
+                borderRadius: 1,
+              }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                <strong>
+                  {t('documentManagement.tagging.hintTitle', 'Note')}
+                </strong>
+                <br />
+                {t(
+                  'documentManagement.tagging.hintContent1',
+                  'This folder can only be assigned to student groups that are also assigned to its parent folder.'
+                )}
+                <br />
+                {t(
+                  'documentManagement.tagging.hintContent2',
+                  'There has to be at least one student group assigned.'
+                )}
+              </Typography>
+            </Box>
           )}
         </Box>
       </DialogContent>

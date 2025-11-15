@@ -391,7 +391,7 @@ export default function FileExplorer(): React.ReactElement {
         }
 
         // For root folder, use items directly instead of calling getFolder('root')
-        let targetDocuments: Array<{id: string; name: string}> = [];
+        let targetDocuments: Array<{ id: string; name: string }> = [];
         if (targetFolderId === 'root') {
           targetDocuments = items
             .filter((i) => i.itemType === 'document')
@@ -415,7 +415,10 @@ export default function FileExplorer(): React.ReactElement {
           fileOps.setConflictPendingAction({
             overwrite: async () => {
               await api.deleteDocument(existingDoc.id);
-              await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -440,7 +443,10 @@ export default function FileExplorer(): React.ReactElement {
               }
 
               await api.renameDocument(sourceId, newName);
-              await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -455,7 +461,10 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveDocument(sourceId, targetFolderId === 'root' ? undefined : targetFolderId);
+        await api.moveDocument(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
       }
 
       setItems((prev) => prev.filter((i) => i.id !== sourceId));

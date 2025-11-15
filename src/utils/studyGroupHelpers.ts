@@ -7,19 +7,25 @@
  * @param studyGroupIds - The studyGroupIds string from the API or array
  * @returns Array of study group IDs
  */
-export function parseStudyGroupIds(studyGroupIds?: string | string[] | { name: string }[]): string[] {
+export function parseStudyGroupIds(
+  studyGroupIds?: string | string[] | { name: string }[]
+): string[] {
   if (!studyGroupIds) return [];
-  
+
   // Handle array of strings
   if (Array.isArray(studyGroupIds)) {
     // If it's an array of objects with name property
-    if (studyGroupIds.length > 0 && typeof studyGroupIds[0] === 'object' && 'name' in studyGroupIds[0]) {
+    if (
+      studyGroupIds.length > 0 &&
+      typeof studyGroupIds[0] === 'object' &&
+      'name' in studyGroupIds[0]
+    ) {
       return (studyGroupIds as { name: string }[]).map((item) => item.name);
     }
     // If it's already an array of strings
     return studyGroupIds as string[];
   }
-  
+
   // Handle string case
   if (typeof studyGroupIds === 'string') {
     if (studyGroupIds.length === 0) return [];
@@ -32,7 +38,7 @@ export function parseStudyGroupIds(studyGroupIds?: string | string[] | { name: s
       .map((id) => id.replace(/'/g, '').trim())
       .filter((id) => id.length > 0);
   }
-  
+
   return [];
 }
 

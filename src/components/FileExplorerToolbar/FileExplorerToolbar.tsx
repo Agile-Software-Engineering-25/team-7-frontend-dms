@@ -197,7 +197,9 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             }}
             renderOption={(props, option) => {
               const { key, ...otherProps } = props;
-              const isSelected = selectedTags.some(tag => tag.uuid === option.uuid);
+              const isSelected = selectedTags.some(
+                (tag) => tag.uuid === option.uuid
+              );
               return (
                 <li
                   key={key}
@@ -221,7 +223,9 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                       backgroundColor: isSelected ? '#002E6D' : 'transparent',
                       transition: 'background-color 0.2s',
                       '&:hover': {
-                        backgroundColor: isSelected ? '#001f56' : 'rgba(17, 43, 215, 0.08)',
+                        backgroundColor: isSelected
+                          ? '#001f56'
+                          : 'rgba(17, 43, 215, 0.08)',
                       },
                     }}
                   >
@@ -263,7 +267,9 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                               height: '24px',
                               minWidth: '24px',
                               '&:hover': {
-                                backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 46, 109, 0.08)',
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.15)'
+                                  : 'rgba(0, 46, 109, 0.08)',
                                 borderColor: isSelected ? '#ffffff' : '#002E6D',
                               },
                             }}
@@ -273,7 +279,10 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                             )}
                           >
                             <EditIcon
-                              sx={{ fontSize: '16px', color: isSelected ? '#ffffff' : '#002E6D' }}
+                              sx={{
+                                fontSize: '16px',
+                                color: isSelected ? '#ffffff' : '#002E6D',
+                              }}
                             />
                           </IconButton>
                         )}
@@ -289,7 +298,9 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                               height: '24px',
                               minWidth: '24px',
                               '&:hover': {
-                                backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.15)' : 'rgba(211, 47, 47, 0.08)',
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.15)'
+                                  : 'rgba(211, 47, 47, 0.08)',
                                 borderColor: isSelected ? '#ffffff' : '#d32f2f',
                               },
                             }}
@@ -299,7 +310,10 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                             )}
                           >
                             <DeleteIcon
-                              sx={{ fontSize: '16px', color: isSelected ? '#ffffff' : '#d32f2f' }}
+                              sx={{
+                                fontSize: '16px',
+                                color: isSelected ? '#ffffff' : '#d32f2f',
+                              }}
                             />
                           </IconButton>
                         )}
