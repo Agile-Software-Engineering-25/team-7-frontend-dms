@@ -11,6 +11,7 @@ type Doc = {
   type?: string;
   parentId?: string;
   blob?: Blob;
+  tags?: string[];
 };
 
 type Folder = {
@@ -72,6 +73,12 @@ function genId() {
   return `mock-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+const mockTags = new Map<string, { uuid: string; name: string }>();
+const tagId1 = genId();
+const tagId2 = genId();
+mockTags.set(tagId1, { uuid: tagId1, name: 'Wichtig' });
+mockTags.set(tagId2, { uuid: tagId2, name: 'Prüfungsrelevant' });
+
 /**
  * In-memory mock API for DMS. Intentionally naive and synchronous-ish for
  * simple local development and tests. Data is not persisted across reloads.
@@ -129,31 +136,30 @@ export default function createMockApi() {
     infFolder.subfolders.push(binId);
 
     // Wirtschaftstrends.pptx und ETFs_explained.docx nur für BIN-T23
-    if (bin.jahr === '23') {
-      const wirtschaftId = 'pptx-23';
-      const wirtschaftDoc: Doc = {
-        id: wirtschaftId,
-        name: 'Wirtschaftstrends.pptx',
-        size: 500000,
-        createdDate: nowIso(),
-        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        parentId: binId,
-      };
-      documents.set(wirtschaftId, wirtschaftDoc);
-      binFolder.documents.push(wirtschaftId);
+    const wirtschaftId = 'pptx-23';
+    const wirtschaftDoc: Doc = {
+      id: wirtschaftId,
+      name: 'Wirtschaftstrends.pptx',
+      size: 500000,
+      createdDate: nowIso(),
+      type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      parentId: binId,
+      tags: [tagId1, tagId2],
+    };
+    documents.set(wirtschaftId, wirtschaftDoc);
+    binFolder.documents.push(wirtschaftId);
 
-      const etfsId = 'docx-etfs-23';
-      const etfsDoc: Doc = {
-        id: etfsId,
-        name: 'ETFs_explained.docx',
-        size: 42000,
-        createdDate: nowIso(),
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        parentId: binId,
-      };
-      documents.set(etfsId, etfsDoc);
-      binFolder.documents.push(etfsId);
-    }
+    const etfsId = 'docx-etfs-23';
+    const etfsDoc: Doc = {
+      id: etfsId,
+      name: 'ETFs_explained.docx',
+      size: 42000,
+      createdDate: nowIso(),
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      parentId: binId,
+    };
+    documents.set(etfsId, etfsDoc);
+    binFolder.documents.push(etfsId);
 
     // F1-FX Unterordner und PDF-Dokumente
     for (let f = 1; f <= bin.fCount; f++) {
@@ -340,6 +346,11 @@ export default function createMockApi() {
           size: dd.size,
           createdDate: dd.createdDate,
           downloadUrl: undefined,
+          tags: (dd.tags ?? [])
+            .map((tagUuid) => mockTags.get(tagUuid))
+            .filter(
+              (tag): tag is { uuid: string; name: string } => tag !== undefined
+            ),
         };
       }),
       studyGroupIds: f.studyGroupIds ?? '',
@@ -589,9 +600,6 @@ export default function createMockApi() {
     return { id: f.id, studyGroupIds };
   };
 
-  // Tag management (mock implementation)
-  const mockTags = new Map<string, { uuid: string; name: string }>();
-
   const getAllTags = async () => {
     return Array.from(mockTags.values());
   };
@@ -614,9 +622,11 @@ export default function createMockApi() {
     mockTags.delete(tagUuid);
   };
 
-  const updateDocumentTags = async () => {
-    // Mock implementation - in reality this would update document tags
-    return { success: true };
+  const updateDocumentTags = async (documentId: string, tagUuids: string[]) => {
+    const doc = documents.get(documentId);
+    if (!doc) throw new Error('Document not found');
+    doc.tags = tagUuids;
+    return { id: documentId, tags: tagUuids };
   };
 
   return {

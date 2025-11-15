@@ -116,6 +116,22 @@
       "pdf": "PDF"
     },
     "moreActions": "More actions",
+    "tagging": {
+      "manage": "Edit tags",
+      "instructions": "Add or remove tags from: ",
+      "tutorial": "Type a tag here and press Enter to create a new tag",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "filterPlaceholder": "Filter by tags",
+      "tagPlaceholder": "Add or create tag...",
+      "editTag": "Edit tag",
+      "deleteTag": "Delete tag",
+      "editTagTitle": "Edit Tag",
+      "deleteTagTitle": "Delete Tag",
+      "deleteTagMessage": "Are you sure you want to delete this tag? This action cannot be undone.",
+      "tagName": "Tag Name"
+    },
     "snack": {
       "renamed": "Renamed",
       "renameFailed": "Rename failed",

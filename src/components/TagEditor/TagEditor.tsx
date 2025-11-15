@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   Autocomplete,
   Box,
-  Button,
   Chip,
   CircularProgress,
   Dialog,
@@ -12,7 +11,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Button from '@mui/joy/Button';
 import type { TagEntity } from '@/@types/fileExplorer';
+import { useTranslation } from 'react-i18next';
 import useTags from '@hooks/useTags';
 
 type Props = {
@@ -35,6 +36,7 @@ const TagEditor: React.FC<Props> = ({
   const [selectedTags, setSelectedTags] = React.useState<TagEntity[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
+  const { t } = useTranslation();
 
   // Initialize selected tags when dialog opens or currentTags change
   React.useEffect(() => {
@@ -94,11 +96,17 @@ const TagEditor: React.FC<Props> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Manage Tags</DialogTitle>
+      <DialogTitle>
+        {t('documentManagement.tagging.manage', 'Manage Tags')}
+      </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 1 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Add or remove tags for: <strong>{documentName}</strong>
+            {t(
+              'documentManagement.tagging.instructions',
+              'Add or remove tags for: '
+            )}{' '}
+            <strong>{documentName}</strong>
           </Typography>
 
           <Autocomplete
@@ -138,7 +146,10 @@ const TagEditor: React.FC<Props> = ({
               <TextField
                 {...params}
                 label="Tags"
-                placeholder="Type to search or create new tag..."
+                placeholder={t(
+                  'documentManagement.tagging.tagPlaceholder',
+                  'Type to search or create new tag...'
+                )}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -167,21 +178,44 @@ const TagEditor: React.FC<Props> = ({
             color="text.secondary"
             sx={{ mt: 1, display: 'block' }}
           >
-            Type a tag name and press Enter to create a new tag
+            {t(
+              'documentManagement.tagging.tutorial',
+              'Type a tag here and press enter to create a new tag'
+            )}
           </Typography>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={saving}>
-          Cancel
-        </Button>
         <Button
           onClick={handleSave}
-          variant="contained"
           disabled={saving}
-          startIcon={saving ? <CircularProgress size={16} /> : null}
+          startDecorator={saving ? <CircularProgress size={16} /> : null}
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+            '--Button-minHeight': '34px',
+            '--Button-paddingInline': '16px',
+            '--Button-bg': '#002E6D',
+            '--Button-color': '#ffffff',
+            '--Button-hoverBg': '#001f56',
+            '--Button-activeBg': '#001a4a',
+            fontWeight: 600,
+          }}
         >
-          {saving ? 'Saving...' : 'Save'}
+          {t('documentManagement.tagging.save', 'Save')}
+        </Button>
+        <Button
+          onClick={onClose}
+          disabled={saving}
+          variant="plain"
+          sx={{
+            '--Button-radius': '8px',
+            '--Button-shadow': 'none',
+            '--Button-hoverShadow': 'none',
+          }}
+        >
+          {t('documentManagement.tagging.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -29,7 +29,7 @@ import DeleteConfirmDialog from '@components/DeleteConfirmDialog/DeleteConfirmDi
 import DeleteFolderConfirmDialog from '@components/DeleteFolderConfirmDialog/DeleteFolderConfirmDialog';
 import NewFolderDialog from '@components/NewFolderDialog/NewFolderDialog';
 import UploadDialog from '@components/UploadDialog/UploadDialog';
-import TagEditor from '@components/TagEditor/TagEditor';
+import TagEditor from '@/components/TagEditor/TagEditor';
 
 // Types and utils
 import type {
@@ -562,6 +562,8 @@ export default function FileExplorer(): React.ReactElement {
         selectedTags={selectedTags}
         onTagFilterChange={setSelectedTags}
         onRefetchTags={tagsHook.fetchTags}
+        onDeleteTag={tagsHook.deleteTag}
+        onUpdateTag={tagsHook.updateTag}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />

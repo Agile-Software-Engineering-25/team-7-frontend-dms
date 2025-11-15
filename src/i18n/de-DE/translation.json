@@ -44,7 +44,7 @@
       "loading": "Vorschau wird erstellt",
       "close": "Schließen",
       "noPreview": "Keine Vorschau verfügbar für "
-  },
+    },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -116,6 +116,22 @@
       "pdf": "PDF"
     },
     "moreActions": "Mehr Aktionen",
+    "tagging": {
+      "manage": "Tags bearbeiten",
+      "instructions": "Füge Tags hinzu oder entferne sie wieder von: ",
+      "tutorial": "Schreibe hier einen Tag und klicke auf Enter, um einen neuen Tag zu erstellen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "delete": "Löschen",
+      "filterPlaceholder": "Filter nach Tags",
+      "tagPlaceholder": "Tag hinzufügen oder erstellen...",
+      "editTag": "Tag bearbeiten",
+      "deleteTag": "Tag löschen",
+      "editTagTitle": "Tag bearbeiten",
+      "deleteTagTitle": "Tag löschen",
+      "deleteTagMessage": "Möchten Sie den Tag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "tagName": "Tag-Name"
+    },
     "snack": {
       "renamed": "Umbenannt",
       "renameFailed": "Umbenennung fehlgeschlagen",
@@ -123,7 +139,7 @@
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
       "noFiles": "Keine Dateien ausgewählt",
-  "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
+      "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei existiert bereits",
