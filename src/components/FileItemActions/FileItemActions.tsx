@@ -113,7 +113,7 @@ const FileItemActions: React.FC<Props> = ({
               onManageTags();
             }}
           >
-            {t('documentManagement.tags.manageTitle', 'Manage Tags')}
+            {t('documentManagement.tagging.manage', 'Manage Tags')}
           </MenuItem>
         )}
 
