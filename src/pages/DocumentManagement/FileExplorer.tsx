@@ -308,10 +308,7 @@ export default function FileExplorer(): React.ReactElement {
                 }
 
                 await api.renameFolder(sourceId, newName);
-                await api.moveFolder(
-                  sourceId,
-                  targetId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -325,10 +322,7 @@ export default function FileExplorer(): React.ReactElement {
             fileOps.setConflictPendingAction({
               overwrite: async () => {
                 await api.deleteFolder(existingFolder.id);
-                await api.moveFolder(
-                  sourceId,
-                  targetId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -345,10 +339,7 @@ export default function FileExplorer(): React.ReactElement {
                 }
 
                 await api.renameFolder(sourceId, newName);
-                await api.moveFolder(
-                  sourceId,
-                  targetId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -365,10 +356,7 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveFolder(
-          sourceId,
-          targetId
-        );
+        await api.moveFolder(sourceId, targetId);
       } else {
         // Document move logic
         // Note: getDocumentMetadata is optional, so we skip parent check if not available
@@ -422,10 +410,7 @@ export default function FileExplorer(): React.ReactElement {
           fileOps.setConflictPendingAction({
             overwrite: async () => {
               await api.deleteDocument(existingDoc.id);
-              await api.moveDocument(
-                sourceId,
-                targetId
-              );
+              await api.moveDocument(sourceId, targetId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -450,10 +435,7 @@ export default function FileExplorer(): React.ReactElement {
               }
 
               await api.renameDocument(sourceId, newName);
-              await api.moveDocument(
-                sourceId,
-                targetId
-              );
+              await api.moveDocument(sourceId, targetId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -468,10 +450,7 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveDocument(
-          sourceId,
-          targetId
-        );
+        await api.moveDocument(sourceId, targetId);
       }
 
       setItems((prev) => prev.filter((i) => i.id !== sourceId));
