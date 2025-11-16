@@ -283,6 +283,7 @@ export default function FileExplorer(): React.ReactElement {
         const targetFolderData = (await api.getFolder(
           targetFolderId
         )) as FolderResponse;
+        const targetId = targetFolderData?.id;
         const targetSubfolders = targetFolderData.subfolders || [];
         const sourceFolderData = (await api.getFolder(
           sourceId
@@ -309,7 +310,7 @@ export default function FileExplorer(): React.ReactElement {
                 await api.renameFolder(sourceId, newName);
                 await api.moveFolder(
                   sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
+                  targetId
                 );
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
@@ -326,7 +327,7 @@ export default function FileExplorer(): React.ReactElement {
                 await api.deleteFolder(existingFolder.id);
                 await api.moveFolder(
                   sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
+                  targetId
                 );
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
@@ -346,7 +347,7 @@ export default function FileExplorer(): React.ReactElement {
                 await api.renameFolder(sourceId, newName);
                 await api.moveFolder(
                   sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
+                  targetId
                 );
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
@@ -366,7 +367,7 @@ export default function FileExplorer(): React.ReactElement {
 
         await api.moveFolder(
           sourceId,
-          targetFolderId === 'root' ? undefined : targetFolderId
+          targetId
         );
       } else {
         // Document move logic
@@ -392,14 +393,20 @@ export default function FileExplorer(): React.ReactElement {
 
         // For root folder, use items directly instead of calling getFolder('root')
         let targetDocuments: Array<{ id: string; name: string }> = [];
+        let targetId = 'baseMoveId';
         if (targetFolderId === 'root') {
           targetDocuments = items
             .filter((i) => i.itemType === 'document')
             .map((i) => ({ id: i.id, name: i.name }));
+          const rootData = (await api.getFolder(
+            targetFolderId
+          )) as FolderResponse;
+          targetId = rootData?.id ?? 'root';
         } else {
           const targetFolderData = (await api.getFolder(
             targetFolderId
           )) as FolderResponse;
+          targetId = targetFolderData?.id ?? targetFolderId;
           targetDocuments = targetFolderData.documents || [];
         }
 
@@ -417,7 +424,7 @@ export default function FileExplorer(): React.ReactElement {
               await api.deleteDocument(existingDoc.id);
               await api.moveDocument(
                 sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
+                targetId
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
@@ -445,7 +452,7 @@ export default function FileExplorer(): React.ReactElement {
               await api.renameDocument(sourceId, newName);
               await api.moveDocument(
                 sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
+                targetId
               );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
@@ -463,7 +470,7 @@ export default function FileExplorer(): React.ReactElement {
 
         await api.moveDocument(
           sourceId,
-          targetFolderId === 'root' ? undefined : targetFolderId
+          targetId
         );
       }
 
