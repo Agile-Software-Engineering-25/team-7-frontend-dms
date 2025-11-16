@@ -27,7 +27,7 @@
     },
     "filter": {
       "button": "Filter (coming soon)",
-      "Placeholder": "Filter functionality coming soon."
+      "Placeholder": "Filter functionality coming soon"
     },
     "downloadDocument": {
       "button": "Download files",
@@ -59,7 +59,7 @@
     },
     "deleteFolderDialog": {
       "title": "Delete folder",
-      "message": "Deleting this folder will also delete all contained files. This action cannot be undone."
+      "message": "Deleting this folder will also delete all contained files This action cannot be undone"
     },
     "newFolder": {
       "title": "Create folder",
@@ -68,43 +68,45 @@
       "cancel": "Cancel"
     },
     "studyGroups": {
-      "loading": "Loading student groups...",
-      "loadError": "Error loading student group.",
+      "loading": "Loading student groups",
+      "loadError": "Error loading student group",
       "label": "student groups",
       "allGroups": "All student groups",
-      "noGroupsFromParent": "There are no student groups available from parent folder.",
-      "noGroups": "There are no student groups available.",
-      "restrictedInfo": "Selection is restricted to student groups from the parent folder.",
-      "noSelectionInfo": "No selection means that the folder visible to all students.",
-      "saved": "Student group updated successfully.",
-      "saveError": "Error updateing the student group.",
-      "failedSave": "Failed saving student group.",
+      "noGroupsFromParent": "There are no student groups available from parent folder",
+      "noGroups": "There are no student groups available",
+      "restrictedInfo": "Selection is restricted to student groups from the parent folder",
+      "noSelectionInfo": "No selection means that the folder visible to all students",
+      "saved": "Student group updated successfully",
+      "saveError": "Error updateing the student group",
+      "failedSave": "Failed saving student group",
       "manageTitle": "Restrict visibility",
-      "manageDescription": "Select which student groups should be able to see the folder.",
+      "manageDescription": "Select which student groups should be able to see the folder",
       "parentRestrictionTitle": "Parent folder restriction",
-      "parentRestrictionContent": "This folder can only be assigned to student groups that are also assigned to its parent folder. There has to be at least one student group assigned.",
+      "parentRestrictionContent1": "This folder can only be assigned to student groups that are also assigned to its parent folder",
+      "parentRestrictionContent2": "There has to be at least one student group assigned",
       "save": "Save",
       "cancel": "Cancel",
       "currentGroups": "Current student groups", 
       "addGroups": "Add group",
       "selectLabel": "Select student group",
-      "selectPlaceholder": "Please select a student group...",
+      "selectPlaceholder": "Please select a student group",
       "changesSummary": "Change preview:",
       "groupsAdded": "Group(s) are being added",
       "groupsRemoved": "Group(s) are being removed"
     },
     "moveDialog": {
       "title": "Move item",
-      "instruction": "Select a destination folder. You can move to parent folders or subfolders of the current directory.",
+      "instruction": "Select a destination folder You can move to parent folders or subfolders of the current directory",
       "currentFolder": "current folder",
       "selectedFolder": "Selected:",
+      "noFoldersAvailable": "No folders available",
       "cancel": "Cancel",
       "confirm": "Move"
     },
     "conflictDialog": {
       "title": "Name Conflict",
-      "messageFile": "A file with the name already exists in this directory.",
-      "messageFolder": "A folder with the name already exists in this directory.",
+      "messageFile": "A file with the name already exists in this directory",
+      "messageFolder": "A folder with the name already exists in this directory",
       "question": "What would you like to do?",
       "overwrite": "Overwrite",
       "autoRename": "Automatically Rename",
@@ -116,6 +118,29 @@
       "pdf": "PDF"
     },
     "moreActions": "More actions",
+    "tagging": {
+      "manage": "Edit tags",
+      "instructions": "Add or remove tags from: ",
+      "tutorial": "Type a tag here and press Enter to create a new tag",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "filterPlaceholder": "Filter by tags...",
+      "tagPlaceholder": "Add or create tag",
+      "addTags": "Add tags",
+      "editTag": "Edit tag",
+      "deleteTag": "Delete tag",
+      "selectLabel": "Select tags",
+      "deleteTagMessage": "Are you sure you want to delete this tag?",
+      "tagName": "Tag name or search",
+      "hintTitle": "Note",
+      "hintContent1": "Tags help to organize and filter documents",
+      "hintContent2": "They are visible to all users who have access to the affected documents",
+      "createNew": "Create new tag",
+      "addTagTitle": "Add new tag",
+      "add": "Add",
+      "newInstructions": "Create a new tag by entering its name below"
+    },
     "snack": {
       "renamed": "Renamed",
       "renameFailed": "Rename failed",
@@ -128,7 +153,7 @@
       "uploadFailed": "Upload failed",
       "duplicate": "File already exists",
       "downloaded": "Download started",
-      "downloadStarting": "Preparing download...",
+      "downloadStarting": "Preparing download",
       "downloadFailed": "Download failed",
       "noDocsInFolder": "No files or folders in current directory",
       "noSelection": "No selection",
@@ -137,9 +162,9 @@
       "createFailed": "Create failed",
       "moved": "Moved",
       "moveFailed": "Move failed",
-      "invalidMove": "Cannot move a folder into itself or its descendant.",
-      "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
-      "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
+      "invalidMove": "Cannot move a folder into itself or its descendant",
+      "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder",
+      "alreadyInFolderFile": "Cannot move file: it is already in the selected folder"
     },
     "root": "Home",
     "fileExplorer": "File Explorer"

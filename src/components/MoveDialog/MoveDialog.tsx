@@ -17,6 +17,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import HomeIcon from '@mui/icons-material/Home';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/joy/Button';
+import type { FolderResponse } from '@/@types/fileExplorer';
 
 type FolderNode = {
   id: string;
@@ -25,16 +26,6 @@ type FolderNode = {
   children?: FolderNode[];
   isExpanded?: boolean;
   isLoading?: boolean;
-};
-
-type FolderResponse = {
-  subfolders?: Array<{
-    id: string;
-    name: string;
-    parentId?: string;
-    createdDate?: string;
-  }>;
-  path?: Array<{ id: string; name: string }>;
 };
 
 type ApiInterface = {
@@ -78,17 +69,34 @@ const MoveDialog: React.FC<Props> = ({
     try {
       const availableFolders: FolderNode[] = [];
 
-      // 1. Add root only if we're NOT already in root directory
-      // Do not add root as a destination if currentFolderId is 'root'
-      if (currentFolderId !== 'root') {
+      // Check if the moveSourceId is directly in root (i.e., parent is 'root' or 'XRoot')
+      let moveSourceParentId: string | undefined;
+      if (moveSourceId) {
+        try {
+          const sourceData = await api.getFolder(moveSourceId);
+          // Get the parent ID from the source folder's metadata
+          moveSourceParentId = sourceData.folders?.parentId;
+        } catch {
+          // If we can't fetch the source, we'll skip the check
+        }
+      }
+
+      // Do not add root as a destination if:
+      // 1. currentFolderId is 'root', OR
+      // 2. the moveSourceId is directly in root (parent is 'root', 'XRoot', or undefined)
+      const isSourceInRoot =
+        moveSourceParentId === undefined ||
+        moveSourceParentId === 'root' ||
+        moveSourceParentId === 'XRoot';
+
+      if (currentFolderId !== 'root' && moveSourceId && !isSourceInRoot) {
         availableFolders.push({
           id: 'root',
-          name: 'root',
+          name: t('documentManagement.root', 'Home'),
           children: [],
         });
       }
 
-      // 2. Add parent folders (without their subfolders)
       // Only add parents if we're not in root, and exclude the current folder and the folder being moved
       const parentPath =
         currentFolderId !== 'root'
@@ -107,7 +115,6 @@ const MoveDialog: React.FC<Props> = ({
         });
       }
 
-      // 3. Add direct subfolders of current directory (but NOT their subfolders)
       // Exclude the folder being moved (moveSourceId)
       try {
         const currentData = await api.getFolder(currentFolderId);
@@ -212,13 +219,34 @@ const MoveDialog: React.FC<Props> = ({
         <Typography variant="body2" sx={{ mb: 2 }}>
           {t(
             'documentManagement.moveDialog.instruction',
-            'Wählen Sie einen Zielordner aus. Sie können in übergeordnete Ordner oder Unterordner des aktuellen Verzeichnisses verschieben.'
+            'Choose a target folder'
           )}
         </Typography>
 
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
+          </Box>
+        ) : folderTree.length === 0 ? (
+          <Box
+            sx={{
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+              bgcolor: 'background.paper',
+              p: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: 100,
+            }}
+          >
+            <Typography variant="body2" color="textSecondary">
+              {t(
+                'documentManagement.moveDialog.noFoldersAvailable',
+                'No folders available'
+              )}
+            </Typography>
           </Box>
         ) : (
           <List

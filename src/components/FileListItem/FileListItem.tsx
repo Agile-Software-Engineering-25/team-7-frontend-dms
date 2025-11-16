@@ -172,7 +172,7 @@ const FileListItem: React.FC<Props> = ({
               </Typography>
             </Box>
             {item.tags && item.tags.length > 0 && (
-              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                 {item.tags.map((tag) => (
                   <Chip
                     key={tag.uuid}
@@ -181,8 +181,11 @@ const FileListItem: React.FC<Props> = ({
                     sx={{
                       height: 20,
                       fontSize: '0.75rem',
-                      backgroundColor: '#E3F2FD',
-                      color: '#1976D2',
+                      backgroundColor: '#061e40ff',
+                      color: '#b1ceeaff',
+                      ml: -0.5,
+                      mt: 0.5,
+                      mb: 0.5,
                     }}
                   />
                 ))}

@@ -59,28 +59,38 @@ export function useStudyGroups() {
   const getParentFolderGroups = useCallback(
     async (folderId: string): Promise<string[] | undefined> => {
       try {
+        // Get the current folder
         const folderData = (await api.getFolder(folderId)) as FolderResponse;
-        const parentId = folderData.folders?.parentId;
+        const parentId = folderData.parentId;
 
-        const parentFolderData = (await api.getFolder(
-          parentId ?? 'root'
-        )) as FolderResponse;
-        if (parentFolderData.name === 'root') {
-          return [];
+        // If no parent or parent is root, no restriction (undefined = show all groups)
+        if (!parentId || parentId === 'root') {
+          return undefined;
         }
+
+        // Get parent folder data
+        const parentFolderData = (await api.getFolder(
+          parentId
+        )) as FolderResponse;
+
+        // Check if parent is root by checking if it has no parentId
+        if (!parentFolderData.parentId) {
+          return undefined; // No restriction - show all groups
+        }
+
+        // Parse parent's study group IDs (handles both string and array formats)
         const parentGroups = parseStudyGroupIds(parentFolderData.studyGroupIds);
 
-        // If parent has no groups assigned (length === 0), it's public to all groups
         // Return undefined to allow all groups to be selected
         if (parentGroups.length === 0) {
-          return [];
+          return undefined; // No restriction - show all groups
         }
 
-        // Parent has specific groups, so restrict to those groups
+        // Parent has specific groups - restrict to those groups
         return parentGroups;
       } catch (error) {
         console.error('Failed to get parent folder groups:', error);
-        return undefined;
+        return undefined; // On error, don't restrict
       }
     },
     [api]

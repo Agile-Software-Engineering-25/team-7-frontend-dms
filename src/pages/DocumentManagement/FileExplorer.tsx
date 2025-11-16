@@ -29,7 +29,7 @@ import DeleteConfirmDialog from '@components/DeleteConfirmDialog/DeleteConfirmDi
 import DeleteFolderConfirmDialog from '@components/DeleteFolderConfirmDialog/DeleteFolderConfirmDialog';
 import NewFolderDialog from '@components/NewFolderDialog/NewFolderDialog';
 import UploadDialog from '@components/UploadDialog/UploadDialog';
-import TagEditor from '@components/TagEditor/TagEditor';
+import TagEditor from '@/components/TagEditor/TagEditor';
 
 // Types and utils
 import type {
@@ -390,10 +390,19 @@ export default function FileExplorer(): React.ReactElement {
           }
         }
 
-        const targetFolderData = (await api.getFolder(
-          targetFolderId
-        )) as FolderResponse;
-        const targetDocuments = targetFolderData.documents || [];
+        // For root folder, use items directly instead of calling getFolder('root')
+        let targetDocuments: Array<{ id: string; name: string }> = [];
+        if (targetFolderId === 'root') {
+          targetDocuments = items
+            .filter((i) => i.itemType === 'document')
+            .map((i) => ({ id: i.id, name: i.name }));
+        } else {
+          const targetFolderData = (await api.getFolder(
+            targetFolderId
+          )) as FolderResponse;
+          targetDocuments = targetFolderData.documents || [];
+        }
+
         const sourceDoc = items.find((i) => i.id === sourceId);
         const sourceDocName = sourceDoc?.name ?? '';
         const existingDoc = targetDocuments.find(
@@ -406,7 +415,10 @@ export default function FileExplorer(): React.ReactElement {
           fileOps.setConflictPendingAction({
             overwrite: async () => {
               await api.deleteDocument(existingDoc.id);
-              await api.moveDocument(sourceId, targetFolderId);
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -431,7 +443,10 @@ export default function FileExplorer(): React.ReactElement {
               }
 
               await api.renameDocument(sourceId, newName);
-              await api.moveDocument(sourceId, targetFolderId);
+              await api.moveDocument(
+                sourceId,
+                targetFolderId === 'root' ? undefined : targetFolderId
+              );
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -446,7 +461,10 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveDocument(sourceId, targetFolderId);
+        await api.moveDocument(
+          sourceId,
+          targetFolderId === 'root' ? undefined : targetFolderId
+        );
       }
 
       setItems((prev) => prev.filter((i) => i.id !== sourceId));
@@ -544,6 +562,12 @@ export default function FileExplorer(): React.ReactElement {
     }
   };
 
+  // Add this handler in FileExplorer component
+  const handleTagsChanged = async () => {
+    await tagsHook.fetchTags(); // Refresh tags in the filter dropdown
+    await refresh(); // Refresh document list
+  };
+
   return (
     <Box
       role="region"
@@ -561,7 +585,19 @@ export default function FileExplorer(): React.ReactElement {
         availableTags={tagsHook.tags}
         selectedTags={selectedTags}
         onTagFilterChange={setSelectedTags}
-        onRefetchTags={tagsHook.fetchTags}
+        onRefetchTags={async () => {
+          await tagsHook.fetchTags();
+          await refresh();
+        }}
+        onDeleteTag={async (tagUuid: string) => {
+          await tagsHook.deleteTag(tagUuid);
+          await refresh();
+        }}
+        onUpdateTag={async (tagUuid: string, newName: string) => {
+          const updatedTag = await tagsHook.updateTag(tagUuid, newName);
+          await refresh();
+          return updatedTag;
+        }}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
@@ -716,6 +752,7 @@ export default function FileExplorer(): React.ReactElement {
         documentName={tagEditorDocumentName}
         currentTags={tagEditorCurrentTags}
         onSave={handleSaveTags}
+        onTagsChanged={handleTagsChanged}
       />
 
       <FileViewer

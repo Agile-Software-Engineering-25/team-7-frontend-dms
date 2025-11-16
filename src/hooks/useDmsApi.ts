@@ -230,8 +230,9 @@ const useDmsApi = () => {
   const moveDocument = useCallback(
     async (id: string, folderId?: string) => {
       // PATCH document to update its parent folder. Backend may support other move semantics.
+      // When folderId is undefined, it means move to root (parentId should be null)
       const response = await axiosInstance.patch(`/dms/v1/documents/${id}`, {
-        folderId,
+        folderId: folderId ?? null,
       });
       return response.data;
     },
@@ -241,8 +242,9 @@ const useDmsApi = () => {
   const moveFolder = useCallback(
     async (id: string, parentId?: string) => {
       // PATCH folder to update its parent folder.
+      // When parentId is undefined, it means move to root (parentId should be null)
       const response = await axiosInstance.patch(`/dms/v1/folders/${id}`, {
-        parentId,
+        parentId: parentId ?? null,
       });
       return response.data;
     },

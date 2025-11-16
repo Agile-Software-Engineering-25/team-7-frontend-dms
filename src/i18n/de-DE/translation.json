@@ -27,7 +27,7 @@
     },
     "filter": {
       "button": "Filter (bald verfügbar)",
-      "placeholder": "Filter bald verfügbar."
+      "placeholder": "Filter bald verfügbar"
     },
     "downloadDocument": {
       "button": "Dateien herunterladen",
@@ -44,7 +44,7 @@
       "loading": "Vorschau wird erstellt",
       "close": "Schließen",
       "noPreview": "Keine Vorschau verfügbar für "
-  },
+    },
     "renameDialog": {
       "title": "Umbenennen",
       "label": "Neuer Name",
@@ -59,7 +59,7 @@
     },
     "deleteFolderDialog": {
       "title": "Ordner löschen",
-      "message": "Beim Löschen dieses Ordners werden auch alle enthaltenen Dateien gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+      "message": "Beim Löschen dieses Ordners werden auch alle enthaltenen Dateien gelöscht"
     },
     "newFolder": {
       "title": "Ordner erstellen",
@@ -68,43 +68,46 @@
       "cancel": "Abbrechen"
     },
     "studyGroups": {
-      "loading": "Studierendengruppen werden geladen...",
-      "loadError": "Fehler beim laden der Studierendengruppen.",
+      "loading": "Studierendengruppen werden geladen",
+      "loadError": "Fehler beim laden der Studierendengruppen",
       "label": "Studierendengruppen",
       "allGroups": "Alle Studierendengruppen",
-      "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar.",
-      "noGroups": "Es sind keine Studierendengruppen verfügbar.",
-      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners.",
-      "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für alle sichtbar sein wird.",
+      "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar",
+      "noGroups": "Es sind keine Studierendengruppen verfügbar",
+      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners",
+      "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für alle sichtbar sein wird",
+      "noSelectionInfoRestricted": "Keine Auswahl bedeutet, dass der Ordner für alle Studierendengruppen des Überordners sichtbar sein wird",
       "saved": "Studierendengruppe wurde erfolgreich aktualisiert",
       "saveError": "Fehler beim Aktualisieren der Studierendengruppe",
-      "failedSave": "Studierendengruppen konnten nicht gespeichert werden.",
+      "failedSave": "Studierendengruppen konnten nicht gespeichert werden",
       "manageTitle": "Sichtbarkeit einschränken",
-      "manageDescription": "Wähle welche Studierendengruppen den Ordner sehen können sollen.",
+      "manageDescription": "Wähle welche Studierendengruppen den Ordner sehen können sollen",
       "parentRestrictionTitle": "Überordner Einschränkung",
-      "parentRestrictionContent": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden. Es muss mindestens eine hinzugefügt werden.",
+      "parentRestrictionContent1": "Diesem Ordner können nur Studierendengruppen aus dessen Überorder eingefügt werden",
+      "parentRestrictionContent2": "Es muss mindestens eine hinzugefügt werden",
       "save": "Speichern",
       "cancel": "Abbrechen",
       "currentGroups": "Zugewiesene Studierendengruppen",
-      "addGroups": "Studierendengruppe hinzufügen",
+      "addGroups": "Studierendengruppe auswählen, um Ihnen diesen Ordner zur Verfügung zu stellen",
       "selectLabel": "Studierendengruppe auswählen",
-      "selectPlaceholder": "Bitte wählen Sie eine Studierendengruppe aus...",
+      "selectPlaceholder": "Bitte wählen Sie eine Studierendengruppe aus",
       "changesSummary": "Vorschau der Änderungen:",
       "groupsAdded": "Gruppe(n) werden hinzugefügt",
       "groupsRemoved": "Gruppe(n) werden entfernt"
     },
     "moveDialog": {
       "title": "Element verschieben",
-      "instruction": "Wählen Sie einen Zielordner aus. Sie können in übergeordnete Ordner oder Unterordner des aktuellen Verzeichnisses verschieben.",
+      "instruction": "Wählen Sie einen Zielordner aus Sie können in übergeordnete Ordner oder Unterordner des aktuellen Verzeichnisses verschieben",
       "currentFolder": "aktueller Ordner",
       "selectedFolder": "Ausgewählt:",
+      "noFoldersAvailable": "Keine Ordner verfügbar",
       "cancel": "Abbrechen",
       "confirm": "Verschieben"
     },
     "conflictDialog": {
       "title": "Namenskonflikt",
-      "messageFile": "Eine Datei mit dem Namen existiert bereits in diesem Verzeichnis.",
-      "messageFolder": "Ein Ordner mit dem Namen existiert bereits in diesem Verzeichnis.",
+      "messageFile": "Eine Datei mit dem Namen existiert bereits in diesem Verzeichnis",
+      "messageFolder": "Ein Ordner mit dem Namen existiert bereits in diesem Verzeichnis",
       "question": "Was möchten Sie tun?",
       "overwrite": "Überschreiben",
       "autoRename": "Automatisch umbenennen",
@@ -116,6 +119,31 @@
       "pdf": "PDF"
     },
     "moreActions": "Mehr Aktionen",
+    "tagging": {
+      "manage": "Tags bearbeiten",
+      "instructions": "Füge Tags hinzu oder entferne sie wieder von: ",
+      "tutorial": "Schreibe hier einen Tag und klicke auf Enter, um einen neuen Tag zu erstellen",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "delete": "Löschen",
+      "filterPlaceholder": "Filtern nach Tags...",
+      "tagPlaceholder": "Tag hinzufügen oder erstellen",
+      "addTags": "Füge Tags hinzu",
+      "editTag": "Tag bearbeiten",
+      "deleteTag": "Tag löschen",
+      "selectLabel": "Wähle Tags",
+      "deleteTagMessage": "Möchten Sie den Tag wirklich löschen?",
+      "deleteTagInfo": "Tags können nur gelöscht werden, wenn sie keinem Dokument zugwiesen sind",
+      "deleteTagWarning": "Diese Aktion kann nicht rückgängig gemacht werden",
+      "tagName": "Tag Name eingeben",
+      "hintTitle": "Hinweis",
+      "hintContent1": "Tags helfen dabei, Dokumente zu organisieren und zu filtern",
+      "hintContent2": "Sie sind für alle BenutzerInnen sichtbar, die Zugriff auf betroffene Dokumente haben",
+      "createNew": "Neuen Tag erstellen",
+      "addTagTitle": "Neuen Tag hinzufügen",
+      "add": "Hinzufügen",
+      "newInstructions": "Erstellen Sie einen neuen Tag, indem Sie seinen Namen unten eingeben"
+    },
     "snack": {
       "renamed": "Umbenannt",
       "renameFailed": "Umbenennung fehlgeschlagen",
@@ -123,12 +151,12 @@
       "deleteFailed": "Löschen fehlgeschlagen",
       "created": "Erstellt",
       "noFiles": "Keine Dateien ausgewählt",
-  "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
+      "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
       "duplicate": "Datei existiert bereits",
       "downloaded": "Download gestartet",
-      "downloadStarting": "Download wir vorbereitet...",
+      "downloadStarting": "Download wir vorbereitet",
       "downloadFailed": "Download fehlgeschlagen",
       "noDocsInFolder": "Es gibt keine Dateien oder Ordner im aktuellen Verzeichnis",
       "noSelection": "Keine Auswahl",
@@ -137,9 +165,9 @@
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",
       "moveFailed": "Verschieben fehlgeschlagen",
-      "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden.",
-      "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner.",
-      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner."
+      "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden",
+      "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner",
+      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner"
     },
     "root": "Startseite",
     "fileExplorer": "Datei-Explorer"
