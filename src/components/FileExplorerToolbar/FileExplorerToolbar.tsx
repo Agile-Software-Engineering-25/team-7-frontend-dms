@@ -13,13 +13,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import TagActionButtons from '../TagActionButtons/TagActionButtons';
+import AddIcon from '@mui/icons-material/Add';
 import { useTranslation } from 'react-i18next';
 import type { TagEntity } from '@/@types/fileExplorer';
 import DeleteTagDialog from '../DeleteTagDialog/DeleteTagDialog';
 import ManageTagDialog from '../ManageTagDialog/ManageTagDialog';
 import { useCanAccess } from '@/lib/permissions';
+import useTags from '@/hooks/useTags';
 
 type FileExplorerToolbarProps = {
   searchQuery: string;
@@ -35,6 +36,7 @@ type FileExplorerToolbarProps = {
   onRefetchTags?: () => void;
   onDeleteTag?: (tagUuid: string) => Promise<void>;
   onUpdateTag?: (tagUuid: string, newName: string) => Promise<TagEntity>;
+  showSnack?: (msg: string, severity?: 'success' | 'error' | 'info') => void;
 };
 
 const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
@@ -48,16 +50,20 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
   availableTags = [],
   selectedTags = [],
   onTagFilterChange,
-  onRefetchTags,
   onDeleteTag,
   onUpdateTag,
+  onRefetchTags,
+  showSnack,
 }) => {
   const { t } = useTranslation();
   const { canAccess } = useCanAccess();
+  const { createTag, fetchTags } = useTags();
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
   const [selectedTag, setSelectedTag] = React.useState<TagEntity | null>(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const [filterInputValue, setFilterInputValue] = React.useState('');
+  const [isCreatingTag, setIsCreatingTag] = React.useState(false);
 
   const canManageDocuments = canAccess('manageDocuments');
 
@@ -79,10 +85,39 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
     setIsProcessing(true);
     try {
       await onDeleteTag(selectedTag.uuid);
+
+      // Remove deleted tag from selected tags
+      if (onTagFilterChange) {
+        const updatedSelectedTags = selectedTags.filter(
+          (tag) => tag.uuid !== selectedTag.uuid
+        );
+        onTagFilterChange(updatedSelectedTags);
+      }
+
+      // Refetch tags to update all components
+      await fetchTags();
+      if (onRefetchTags) {
+        await onRefetchTags();
+      }
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleted', 'Tag deleted'),
+          'success'
+        );
+      }
+
       setDeleteDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to delete tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleteFailed', 'Tag deletion failed'),
+          'error'
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -93,11 +128,40 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
 
     setIsProcessing(true);
     try {
-      await onUpdateTag(selectedTag.uuid, newName);
+      const updatedTag = await onUpdateTag(selectedTag.uuid, newName);
+
+      // Update the tag in selected tags if it was selected
+      if (onTagFilterChange) {
+        const updatedSelectedTags = selectedTags.map((tag) =>
+          tag.uuid === selectedTag.uuid ? updatedTag : tag
+        );
+        onTagFilterChange(updatedSelectedTags);
+      }
+
+      // Refetch tags to update all components
+      await fetchTags();
+      if (onRefetchTags) {
+        await onRefetchTags();
+      }
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdated', 'Tag updated'),
+          'success'
+        );
+      }
+
       setEditDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to update tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdateFailed', 'Tag update failed'),
+          'error'
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -108,6 +172,45 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
       setDeleteDialogOpen(false);
       setEditDialogOpen(false);
       setSelectedTag(null);
+    }
+  };
+
+  const handleCreateFilterTag = async () => {
+    if (!filterInputValue.trim()) return;
+
+    const tagExists = availableTags.some(
+      (tag) => tag.name.toLowerCase() === filterInputValue.trim().toLowerCase()
+    );
+
+    if (tagExists) return;
+
+    setIsCreatingTag(true);
+    try {
+      const newTag = await createTag(filterInputValue.trim());
+      await fetchTags();
+      if (onRefetchTags) {
+        await onRefetchTags();
+      }
+      onTagFilterChange?.([...selectedTags, newTag]);
+      setFilterInputValue('');
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreated', 'Tag created'),
+          'success'
+        );
+      }
+    } catch (error) {
+      console.error('Failed to create tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreateFailed', 'Tag creation failed'),
+          'error'
+        );
+      }
+    } finally {
+      setIsCreatingTag(false);
     }
   };
 
@@ -162,10 +265,18 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             options={availableTags}
             value={selectedTags}
             onChange={(_event, newValue) => onTagFilterChange(newValue)}
-            onOpen={() => onRefetchTags?.()}
+            onOpen={() => fetchTags()}
+            inputValue={filterInputValue}
+            onInputChange={(_event, newInputValue) =>
+              setFilterInputValue(newInputValue)
+            }
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
             disableCloseOnSelect
+            noOptionsText={t('common.noOptions', 'No options availbale')}
+            clearText={t('common.clear', 'Delete')}
+            closeText={t('common.close', 'Close')}
+            openText={t('common.open', 'Open')}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -255,68 +366,12 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                           width: 'auto',
                         }}
                       >
-                        {onUpdateTag && (
-                          <IconButton
-                            onClick={(e) => handleEditClick(option, e)}
-                            sx={{
-                              padding: '2px',
-                              borderRadius: '100%',
-                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 46, 109, 0.3)'}`,
-                              backgroundColor: 'transparent',
-                              width: '24px',
-                              height: '24px',
-                              minWidth: '24px',
-                              '&:hover': {
-                                backgroundColor: isSelected
-                                  ? 'rgba(255, 255, 255, 0.15)'
-                                  : 'rgba(0, 46, 109, 0.08)',
-                                borderColor: isSelected ? '#ffffff' : '#002E6D',
-                              },
-                            }}
-                            aria-label={t(
-                              'documentManagement.tagging.editTag',
-                              'Tag bearbeiten'
-                            )}
-                          >
-                            <EditIcon
-                              sx={{
-                                fontSize: '16px',
-                                color: isSelected ? '#ffffff' : '#002E6D',
-                              }}
-                            />
-                          </IconButton>
-                        )}
-                        {onDeleteTag && (
-                          <IconButton
-                            onClick={(e) => handleDeleteClick(option, e)}
-                            sx={{
-                              padding: '2px',
-                              borderRadius: '50%',
-                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.5)' : 'rgba(211, 47, 47, 0.3)'}`,
-                              backgroundColor: 'transparent',
-                              width: '24px',
-                              height: '24px',
-                              minWidth: '24px',
-                              '&:hover': {
-                                backgroundColor: isSelected
-                                  ? 'rgba(255, 255, 255, 0.15)'
-                                  : 'rgba(211, 47, 47, 0.08)',
-                                borderColor: isSelected ? '#ffffff' : '#d32f2f',
-                              },
-                            }}
-                            aria-label={t(
-                              'documentManagement.tagging.deleteTag',
-                              'Tag löschen'
-                            )}
-                          >
-                            <DeleteIcon
-                              sx={{
-                                fontSize: '16px',
-                                color: isSelected ? '#ffffff' : '#d32f2f',
-                              }}
-                            />
-                          </IconButton>
-                        )}
+                        <TagActionButtons
+                          tag={option}
+                          onEdit={onUpdateTag ? handleEditClick : undefined}
+                          onDelete={onDeleteTag ? handleDeleteClick : undefined}
+                          isSelected={isSelected}
+                        />
                       </Box>
                     )}
                   </Box>
@@ -382,39 +437,84 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                 </Box>
               );
             }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder={t(
-                  'documentManagement.tagging.filterPlaceholder',
-                  'Filter nach Tags'
-                )}
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <>
-                      <InputAdornment position="start">
-                        <FilterListIcon
-                          fontSize="medium"
-                          sx={{
-                            color: '#002E6D',
-                            paddingLeft: '8px',
-                          }}
-                        />
-                      </InputAdornment>
-                      {params.InputProps.startAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
+            renderInput={(params) => {
+              const hasNoMatch =
+                filterInputValue.trim() &&
+                !availableTags.some(
+                  (tag) =>
+                    tag.name.toLowerCase() ===
+                    filterInputValue.trim().toLowerCase()
+                );
+
+              return (
+                <TextField
+                  {...params}
+                  placeholder={t(
+                    'documentManagement.tagging.filterPlaceholder',
+                    'Filter by tags...'
+                  )}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <InputAdornment position="start">
+                          <FilterListIcon
+                            fontSize="medium"
+                            sx={{
+                              color: '#002E6D',
+                              paddingLeft: '8px',
+                            }}
+                          />
+                        </InputAdornment>
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
+                    endAdornment: (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                        }}
+                      >
+                        {hasNoMatch && (
+                          <IconButton
+                            size="small"
+                            onClick={handleCreateFilterTag}
+                            disabled={isCreatingTag}
+                            title={t(
+                              'documentManagement.tagging.createNew',
+                              'Neuen Tag erstellen'
+                            )}
+                            sx={{
+                              color: '#rgba(255, 255, 255, 0.5)',
+                              padding: '4px',
+                              '&:hover': {
+                                backgroundColor: '#001f56',
+                              },
+                              '&:disabled': {
+                                backgroundColor: '#002E6D',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                              },
+                            }}
+                          >
+                            <AddIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                        {params.InputProps.endAdornment}
+                      </Box>
+                    ),
+                  }}
+                />
+              );
+            }}
             slotProps={{
               paper: {
                 sx: {
                   borderRadius: '12px',
                   marginTop: '0px',
                   boxShadow: 'none',
-                  backgroundColor: 'rgba(252, 252, 252, 0.8)',
+                  backgroundColor: 'rgba(252, 252, 252, 0.9)',
                   border: 'none',
                   '& .MuiAutocomplete-listbox': {
                     borderRadius: '0px 0px 12px 12px',
@@ -458,18 +558,18 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             onClick={onUploadClick}
             startDecorator={<UploadIcon fontSize="small" />}
           >
-            {t('documentManagement.uploadDocument.button', 'Datei hochladen')}
+            {t('documentManagement.uploadDocument.button', 'Upload file')}
           </Button>
         )}
         <Button
           size="sm"
           aria-label={t(
             'documentManagement.downloadDocument.button',
-            'Dateien herunterladen'
+            'Download files'
           )}
           aria-describedby={t(
             'documentManagement.downloadDocument.description',
-            'Lädt jede Datei innerhalb des jetzigen Ordners herunter'
+            'Downloads every file within the current folder'
           )}
           sx={{
             '--Button-radius': '8px',
@@ -486,18 +586,15 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
           onClick={onDownloadClick}
           startDecorator={<DownloadIcon fontSize="small" />}
         >
-          {t(
-            'documentManagement.downloadDocument.button',
-            'Dateien herunterladen'
-          )}
+          {t('documentManagement.downloadDocument.button', 'Download files')}
         </Button>
         {canManage && (
           <IconButton
             aria-label={t(
               'documentManagement.newFolder.title',
-              'Ordner erstellen'
+              'Create folder'
             )}
-            title={t('documentManagement.newFolder.title', 'Ordner erstellen')}
+            title={t('documentManagement.newFolder.title', 'Create folder')}
             onClick={onCreateFolderClick}
             sx={{
               width: 40,

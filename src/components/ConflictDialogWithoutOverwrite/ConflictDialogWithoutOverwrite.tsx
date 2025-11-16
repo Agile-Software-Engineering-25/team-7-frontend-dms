@@ -36,7 +36,7 @@ export const ConflictDialogWithoutOverwrite: React.FC<
       <DialogTitle id="conflict-dialog-title">
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <WarningAmberIcon color="warning" />
-          {t('documentManagement.conflictDialog.title', 'Namenskonflikt')}
+          {t('documentManagement.conflictDialog.title', 'Name conflict')}
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -98,7 +98,7 @@ export const ConflictDialogWithoutOverwrite: React.FC<
             py: 1,
           }}
         >
-          {t('documentManagement.conflictDialog.cancel', 'Abbrechen')}
+          {t('documentManagement.conflictDialog.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

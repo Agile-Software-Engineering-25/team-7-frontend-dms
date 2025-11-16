@@ -194,14 +194,14 @@ export default function FileExplorer(): React.ReactElement {
     try {
       await tagsHook.updateDocumentTags(tagEditorDocumentId, tagUuids);
       fileOps.showSnack(
-        t('documentManagement.tags.saved', 'Tags updated'),
+        t('documentManagement.tagging.saved', 'Tags updated'),
         'success'
       );
       await refresh();
     } catch (error) {
       console.error('Failed to save tags:', error);
       fileOps.showSnack(
-        t('documentManagement.tags.saveFailed', 'Failed to update tags'),
+        t('documentManagement.taggging.saveFailed', 'Failed to update tags'),
         'error'
       );
       throw error;
@@ -283,6 +283,7 @@ export default function FileExplorer(): React.ReactElement {
         const targetFolderData = (await api.getFolder(
           targetFolderId
         )) as FolderResponse;
+        const targetId = targetFolderData?.id;
         const targetSubfolders = targetFolderData.subfolders || [];
         const sourceFolderData = (await api.getFolder(
           sourceId
@@ -307,10 +308,7 @@ export default function FileExplorer(): React.ReactElement {
                 }
 
                 await api.renameFolder(sourceId, newName);
-                await api.moveFolder(
-                  sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -324,10 +322,7 @@ export default function FileExplorer(): React.ReactElement {
             fileOps.setConflictPendingAction({
               overwrite: async () => {
                 await api.deleteFolder(existingFolder.id);
-                await api.moveFolder(
-                  sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -344,10 +339,7 @@ export default function FileExplorer(): React.ReactElement {
                 }
 
                 await api.renameFolder(sourceId, newName);
-                await api.moveFolder(
-                  sourceId,
-                  targetFolderId === 'root' ? undefined : targetFolderId
-                );
+                await api.moveFolder(sourceId, targetId);
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
@@ -364,10 +356,7 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveFolder(
-          sourceId,
-          targetFolderId === 'root' ? undefined : targetFolderId
-        );
+        await api.moveFolder(sourceId, targetId);
       } else {
         // Document move logic
         // Note: getDocumentMetadata is optional, so we skip parent check if not available
@@ -392,14 +381,20 @@ export default function FileExplorer(): React.ReactElement {
 
         // For root folder, use items directly instead of calling getFolder('root')
         let targetDocuments: Array<{ id: string; name: string }> = [];
+        let targetId = 'baseMoveId';
         if (targetFolderId === 'root') {
           targetDocuments = items
             .filter((i) => i.itemType === 'document')
             .map((i) => ({ id: i.id, name: i.name }));
+          const rootData = (await api.getFolder(
+            targetFolderId
+          )) as FolderResponse;
+          targetId = rootData?.id ?? 'root';
         } else {
           const targetFolderData = (await api.getFolder(
             targetFolderId
           )) as FolderResponse;
+          targetId = targetFolderData?.id ?? targetFolderId;
           targetDocuments = targetFolderData.documents || [];
         }
 
@@ -415,10 +410,7 @@ export default function FileExplorer(): React.ReactElement {
           fileOps.setConflictPendingAction({
             overwrite: async () => {
               await api.deleteDocument(existingDoc.id);
-              await api.moveDocument(
-                sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
-              );
+              await api.moveDocument(sourceId, targetId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -443,10 +435,7 @@ export default function FileExplorer(): React.ReactElement {
               }
 
               await api.renameDocument(sourceId, newName);
-              await api.moveDocument(
-                sourceId,
-                targetFolderId === 'root' ? undefined : targetFolderId
-              );
+              await api.moveDocument(sourceId, targetId);
               setItems((prev) => prev.filter((i) => i.id !== sourceId));
               await refresh();
               fileOps.showSnack(
@@ -461,10 +450,7 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
-        await api.moveDocument(
-          sourceId,
-          targetFolderId === 'root' ? undefined : targetFolderId
-        );
+        await api.moveDocument(sourceId, targetId);
       }
 
       setItems((prev) => prev.filter((i) => i.id !== sourceId));
@@ -562,6 +548,12 @@ export default function FileExplorer(): React.ReactElement {
     }
   };
 
+  // Add this handler in FileExplorer component
+  const handleTagsChanged = async () => {
+    await tagsHook.fetchTags(); // Refresh tags in the filter dropdown
+    await refresh(); // Refresh document list
+  };
+
   return (
     <Box
       role="region"
@@ -579,9 +571,20 @@ export default function FileExplorer(): React.ReactElement {
         availableTags={tagsHook.tags}
         selectedTags={selectedTags}
         onTagFilterChange={setSelectedTags}
-        onRefetchTags={tagsHook.fetchTags}
-        onDeleteTag={tagsHook.deleteTag}
-        onUpdateTag={tagsHook.updateTag}
+        onRefetchTags={async () => {
+          await tagsHook.fetchTags();
+          await refresh();
+        }}
+        onDeleteTag={async (tagUuid: string) => {
+          await tagsHook.deleteTag(tagUuid);
+          await refresh();
+        }}
+        onUpdateTag={async (tagUuid: string, newName: string) => {
+          const updatedTag = await tagsHook.updateTag(tagUuid, newName);
+          await refresh();
+          return updatedTag;
+        }}
+        showSnack={fileOps.showSnack}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
@@ -736,6 +739,8 @@ export default function FileExplorer(): React.ReactElement {
         documentName={tagEditorDocumentName}
         currentTags={tagEditorCurrentTags}
         onSave={handleSaveTags}
+        onTagsChanged={handleTagsChanged}
+        showSnack={fileOps.showSnack}
       />
 
       <FileViewer

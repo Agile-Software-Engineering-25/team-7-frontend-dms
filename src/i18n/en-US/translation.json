@@ -1,9 +1,13 @@
 {
+  "common": {
+    "clear": "Clear",
+    "close": "Close",
+    "open": "Open",
+    "noOptions": "No options",
+    "delete": "Delete"
+  },
   "documentManagement": {
     "title": "Document Management",
-    "sidebarTitle": "DMS",
-    "actionsNote": "Manage files below",
-    "files": "Files",
     "rename": "Rename",
     "move": "Move",
     "delete": "Delete",
@@ -21,13 +25,7 @@
     },
     "search": {
       "searchbar": "searching in current folder",
-      "searchPlaceholder": "search",
-      "noResults": "no results found",
-      "queryPrefix": "for"
-    },
-    "filter": {
-      "button": "Filter (coming soon)",
-      "Placeholder": "Filter functionality coming soon."
+      "searchPlaceholder": "Search..."
     },
     "downloadDocument": {
       "button": "Download files",
@@ -41,9 +39,18 @@
     },
     "fileViewer": {
       "download": "Download",
-      "loading": "Preview is created",
       "close": "Close",
-      "noPreview": "No preview available for "
+      "noPreview": "No preview available",
+      "preview": "Preview of:",
+      "unknownFile": "Unknown File",
+      "unsupportedType": "File type not supported:",
+      "downloadInstead": "Please download the file to open it."
+    },
+    "viewer": {
+      "loading": "Loading preview..."
+    },
+    "preview": {
+      "creationError": "Error creating preview"
     },
     "renameDialog": {
       "title": "Rename",
@@ -59,7 +66,7 @@
     },
     "deleteFolderDialog": {
       "title": "Delete folder",
-      "message": "Deleting this folder will also delete all contained files. This action cannot be undone."
+      "message": "Deleting this folder will also delete all contained files This action cannot be undone"
     },
     "newFolder": {
       "title": "Create folder",
@@ -68,74 +75,63 @@
       "cancel": "Cancel"
     },
     "studyGroups": {
-      "loading": "Loading student groups...",
-      "loadError": "Error loading student group.",
-      "label": "student groups",
-      "allGroups": "All student groups",
-      "noGroupsFromParent": "There are no student groups available from parent folder.",
-      "noGroups": "There are no student groups available.",
-      "restrictedInfo": "Selection is restricted to student groups from the parent folder.",
-      "noSelectionInfo": "No selection means that the folder visible to all students.",
-      "saved": "Student group updated successfully.",
-      "saveError": "Error updateing the student group.",
-      "failedSave": "Failed saving student group.",
+      "loading": "Loading student groups",
+      "loadError": "Error loading student group",
+      "noGroupsFromParent": "There are no student groups available from parent folder",
+      "noGroups": "There are no student groups available",
+      "noSelectionInfo": "No selection means that the folder visible to all students",
+      "noSelectionInfoRestricted": "No selection means that the folder will be visible to all student groups from the parent folder",
+      "saved": "Student group updated successfully",
+      "failedSave": "Failed saving student group",
       "manageTitle": "Restrict visibility",
-      "manageDescription": "Select which student groups should be able to see the folder.",
+      "manageDescription": "Select which student groups should be able to see the folder",
       "parentRestrictionTitle": "Parent folder restriction",
-      "parentRestrictionContent1": "This folder can only be assigned to student groups that are also assigned to its parent folder.",
-      "parentRestrictionContent2": "There has to be at least one student group assigned.",
+      "parentRestrictionContent1": "This folder can only be assigned to student groups that are also assigned to its parent folder",
+      "parentRestrictionContent2": "There has to be at least one student group assigned",
       "save": "Save",
       "cancel": "Cancel",
-      "currentGroups": "Current student groups", 
-      "addGroups": "Add group",
-      "selectLabel": "Select student group",
-      "selectPlaceholder": "Please select a student group...",
-      "changesSummary": "Change preview:",
-      "groupsAdded": "Group(s) are being added",
-      "groupsRemoved": "Group(s) are being removed"
+      "selectLabel": "Select student group"
     },
     "moveDialog": {
       "title": "Move item",
-      "instruction": "Select a destination folder. You can move to parent folders or subfolders of the current directory.",
+      "instruction": "Select a destination folder You can move to parent folders or subfolders of the current directory",
       "currentFolder": "current folder",
       "selectedFolder": "Selected:",
+      "noFoldersAvailable": "No folders available",
       "cancel": "Cancel",
       "confirm": "Move"
     },
     "conflictDialog": {
       "title": "Name Conflict",
-      "messageFile": "A file with the name already exists in this directory.",
-      "messageFolder": "A folder with the name already exists in this directory.",
+      "messageFile": "A file with the name already exists in this directory",
+      "messageFolder": "A folder with the name already exists in this directory",
       "question": "What would you like to do?",
       "overwrite": "Overwrite",
       "autoRename": "Automatically Rename",
       "cancel": "Cancel"
     },
-    "type": {
-      "folder": "Folder",
-      "document": "File",
-      "pdf": "PDF"
-    },
+
     "moreActions": "More actions",
     "tagging": {
       "manage": "Edit tags",
       "instructions": "Add or remove tags from: ",
-      "tutorial": "Type a tag here and press Enter to create a new tag",
       "cancel": "Cancel",
       "save": "Save",
+      "saved": "Tags updated",
+      "failed": "Failed to update tags",
       "delete": "Delete",
-      "filterPlaceholder": "Filter by tags",
-      "tagPlaceholder": "Add or create tag...",
-      "addTags": "Add tags",
+      "filterPlaceholder": "Filter by tags...",
       "editTag": "Edit tag",
       "deleteTag": "Delete tag",
-      "editTagTitle": "Edit tag",
-      "deleteTagTitle": "Delete tag",
       "selectLabel": "Select tags",
-      "deleteTagMessage": "Are you sure you want to delete this tag? This action cannot be undone.",
-      "tagName": "Tag Name",
-      "hint": "Note",
-      "visibility": "Tags help to organize and filter documents. Make sure to add relevant tags to improve document visibility"
+      "deleteTagMessage": "Are you sure you want to delete this tag?",
+      "tagName": "Tag name or search",
+      "createNew": "Create new tag",
+      "addTagTitle": "Add new tag",
+      "add": "Add",
+      "newInstructions": "Create a new tag by entering its name below",
+      "loading": "Loading tags...",
+      "noTags": "No tags available"
     },
     "snack": {
       "renamed": "Renamed",
@@ -147,20 +143,24 @@
       "fileTooLarge": "File exceeds maximum size of 5 MB",
       "uploaded": "Uploaded successfully",
       "uploadFailed": "Upload failed",
-      "duplicate": "File already exists",
       "downloaded": "Download started",
-      "downloadStarting": "Preparing download...",
+      "downloadStarting": "Preparing download",
       "downloadFailed": "Download failed",
       "noDocsInFolder": "No files or folders in current directory",
-      "noSelection": "No selection",
       "noDocsInSelection": "No files in selection",
-      "previewFailed": "Preview failed",
       "createFailed": "Create failed",
       "moved": "Moved",
       "moveFailed": "Move failed",
-      "invalidMove": "Cannot move a folder into itself or its descendant.",
-      "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder.",
-      "alreadyInFolderFile": "Cannot move file: it is already in the selected folder."
+      "invalidMove": "Cannot move a folder into itself or its descendant",
+      "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder",
+      "alreadyInFolderFile": "Cannot move file: it is already in the selected folder",
+      "alreadyInFolderDocument": "Cannot move document: it is already in the selected folder",
+      "tagCreated": "Tag created",
+      "tagCreateFailed": "Tag creation failed",
+      "tagUpdated": "Tag updated",
+      "tagUpdateFailed": "Tag update failed",
+      "tagDeleted": "Tag deleted",
+      "tagDeleteFailed": "Tag deletion failed"
     },
     "root": "Home",
     "fileExplorer": "File Explorer"

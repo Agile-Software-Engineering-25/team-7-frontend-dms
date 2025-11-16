@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
+  DialogTitle,
   CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,26 @@ type FileViewerProps = {
   setLoading?: (v: boolean) => void;
 };
 
+// Allowed file types for preview
+const ALLOWED_PREVIEW_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'image/svg+xml',
+  'image/webp',
+  'text/plain',
+];
+
+// File types that need conversion (will be converted to PDF by backend)
+const CONVERTIBLE_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/msword', // .doc
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+  'application/vnd.ms-powerpoint', // .ppt
+];
+
 const FileViewer: React.FC<FileViewerProps> = ({
   open,
   onClose,
@@ -35,25 +56,36 @@ const FileViewer: React.FC<FileViewerProps> = ({
   const { t } = useTranslation();
   const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
-  const [internalLoading, setInternalLoading] = React.useState(true);
+  const [internalLoading, setInternalLoading] = useState(false);
   const isLoading = loading ?? internalLoading;
 
+  // Reset loading state when dialog opens with new file
   useEffect(() => {
     if (open && fileUrl) {
       setInternalLoading(true);
+      setTextContent(null);
     }
   }, [open, fileUrl]);
 
+  // Load text content for text files
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
-      fetch(fileUrl)
+      // Remove fragment identifier for fetch
+      const cleanUrl = fileUrl.split('#')[0];
+      fetch(cleanUrl)
         .then((response) => response.text())
-        .then((text) => setTextContent(text))
-        .catch(() => setTextContent('Failed to load text content.'));
-    } else {
-      setTextContent(null);
+        .then((text) => {
+          setTextContent(text);
+          setInternalLoading(false);
+          setLoading?.(false);
+        })
+        .catch(() => {
+          setTextContent('Failed to load text content.');
+          setInternalLoading(false);
+          setLoading?.(false);
+        });
     }
-  }, [open, fileType, fileUrl]);
+  }, [open, fileType, fileUrl, setLoading]);
 
   const handleDownload = async () => {
     try {
@@ -70,7 +102,9 @@ const FileViewer: React.FC<FileViewerProps> = ({
         link.click();
       } else {
         const link = document.createElement('a');
-        link.href = fileUrl!;
+        // Remove fragment identifier for download
+        const cleanUrl = fileUrl?.split('#')[0];
+        link.href = cleanUrl!;
         link.download = fileName ?? 'file';
         link.click();
       }
@@ -79,8 +113,54 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   };
 
+  const canPreview = (type: string | null): boolean => {
+    if (!type) return false;
+    return (
+      ALLOWED_PREVIEW_TYPES.includes(type) ||
+      CONVERTIBLE_TYPES.includes(type) ||
+      type.startsWith('image/') ||
+      type.startsWith('text/')
+    );
+  };
+
   const renderPreview = () => {
     if (!fileUrl || !fileType) return null;
+
+    // Check if file type is supported
+    if (!canPreview(fileType)) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '300px',
+            p: 4,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            {t(
+              'documentManagement.fileViewer.noPreview',
+              'No preview available'
+            )}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {t(
+              'documentManagement.fileViewer.unsupportedType',
+              'File type not supported:'
+            )}{' '}
+            {fileType}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            {t(
+              'documentManagement.fileViewer.downloadInstead',
+              'Please download the file to open it.'
+            )}
+          </Typography>
+        </Box>
+      );
+    }
 
     if (fileType === 'application/pdf') {
       return (
@@ -94,16 +174,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
               sx={{
                 position: 'absolute',
                 inset: 0,
-                backgroundColor: 'rgba(255,255,255,0.85)',
+                backgroundColor: 'rgba(255,255,255,0.95)',
                 zIndex: 2,
               }}
             >
-              <CircularProgress />
+              <CircularProgress size={48} />
               <Typography sx={{ mt: 2 }}>
-                {t(
-                  'documentManagement.viewer.loading',
-                  'Vorschau wird erstellt...'
-                )}
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
               </Typography>
             </Box>
           )}
@@ -115,6 +192,10 @@ const FileViewer: React.FC<FileViewerProps> = ({
               setLoading?.(false);
               setInternalLoading(false);
             }}
+            onError={() => {
+              setLoading?.(false);
+              setInternalLoading(false);
+            }}
           />
         </Box>
       );
@@ -122,7 +203,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     if (fileType.startsWith('image/')) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
           {isLoading && (
             <Box
               display="flex"
@@ -132,16 +219,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
               sx={{
                 position: 'absolute',
                 inset: 0,
-                backgroundColor: 'rgba(255,255,255,0.85)',
+                backgroundColor: 'rgba(255,255,255,0.95)',
                 zIndex: 2,
               }}
             >
-              <CircularProgress />
+              <CircularProgress size={48} />
               <Typography sx={{ mt: 2 }}>
-                {t(
-                  'documentManagement.viewer.loading',
-                  'Vorschau wird erstellt...'
-                )}
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
               </Typography>
             </Box>
           )}
@@ -153,6 +237,10 @@ const FileViewer: React.FC<FileViewerProps> = ({
               setLoading?.(false);
               setInternalLoading(false);
             }}
+            onError={() => {
+              setLoading?.(false);
+              setInternalLoading(false);
+            }}
           />
         </Box>
       );
@@ -160,31 +248,52 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
     if (fileType.startsWith('text/')) {
       return (
-        <pre
-          style={{
-            maxHeight: '80vh',
-            overflow: 'auto',
-            backgroundColor: '#f5f5f5',
-            padding: '1rem',
-          }}
-        >
-          {textContent || 'Loading...'}
-        </pre>
+        <Box sx={{ position: 'relative' }}>
+          {isLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                zIndex: 2,
+              }}
+            >
+              <CircularProgress size={48} />
+              <Typography sx={{ mt: 2 }}>
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
+              </Typography>
+            </Box>
+          )}
+          <pre
+            style={{
+              maxHeight: '80vh',
+              overflow: 'auto',
+              backgroundColor: '#f5f5f5',
+              padding: '1rem',
+              margin: 0,
+            }}
+          >
+            {textContent || 'Loading...'}
+          </pre>
+        </Box>
       );
     }
-    return (
-      <p>
-        {t(
-          'documentManagement.fileViewer.noPreview',
-          'Keine Vorschau verfügbar für'
-        )}
-        {fileType}
-      </p>
-    );
+
+    return null;
   };
+
+  if (!fileName)
+    fileName = t('documentManagement.fileViewer.unknownFile', 'Unknown File');
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+      <DialogTitle>
+        {t('documentManagement.fileViewer.preview', 'Preview of:')} {fileName}
+      </DialogTitle>
       <DialogContent dividers>{renderPreview()}</DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-end' }}>
         <Button

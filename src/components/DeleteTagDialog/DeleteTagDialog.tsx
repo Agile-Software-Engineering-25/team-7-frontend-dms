@@ -5,6 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Paper,
+  Typography,
 } from '@mui/material';
 import Button from '@mui/joy/Button';
 import { useTranslation } from 'react-i18next';
@@ -35,15 +37,40 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
       aria-describedby="delete-tag-dialog-description"
     >
       <DialogTitle id="delete-tag-dialog-title">
-        {t('documentManagement.tagging.deleteTagTitle', 'Tag löschen')}
+        {t('documentManagement.tagging.deleteTagTitle', 'Delete tag')}
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="delete-tag-dialog-description">
           {t(
             'documentManagement.tagging.deleteTagMessage',
-            `Möchten Sie den Tag "${tag?.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`
+            `Are you sure you want to delete the tag "${tag?.name}"?`
           )}
         </DialogContentText>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mt: 2,
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: 1,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            {t(
+              'documentManagement.tagging.deleteInfo',
+              'Tags können nur gelöscht werden, wenn sie keinem Dokument zugwiesen sind'
+            )}
+          </Typography>
+          <Typography variant="body2" color="warning" mt={1}>
+            <strong>
+              {t(
+                'documentManagement.tagging.deleteWarning',
+                'Diese Aktion kann nicht rückgängig gemacht werden'
+              )}
+            </strong>
+          </Typography>
+        </Paper>
       </DialogContent>
       <DialogActions>
         <Button
@@ -65,7 +92,7 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.tagging.delete', 'Löschen')}
+          {t('documentManagement.tagging.delete', 'Delete')}
         </Button>
         <Button
           onClick={onClose}
@@ -78,7 +105,7 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.tagging.cancel', 'Abbrechen')}
+          {t('documentManagement.tagging.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

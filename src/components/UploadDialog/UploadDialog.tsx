@@ -202,7 +202,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.uploadDocument.confirm', 'upload')}
+          {t('documentManagement.uploadDocument.confirm', 'Upload')}
         </Button>
         <Button
           onClick={onClose}

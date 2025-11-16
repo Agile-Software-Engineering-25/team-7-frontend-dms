@@ -18,7 +18,7 @@ type Folder = {
   id: string;
   name: string;
   parentId?: string;
-  studyGroupIds?: string;
+  studyGroupIds?: string[];
   createdDate?: string;
   subfolders: string[];
   documents: string[];
@@ -110,7 +110,7 @@ export default function createMockApi() {
     createdDate: nowIso(),
     subfolders: [],
     documents: [],
-    studyGroupIds: "['BIN-T24', 'BIN-T23', 'BIN-T22']",
+    studyGroupIds: ['BIN-T24', 'BIN-T23', 'BIN-T22'],
   };
   folders.set(infId, infFolder);
   root.subfolders.push(infId);
@@ -353,7 +353,7 @@ export default function createMockApi() {
             ),
         };
       }),
-      studyGroupIds: f.studyGroupIds ?? '',
+      studyGroupIds: f.studyGroupIds ?? [],
     };
   }
 
@@ -370,7 +370,7 @@ export default function createMockApi() {
       createdDate: nowIso(),
       subfolders: [],
       documents: [],
-      studyGroupIds: studyGroupIds ? `['${studyGroupIds.join("','")}']` : '',
+      studyGroupIds: studyGroupIds || [],
     };
     folders.set(id, folder);
     const parent = folders.get(folder.parentId!);
@@ -439,7 +439,7 @@ export default function createMockApi() {
       createdDate: nowIso(),
       type: file.type || 'application/octet-stream',
       parentId: folderId,
-      blob: file, // Store the actual file blob
+      blob: file,
     };
     documents.set(id, d);
     const parent = folders.get(folderId);
@@ -596,7 +596,7 @@ export default function createMockApi() {
     const f = folders.get(id);
     if (!f) throw new Error('Folder not found');
 
-    f.studyGroupIds = `['${studyGroupIds.join("','")}']`;
+    f.studyGroupIds = studyGroupIds;
     return { id: f.id, studyGroupIds };
   };
 

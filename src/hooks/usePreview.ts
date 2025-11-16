@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Item } from '@/@types/fileExplorer';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
@@ -12,6 +13,7 @@ type UsePreviewProps = {
  */
 export function usePreview({ items, showSnack }: UsePreviewProps) {
   const api = useDmsApiSelector();
+  const { t } = useTranslation();
   const [viewerLoading, setViewerLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerFile, setViewerFile] = useState<{
@@ -24,43 +26,51 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
   const handleCloseViewer = () => {
     setViewerOpen(false);
     setViewerFile(null);
+    setViewerLoading(false);
   };
 
   const handleConvertOfficeToPdf = async (docId: string) => {
     try {
-      setViewerLoading(true);
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
+      // Reset state before opening
       setViewerFile(null);
-      setViewerOpen(true);
       setViewerLoading(true);
+      setViewerOpen(true);
 
       const isOfficeDoc = /\.(docx?|pptx?)$/i.test(doc.name);
 
       if (!isOfficeDoc) {
+        // Regular file (PDF, image, text, etc.)
         const { url, name, type } = await api.downloadDocument(docId);
+        // Add filename as fragment for display in iframe title
         const namedUrl = `${url}#${name}`;
         setViewerFile({ id: docId, url: namedUrl, name, type });
-        setViewerOpen(true);
-        return;
+        // Loading will be set to false by onLoad event in FileViewer
       } else {
+        // Office document - needs conversion
         const converted = await api.convertOfficeToPdf(docId);
         const blob = await fetch(converted.url).then((r) => r.blob());
         const blobUrl = URL.createObjectURL(blob);
-        const namedUrl = `${blobUrl}#${converted.name}`;
+        // Use original filename, not "converted-X.pdf"
+        const namedUrl = `${blobUrl}#${doc.name}`;
         setViewerFile({
           id: docId,
           url: namedUrl,
-          name: converted.name,
+          name: doc.name, // Use original document name
           type: converted.type,
         });
-        setViewerLoading(false);
+        // Loading will be set to false by onLoad event in FileViewer
       }
     } catch (err) {
-      console.error('Fehler bei PDF-Konvertierung:', err);
-      showSnack('Fehler bei der Vorschau-Erstellung', 'error');
+      console.error('Error converting the pdf: ', err);
+      showSnack(
+        t('documentManagement.preview.creationError', 'Error creating preview'),
+        'error'
+      );
       setViewerLoading(false);
+      setViewerOpen(false);
     }
   };
 

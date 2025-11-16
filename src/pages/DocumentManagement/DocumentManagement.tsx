@@ -11,7 +11,8 @@ const fileExplorerCardStyles = {
   overflow: 'hidden',
   borderRadius: 12,
   backgroundColor: '#eef3f9',
-  boxShadow: '0px 12px 24px rgba(0, 46, 109, 0.08)',
+  boxShadow: 'none',
+  border: 'none',
 };
 
 // Action buttons are rendered inside the FileExplorer for local handlers
@@ -32,7 +33,7 @@ const DocumentManagement: React.FC = () => {
         }}
       >
         {/* ActionButtons and breadcrumb rendered inside FileExplorer to access state handlers */}
-        <Card variant="outlined" sx={fileExplorerCardStyles}>
+        <Card sx={fileExplorerCardStyles}>
           <CardHeader
             titleTypographyProps={{
               variant: 'h4',

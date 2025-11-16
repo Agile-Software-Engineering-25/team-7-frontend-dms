@@ -25,7 +25,7 @@ export type FolderResponse = {
     id: string;
     name: string;
     parentId?: string;
-    studyGroupIds?: string;
+    studyGroupIds?: string | string[];
     createdDate?: string;
   };
   documents?: Array<{
@@ -39,11 +39,12 @@ export type FolderResponse = {
   subfolders?: Array<{
     id: string;
     name: string;
+    parentId?: string;
     createdDate?: string;
-    studyGroupIds?: string;
+    studyGroupIds?: string | string[];
   }>;
   parentId?: string;
-  studyGroupIds?: string;
+  studyGroupIds?: string | string[];
 };
 
 export type DocForZip = {

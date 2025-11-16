@@ -78,17 +78,11 @@ const StudyGroupSelector: React.FC<Props> = ({
   }
 
   const isRestricted = parentFolderGroups && parentFolderGroups.length > 0;
+  const selectedGroupsCount = selectedGroups.length;
 
   return (
-    <Box>
+    <Box sx={{ mt: 2 }}>
       {/* Add Study Groups Section */}
-      <Typography
-        variant="subtitle2"
-        sx={{ mb: 1.5, fontWeight: 600, color: '#002E6D' }}
-      >
-        {t('documentManagement.studyGroups.addGroups')}
-      </Typography>
-
       <FormControl fullWidth>
         <InputLabel id="study-group-select-label">
           {t('documentManagement.studyGroups.selectLabel')}
@@ -114,11 +108,15 @@ const StudyGroupSelector: React.FC<Props> = ({
                   onMouseDown={(e) => {
                     e.stopPropagation();
                   }}
-                  onDelete={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleDelete(groupName);
-                  }}
+                  onDelete={
+                    !isRestricted || selectedGroupsCount > 1
+                      ? (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDelete(groupName);
+                        }
+                      : undefined
+                  }
                   disabled={disabled}
                   sx={{
                     backgroundColor: '#002E6D',
@@ -178,14 +176,29 @@ const StudyGroupSelector: React.FC<Props> = ({
             })
           )}
         </Select>
-        {isRestricted && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-            {t('documentManagement.studyGroups.restrictedInfo')}
-          </Typography>
-        )}
       </FormControl>
+      {/* Warning box for no selection in restricted folders */}
+      {selectedGroups.length === 0 && isRestricted && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mt: 2,
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: 1,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            {t(
+              'documentManagement.studyGroups.noSelectionInfoRestricted',
+              'No study groups selected. This folder will be public to all users with access to the parent folder.'
+            )}
+          </Typography>
+        </Paper>
+      )}
 
-      {/* Warning box for no selection */}
+      {/* Warning box for no selection in non-restricted folders */}
       {selectedGroups.length === 0 && !isRestricted && (
         <Paper
           elevation={0}
@@ -204,6 +217,31 @@ const StudyGroupSelector: React.FC<Props> = ({
             )}
           </Typography>
         </Paper>
+      )}
+      {/* Restriction info box */}
+      {isRestricted && (
+        <Box
+          sx={{ mt: 2, p: 1.5, backgroundColor: '#e3f2fd', borderRadius: 1 }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            <strong>
+              {t(
+                'documentManagement.studyGroups.parentRestrictionTitle',
+                'Parent Folder Restriction'
+              )}
+            </strong>
+            <br />
+            {t(
+              'documentManagement.studyGroups.parentRestrictionContent1',
+              'This folder can only be assigned to student groups that are also assigned to its parent folder.'
+            )}
+            <br />
+            {t(
+              'documentManagement.studyGroups.parentRestrictionContent2',
+              'There has to be at least one student group assigned.'
+            )}
+          </Typography>
+        </Box>
       )}
     </Box>
   );
