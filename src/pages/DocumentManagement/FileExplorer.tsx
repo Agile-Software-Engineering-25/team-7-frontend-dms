@@ -194,14 +194,14 @@ export default function FileExplorer(): React.ReactElement {
     try {
       await tagsHook.updateDocumentTags(tagEditorDocumentId, tagUuids);
       fileOps.showSnack(
-        t('documentManagement.tags.saved', 'Tags updated'),
+        t('documentManagement.tagging.saved', 'Tags updated'),
         'success'
       );
       await refresh();
     } catch (error) {
       console.error('Failed to save tags:', error);
       fileOps.showSnack(
-        t('documentManagement.tags.saveFailed', 'Failed to update tags'),
+        t('documentManagement.taggging.saveFailed', 'Failed to update tags'),
         'error'
       );
       throw error;
@@ -584,6 +584,7 @@ export default function FileExplorer(): React.ReactElement {
           await refresh();
           return updatedTag;
         }}
+        showSnack={fileOps.showSnack}
       />
 
       <BreadcrumbBar path={currentPath} onNavigate={handleNavigatePath} />
@@ -739,6 +740,7 @@ export default function FileExplorer(): React.ReactElement {
         currentTags={tagEditorCurrentTags}
         onSave={handleSaveTags}
         onTagsChanged={handleTagsChanged}
+        showSnack={fileOps.showSnack}
       />
 
       <FileViewer

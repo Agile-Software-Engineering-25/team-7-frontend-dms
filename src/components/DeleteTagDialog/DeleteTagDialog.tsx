@@ -37,13 +37,13 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
       aria-describedby="delete-tag-dialog-description"
     >
       <DialogTitle id="delete-tag-dialog-title">
-        {t('documentManagement.tagging.deleteTagTitle', 'Tag löschen')}
+        {t('documentManagement.tagging.deleteTagTitle', 'Delete tag')}
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="delete-tag-dialog-description">
           {t(
             'documentManagement.tagging.deleteTagMessage',
-            `Möchten Sie den Tag "${tag?.name}" wirklich löschen?`
+            `Are you sure you want to delete the tag "${tag?.name}"?`
           )}
         </DialogContentText>
         <Paper
@@ -92,7 +92,7 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.tagging.delete', 'Löschen')}
+          {t('documentManagement.tagging.delete', 'Delete')}
         </Button>
         <Button
           onClick={onClose}
@@ -105,7 +105,7 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.tagging.cancel', 'Abbrechen')}
+          {t('documentManagement.tagging.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -13,8 +13,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import UploadIcon from '@mui/icons-material/Upload';
 import DownloadIcon from '@mui/icons-material/FileDownload';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import TagActionButtons from '../TagActionButtons/TagActionButtons';
 import AddIcon from '@mui/icons-material/Add';
 import { useTranslation } from 'react-i18next';
 import type { TagEntity } from '@/@types/fileExplorer';
@@ -37,6 +36,7 @@ type FileExplorerToolbarProps = {
   onRefetchTags?: () => void;
   onDeleteTag?: (tagUuid: string) => Promise<void>;
   onUpdateTag?: (tagUuid: string, newName: string) => Promise<TagEntity>;
+  showSnack?: (msg: string, severity?: 'success' | 'error' | 'info') => void;
 };
 
 const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
@@ -53,6 +53,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
   onDeleteTag,
   onUpdateTag,
   onRefetchTags,
+  showSnack,
 }) => {
   const { t } = useTranslation();
   const { canAccess } = useCanAccess();
@@ -99,10 +100,24 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
         await onRefetchTags();
       }
 
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleted', 'Tag deleted'),
+          'success'
+        );
+      }
+
       setDeleteDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to delete tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleteFailed', 'Tag deletion failed'),
+          'error'
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -129,10 +144,24 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
         await onRefetchTags();
       }
 
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdated', 'Tag updated'),
+          'success'
+        );
+      }
+
       setEditDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to update tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdateFailed', 'Tag update failed'),
+          'error'
+        );
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -164,8 +193,22 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
       }
       onTagFilterChange?.([...selectedTags, newTag]);
       setFilterInputValue('');
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreated', 'Tag created'),
+          'success'
+        );
+      }
     } catch (error) {
       console.error('Failed to create tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreateFailed', 'Tag creation failed'),
+          'error'
+        );
+      }
     } finally {
       setIsCreatingTag(false);
     }
@@ -230,6 +273,10 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
             disableCloseOnSelect
+            noOptionsText={t('common.noOptions', 'No options availbale')}
+            clearText={t('common.clear', 'Delete')}
+            closeText={t('common.close', 'Close')}
+            openText={t('common.open', 'Open')}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -319,82 +366,12 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                           width: 'auto',
                         }}
                       >
-                        {onUpdateTag && (
-                          <IconButton
-                            onClick={(e) => handleEditClick(option, e)}
-                            disabled={isSelected}
-                            sx={{
-                              padding: '2px',
-                              borderRadius: '100%',
-                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 46, 109, 0.3)'}`,
-                              backgroundColor: 'transparent',
-                              width: '24px',
-                              height: '24px',
-                              minWidth: '24px',
-                              '&:hover': {
-                                backgroundColor: isSelected
-                                  ? 'transparent'
-                                  : 'rgba(0, 46, 109, 0.08)',
-                                borderColor: isSelected
-                                  ? 'rgba(255, 255, 255, 0.3)'
-                                  : '#002E6D',
-                              },
-                              '&.Mui-disabled': {
-                                opacity: 0.5,
-                                cursor: 'not-allowed',
-                              },
-                            }}
-                            aria-label={t(
-                              'documentManagement.tagging.editTag',
-                              'Tag bearbeiten'
-                            )}
-                          >
-                            <EditIcon
-                              sx={{
-                                fontSize: '16px',
-                                color: isSelected ? '#ffffff' : '#002E6D',
-                              }}
-                            />
-                          </IconButton>
-                        )}
-                        {onDeleteTag && (
-                          <IconButton
-                            onClick={(e) => handleDeleteClick(option, e)}
-                            disabled={isSelected}
-                            sx={{
-                              padding: '2px',
-                              borderRadius: '50%',
-                              border: `1px solid ${isSelected ? 'rgba(255, 255, 255, 0.3)' : 'rgba(211, 47, 47, 0.3)'}`,
-                              backgroundColor: 'transparent',
-                              width: '24px',
-                              height: '24px',
-                              minWidth: '24px',
-                              '&:hover': {
-                                backgroundColor: isSelected
-                                  ? 'transparent'
-                                  : 'rgba(211, 47, 47, 0.08)',
-                                borderColor: isSelected
-                                  ? 'rgba(255, 255, 255, 0.3)'
-                                  : '#d32f2f',
-                              },
-                              '&.Mui-disabled': {
-                                opacity: 0.5,
-                                cursor: 'not-allowed',
-                              },
-                            }}
-                            aria-label={t(
-                              'documentManagement.tagging.deleteTag',
-                              'Tag löschen'
-                            )}
-                          >
-                            <DeleteIcon
-                              sx={{
-                                fontSize: '16px',
-                                color: isSelected ? '#ffffff' : '#d32f2f',
-                              }}
-                            />
-                          </IconButton>
-                        )}
+                        <TagActionButtons
+                          tag={option}
+                          onEdit={onUpdateTag ? handleEditClick : undefined}
+                          onDelete={onDeleteTag ? handleDeleteClick : undefined}
+                          isSelected={isSelected}
+                        />
                       </Box>
                     )}
                   </Box>
@@ -474,7 +451,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
                   {...params}
                   placeholder={t(
                     'documentManagement.tagging.filterPlaceholder',
-                    'Filtern nach Tags...'
+                    'Filter by tags...'
                   )}
                   InputProps={{
                     ...params.InputProps,
@@ -581,18 +558,18 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
             onClick={onUploadClick}
             startDecorator={<UploadIcon fontSize="small" />}
           >
-            {t('documentManagement.uploadDocument.button', 'Datei hochladen')}
+            {t('documentManagement.uploadDocument.button', 'Upload file')}
           </Button>
         )}
         <Button
           size="sm"
           aria-label={t(
             'documentManagement.downloadDocument.button',
-            'Dateien herunterladen'
+            'Download files'
           )}
           aria-describedby={t(
             'documentManagement.downloadDocument.description',
-            'Lädt jede Datei innerhalb des jetzigen Ordners herunter'
+            'Downloads every file within the current folder'
           )}
           sx={{
             '--Button-radius': '8px',
@@ -609,18 +586,15 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
           onClick={onDownloadClick}
           startDecorator={<DownloadIcon fontSize="small" />}
         >
-          {t(
-            'documentManagement.downloadDocument.button',
-            'Dateien herunterladen'
-          )}
+          {t('documentManagement.downloadDocument.button', 'Download files')}
         </Button>
         {canManage && (
           <IconButton
             aria-label={t(
               'documentManagement.newFolder.title',
-              'Ordner erstellen'
+              'Create folder'
             )}
-            title={t('documentManagement.newFolder.title', 'Ordner erstellen')}
+            title={t('documentManagement.newFolder.title', 'Create folder')}
             onClick={onCreateFolderClick}
             sx={{
               width: 40,

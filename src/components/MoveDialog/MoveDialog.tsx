@@ -194,7 +194,7 @@ const MoveDialog: React.FC<Props> = ({
                 <Typography variant="body2">
                   {folder.name}
                   {isCurrentFolder &&
-                    ` (${t('documentManagement.moveDialog.currentFolder', 'aktueller Ordner')})`}
+                    ` (${t('documentManagement.moveDialog.currentFolder', 'Current folder')})`}
                 </Typography>
               }
             />
@@ -213,7 +213,7 @@ const MoveDialog: React.FC<Props> = ({
       fullWidth
     >
       <DialogTitle id="move-dialog-title">
-        {t('documentManagement.moveDialog.title', 'Element verschieben')}
+        {t('documentManagement.moveDialog.title', 'Move element')}
       </DialogTitle>
       <DialogContent dividers>
         <Typography variant="body2" sx={{ mb: 2 }}>
@@ -265,7 +265,7 @@ const MoveDialog: React.FC<Props> = ({
 
         {selectedFolderId && (
           <Typography variant="body2" sx={{ mt: 1, color: 'primary.main' }}>
-            {t('documentManagement.moveDialog.selectedFolder', 'Ausgewählt:')}{' '}
+            {t('documentManagement.moveDialog.selectedFolder', 'Selected:')}{' '}
             {folderTree.find((n) => n.id === selectedFolderId)?.name ||
               selectedFolderId}
           </Typography>
@@ -289,7 +289,7 @@ const MoveDialog: React.FC<Props> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.moveDialog.confirm', 'Verschieben')}
+          {t('documentManagement.moveDialog.confirm', 'Move')}
         </Button>
         <Button
           onClick={onClose}
@@ -301,7 +301,7 @@ const MoveDialog: React.FC<Props> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.moveDialog.cancel', 'Abbrechen')}
+          {t('documentManagement.moveDialog.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

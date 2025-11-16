@@ -46,7 +46,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
         showSnack(
-          t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
+          t('documentManagement.snack.downloaded', 'Download completed'),
           'success'
         );
       } else if (doc.itemType === 'folder') {
@@ -70,13 +70,13 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
         await api.downloadAsZip(docsForZip, doc.name);
 
         showSnack(
-          t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
+          t('documentManagement.snack.downloaded', 'Download completed'),
           'success'
         );
       }
     } catch {
       showSnack(
-        t('documentManagement.snack.downloadFailed', 'Download fehlgeschlagen'),
+        t('documentManagement.snack.downloadFailed', 'Download failed'),
         'error'
       );
     }
@@ -85,10 +85,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
   const handleDownloadSelected = async (selectedIds: string[]) => {
     // Show feedback immediately
     showSnack(
-      t(
-        'documentManagement.snack.downloadStarting',
-        'Download wird vorbereitet...'
-      ),
+      t('documentManagement.snack.downloadStarting', 'Preparing download...'),
       'info'
     );
 
@@ -114,7 +111,7 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
 
       if (allDocs.length === 0) {
         showSnack(
-          t('documentManagement.snack.noDocsInSelection', 'Keine Dokumente'),
+          t('documentManagement.snack.noDocsInSelection', 'No documents'),
           'error'
         );
         return;
@@ -122,12 +119,12 @@ export function useDownload({ items, showSnack }: UseDownloadProps) {
 
       await api.downloadAsZip(allDocs, 'documents');
       showSnack(
-        t('documentManagement.snack.downloaded', 'Download abgeschlossen'),
+        t('documentManagement.snack.downloaded', 'Download completed'),
         'success'
       );
     } catch {
       showSnack(
-        t('documentManagement.snack.downloadFailed', 'Download fehlgeschlagen'),
+        t('documentManagement.snack.downloadFailed', 'Download failed'),
         'error'
       );
     }

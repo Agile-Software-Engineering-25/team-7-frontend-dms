@@ -142,20 +142,20 @@ const FileViewer: React.FC<FileViewerProps> = ({
           <Typography variant="h6" gutterBottom>
             {t(
               'documentManagement.fileViewer.noPreview',
-              'Keine Vorschau verfügbar'
+              'No preview available'
             )}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             {t(
               'documentManagement.fileViewer.unsupportedType',
-              'Dateityp wird nicht unterstützt:'
+              'File type not supported:'
             )}{' '}
             {fileType}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             {t(
               'documentManagement.fileViewer.downloadInstead',
-              'Bitte laden Sie die Datei herunter, um sie zu öffnen.'
+              'Please download the file to open it.'
             )}
           </Typography>
         </Box>
@@ -180,10 +180,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             >
               <CircularProgress size={48} />
               <Typography sx={{ mt: 2 }}>
-                {t(
-                  'documentManagement.viewer.loading',
-                  'Vorschau wird erstellt...'
-                )}
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
               </Typography>
             </Box>
           )}
@@ -228,10 +225,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             >
               <CircularProgress size={48} />
               <Typography sx={{ mt: 2 }}>
-                {t(
-                  'documentManagement.viewer.loading',
-                  'Vorschau wird erstellt...'
-                )}
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
               </Typography>
             </Box>
           )}
@@ -270,10 +264,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             >
               <CircularProgress size={48} />
               <Typography sx={{ mt: 2 }}>
-                {t(
-                  'documentManagement.viewer.loading',
-                  'Vorschau wird erstellt...'
-                )}
+                {t('documentManagement.viewer.loading', 'Loading preview...')}
               </Typography>
             </Box>
           )}
@@ -301,7 +292,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle>
-        {t('documentManagement.fileViewer.preview', 'Vorschau von:')} {fileName}
+        {t('documentManagement.fileViewer.preview', 'Preview of:')} {fileName}
       </DialogTitle>
       <DialogContent dividers>{renderPreview()}</DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-end' }}>

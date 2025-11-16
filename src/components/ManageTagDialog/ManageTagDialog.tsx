@@ -57,7 +57,7 @@ const ManageTagDialog: React.FC<ManageTagDialogProps> = ({
       maxWidth="sm"
     >
       <DialogTitle id="edit-tag-dialog-title">
-        {t('documentManagement.tagging.editTagTitle', 'Tag bearbeiten')}
+        {t('documentManagement.tagging.editTagTitle', 'Edit tag')}
       </DialogTitle>
       <DialogContent dividers sx={{ maxHeight: 350, overflowY: 'auto' }}>
         <TextField
@@ -94,7 +94,7 @@ const ManageTagDialog: React.FC<ManageTagDialogProps> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.tagging.save', 'Speichern')}
+          {t('documentManagement.tagging.save', 'Save')}
         </Button>
         <Button
           onClick={handleClose}
@@ -107,7 +107,7 @@ const ManageTagDialog: React.FC<ManageTagDialogProps> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.tagging.cancel', 'Abbrechen')}
+          {t('documentManagement.tagging.cancel', 'Cancel')}
         </Button>
       </DialogActions>
     </Dialog>

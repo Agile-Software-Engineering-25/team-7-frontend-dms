@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Item } from '@/@types/fileExplorer';
 import useDmsApiSelector from '@hooks/useDmsApiSelector';
 
@@ -12,6 +13,7 @@ type UsePreviewProps = {
  */
 export function usePreview({ items, showSnack }: UsePreviewProps) {
   const api = useDmsApiSelector();
+  const { t } = useTranslation();
   const [viewerLoading, setViewerLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerFile, setViewerFile] = useState<{
@@ -62,8 +64,11 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
         // Loading will be set to false by onLoad event in FileViewer
       }
     } catch (err) {
-      console.error('Fehler bei PDF-Konvertierung:', err);
-      showSnack('Fehler bei der Vorschau-Erstellung', 'error');
+      console.error('Error converting the pdf: ', err);
+      showSnack(
+        t('documentManagement.preview.creationError', 'Error creating preview'),
+        'error'
+      );
       setViewerLoading(false);
       setViewerOpen(false);
     }

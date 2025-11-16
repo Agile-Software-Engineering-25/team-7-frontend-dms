@@ -30,6 +30,7 @@ type Props = {
   currentTags: TagEntity[];
   onSave: (tagUuids: string[]) => Promise<void>;
   onTagsChanged?: () => Promise<void>; // Add this callback
+  showSnack?: (msg: string, severity?: 'success' | 'error' | 'info') => void;
 };
 
 const TagEditor: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const TagEditor: React.FC<Props> = ({
   currentTags,
   onSave,
   onTagsChanged, // Receive the callback
+  showSnack,
 }) => {
   const { tags: availableTags, loading, fetchTags } = useTags();
   const [selectedTags, setSelectedTags] = React.useState<TagEntity[]>([]);
@@ -259,10 +261,7 @@ const TagEditor: React.FC<Props> = ({
                   fontWeight: 600,
                 }}
               >
-                {t(
-                  'documentManagement.tagging.createNew',
-                  'Neuen Tag erstellen'
-                )}
+                {t('documentManagement.tagging.createNew', 'Create new tag')}
               </Button>
             </Box>
           </Box>
@@ -308,6 +307,7 @@ const TagEditor: React.FC<Props> = ({
         onClose={() => setAddTagDialogOpen(false)}
         onConfirm={handleAddTagConfirm}
         onTagsUpdated={handleTagsUpdated} // Pass the callback
+        showSnack={showSnack}
       />
     </>
   );

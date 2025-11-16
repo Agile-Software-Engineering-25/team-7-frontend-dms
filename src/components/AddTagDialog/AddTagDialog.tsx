@@ -7,11 +7,9 @@ import {
   TextField,
   Typography,
   Box,
-  IconButton,
 } from '@mui/material';
 import Button from '@mui/joy/Button';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import TagActionButtons from '../TagActionButtons/TagActionButtons';
 import { useTranslation } from 'react-i18next';
 import useTags from '@hooks/useTags';
 import ManageTagDialog from '@components/ManageTagDialog/ManageTagDialog';
@@ -24,6 +22,7 @@ type AddTagDialogProps = {
   onClose: () => void;
   onConfirm: (newTag: TagEntity) => void;
   onTagsUpdated?: () => Promise<void>;
+  showSnack?: (msg: string, severity?: 'success' | 'error' | 'info') => void;
 };
 
 const AddTagDialog: React.FC<AddTagDialogProps> = ({
@@ -32,6 +31,7 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
   onClose,
   onConfirm,
   onTagsUpdated, // NEW
+  showSnack,
 }) => {
   const { t } = useTranslation();
   const {
@@ -72,8 +72,22 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
       await fetchTags(); // Refetch tags after create
       onConfirm(newTag);
       setTagName('');
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreated', 'Tag created'),
+          'success'
+        );
+      }
     } catch (error) {
       console.error('Failed to create tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagCreateFailed', 'Tag creation failed'),
+          'error'
+        );
+      }
     } finally {
       setCreating(false);
     }
@@ -107,10 +121,25 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
       if (onTagsUpdated) {
         await onTagsUpdated();
       }
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdated', 'Tag updated'),
+          'success'
+        );
+      }
+
       setEditDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to update tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagUpdateFailed', 'Tag update failed'),
+          'error'
+        );
+      }
     } finally {
       setManagingTag(false);
     }
@@ -125,10 +154,25 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
       if (onTagsUpdated) {
         await onTagsUpdated();
       }
+
+      // Show success snackbar
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleted', 'Tag deleted'),
+          'success'
+        );
+      }
+
       setDeleteDialogOpen(false);
       setSelectedTag(null);
     } catch (error) {
       console.error('Failed to delete tag:', error);
+      if (showSnack) {
+        showSnack(
+          t('documentManagement.snack.tagDeleteFailed', 'Tag deletion failed'),
+          'error'
+        );
+      }
     } finally {
       setManagingTag(false);
     }
@@ -230,62 +274,11 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
                   >
                     {tag.name}
                   </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: 0.5,
-                      ml: 1,
-                      flexShrink: 0,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <IconButton
-                      onClick={(e) => handleEditClick(tag, e)}
-                      sx={{
-                        padding: '2px',
-                        borderRadius: '100%',
-                        border: '1px solid rgba(0, 46, 109, 0.3)',
-                        backgroundColor: 'transparent',
-                        width: '24px',
-                        height: '24px',
-                        minWidth: '24px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 46, 109, 0.08)',
-                          borderColor: '#002E6D',
-                        },
-                      }}
-                      aria-label={t(
-                        'documentManagement.tagging.editTag',
-                        'Edit tag'
-                      )}
-                    >
-                      <EditIcon sx={{ fontSize: '16px', color: '#002E6D' }} />
-                    </IconButton>
-                    <IconButton
-                      onClick={(e) => handleDeleteClick(tag, e)}
-                      sx={{
-                        padding: '2px',
-                        borderRadius: '50%',
-                        border: '1px solid rgba(211, 47, 47, 0.3)',
-                        backgroundColor: 'transparent',
-                        width: '24px',
-                        height: '24px',
-                        minWidth: '24px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                          borderColor: '#d32f2f',
-                        },
-                      }}
-                      aria-label={t(
-                        'documentManagement.tagging.deleteTag',
-                        'Delete tag'
-                      )}
-                    >
-                      <DeleteIcon sx={{ fontSize: '16px', color: '#d32f2f' }} />
-                    </IconButton>
-                  </Box>
+                  <TagActionButtons
+                    tag={tag}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                  />
                 </Box>
               ))}
             {availableTags.filter((tag) =>
@@ -315,7 +308,7 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
             fontWeight: 600,
           }}
         >
-          {t('documentManagement.tagging.add', 'Hinzufügen')}
+          {t('documentManagement.tagging.add', 'Add')}
         </Button>
         <Button
           onClick={handleClose}
@@ -328,7 +321,7 @@ const AddTagDialog: React.FC<AddTagDialogProps> = ({
             '--Button-hoverShadow': 'none',
           }}
         >
-          {t('documentManagement.tagging.cancel', 'Abbrechen')}
+          {t('documentManagement.tagging.cancel', 'Cancel')}
         </Button>
       </DialogActions>
 

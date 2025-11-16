@@ -1,9 +1,13 @@
 {
+  "common": {
+    "clear": "Löschen",
+    "close": "Schließen",
+    "open": "Öffnen",
+    "noOptions": "Keine Optionen",
+    "delete": "Löschen"
+  },
   "documentManagement": {
     "title": "Dokumentenverwaltung",
-    "sidebarTitle": "DMS",
-    "actionsNote": "Verwalte Dateien unten",
-    "files": "Dateien",
     "rename": "Umbenennen",
     "move": "Verschieben",
     "delete": "Löschen",
@@ -21,13 +25,7 @@
     },
     "search": {
       "searchbar": "Suche im aktuellen Ordner",
-      "searchPlaceholder": "Suche",
-      "noResults": "Keine Ergebnisse gefunden",
-      "queryPrefix": "für"
-    },
-    "filter": {
-      "button": "Filter (bald verfügbar)",
-      "placeholder": "Filter bald verfügbar"
+      "searchPlaceholder": "Suche"
     },
     "downloadDocument": {
       "button": "Dateien herunterladen",
@@ -41,9 +39,18 @@
     },
     "fileViewer": {
       "download": "Herunterladen",
-      "loading": "Vorschau wird erstellt",
       "close": "Schließen",
-      "noPreview": "Keine Vorschau verfügbar für "
+      "noPreview": "Keine Vorschau verfügbar",
+      "preview": "Vorschau von:",
+      "unknownFile": "Unbekannte Datei",
+      "unsupportedType": "Dateityp wird nicht unterstützt:",
+      "downloadInstead": "Bitte laden Sie die Datei herunter, um sie zu öffnen."
+    },
+    "viewer": {
+      "loading": "Vorschau wird erstellt..."
+    },
+    "preview": {
+      "creationError": "Fehler beim Erstellen der Vorschau"
     },
     "renameDialog": {
       "title": "Umbenennen",
@@ -70,15 +77,11 @@
     "studyGroups": {
       "loading": "Studierendengruppen werden geladen",
       "loadError": "Fehler beim laden der Studierendengruppen",
-      "label": "Studierendengruppen",
-      "allGroups": "Alle Studierendengruppen",
       "noGroupsFromParent": "Es sind keine Studierendengruppen aus dem Überordner verfügbar",
       "noGroups": "Es sind keine Studierendengruppen verfügbar",
-      "restrictedInfo": "Auswahl ist eingeschränkt auf Studierendengruppen des Überordners",
       "noSelectionInfo": "Keine Auswahl bedeutet, dass der Ordner für alle sichtbar sein wird",
       "noSelectionInfoRestricted": "Keine Auswahl bedeutet, dass der Ordner für alle Studierendengruppen des Überordners sichtbar sein wird",
       "saved": "Studierendengruppe wurde erfolgreich aktualisiert",
-      "saveError": "Fehler beim Aktualisieren der Studierendengruppe",
       "failedSave": "Studierendengruppen konnten nicht gespeichert werden",
       "manageTitle": "Sichtbarkeit einschränken",
       "manageDescription": "Wähle welche Studierendengruppen den Ordner sehen können sollen",
@@ -87,13 +90,7 @@
       "parentRestrictionContent2": "Es muss mindestens eine hinzugefügt werden",
       "save": "Speichern",
       "cancel": "Abbrechen",
-      "currentGroups": "Zugewiesene Studierendengruppen",
-      "addGroups": "Studierendengruppe auswählen, um Ihnen diesen Ordner zur Verfügung zu stellen",
-      "selectLabel": "Studierendengruppe auswählen",
-      "selectPlaceholder": "Bitte wählen Sie eine Studierendengruppe aus",
-      "changesSummary": "Vorschau der Änderungen:",
-      "groupsAdded": "Gruppe(n) werden hinzugefügt",
-      "groupsRemoved": "Gruppe(n) werden entfernt"
+      "selectLabel": "Studierendengruppe auswählen"
     },
     "moveDialog": {
       "title": "Element verschieben",
@@ -113,36 +110,28 @@
       "autoRename": "Automatisch umbenennen",
       "cancel": "Abbrechen"
     },
-    "type": {
-      "folder": "Ordner",
-      "document": "Datei",
-      "pdf": "PDF"
-    },
+
     "moreActions": "Mehr Aktionen",
     "tagging": {
       "manage": "Tags bearbeiten",
       "instructions": "Füge Tags hinzu oder entferne sie wieder von: ",
-      "tutorial": "Schreibe hier einen Tag und klicke auf Enter, um einen neuen Tag zu erstellen",
       "cancel": "Abbrechen",
       "save": "Speichern",
+      "saved": "Tags aktualisiert",
+      "failed": "Aktualisieren der Tags fehlgeschlagen",
       "delete": "Löschen",
       "filterPlaceholder": "Filtern nach Tags...",
-      "tagPlaceholder": "Tag hinzufügen oder erstellen",
-      "addTags": "Füge Tags hinzu",
       "editTag": "Tag bearbeiten",
       "deleteTag": "Tag löschen",
       "selectLabel": "Wähle Tags",
       "deleteTagMessage": "Möchten Sie den Tag wirklich löschen?",
-      "deleteTagInfo": "Tags können nur gelöscht werden, wenn sie keinem Dokument zugwiesen sind",
-      "deleteTagWarning": "Diese Aktion kann nicht rückgängig gemacht werden",
       "tagName": "Tag Name eingeben",
-      "hintTitle": "Hinweis",
-      "hintContent1": "Tags helfen dabei, Dokumente zu organisieren und zu filtern",
-      "hintContent2": "Sie sind für alle BenutzerInnen sichtbar, die Zugriff auf betroffene Dokumente haben",
       "createNew": "Neuen Tag erstellen",
       "addTagTitle": "Neuen Tag hinzufügen",
       "add": "Hinzufügen",
-      "newInstructions": "Erstellen Sie einen neuen Tag, indem Sie seinen Namen unten eingeben"
+      "newInstructions": "Erstellen Sie einen neuen Tag, indem Sie seinen Namen unten eingeben",
+      "loading": "Tags werden geladen...",
+      "noTags": "Keine Tags verfügbar"
     },
     "snack": {
       "renamed": "Umbenannt",
@@ -154,20 +143,24 @@
       "fileTooLarge": "Datei überschreitet die maximale Größe von 5 MB",
       "uploaded": "Erfolgreich hochgeladen",
       "uploadFailed": "Upload fehlgeschlagen",
-      "duplicate": "Datei existiert bereits",
       "downloaded": "Download gestartet",
       "downloadStarting": "Download wir vorbereitet",
       "downloadFailed": "Download fehlgeschlagen",
       "noDocsInFolder": "Es gibt keine Dateien oder Ordner im aktuellen Verzeichnis",
-      "noSelection": "Keine Auswahl",
       "noDocsInSelection": "Keine Dateien in der Auswahl",
-      "previewFailed": "Vorschau fehlgeschlagen",
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",
       "moveFailed": "Verschieben fehlgeschlagen",
       "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden",
       "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner",
-      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner"
+      "alreadyInFolderFile": "Verschieben nicht möglich: Die Datei befindet sich bereits in dem ausgewählten Ordner",
+      "alreadyInFolderDocument": "Verschieben nicht möglich: Das Dokument befindet sich bereits in dem ausgewählten Ordner",
+      "tagCreated": "Tag erstellt",
+      "tagCreateFailed": "Tag-Erstellung fehlgeschlagen",
+      "tagUpdated": "Tag aktualisiert",
+      "tagUpdateFailed": "Tag-Aktualisierung fehlgeschlagen",
+      "tagDeleted": "Tag gelöscht",
+      "tagDeleteFailed": "Tag-Löschung fehlgeschlagen"
     },
     "root": "Startseite",
     "fileExplorer": "Datei-Explorer"
