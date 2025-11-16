@@ -59,14 +59,14 @@ const DeleteTagDialog: React.FC<DeleteTagDialogProps> = ({
           <Typography variant="body2" color="text.secondary">
             {t(
               'documentManagement.tagging.deleteInfo',
-              'Tags können nur gelöscht werden, wenn sie keinem Dokument zugwiesen sind'
+              'If you delete this tag, it will be removed from all associated files.'
             )}
           </Typography>
           <Typography variant="body2" color="warning" mt={1}>
             <strong>
               {t(
                 'documentManagement.tagging.deleteWarning',
-                'Diese Aktion kann nicht rückgängig gemacht werden'
+                'This action cannot be undone.'
               )}
             </strong>
           </Typography>

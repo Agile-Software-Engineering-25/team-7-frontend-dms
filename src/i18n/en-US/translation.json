@@ -120,6 +120,8 @@
       "saved": "Tags updated",
       "failed": "Failed to update tags",
       "delete": "Delete",
+      "deleteInfo": "If you delete this tag, it will be removed from all associated files.",
+      "deleteWarning": "This action cannot be undone.",
       "filterPlaceholder": "Filter by tags...",
       "editTag": "Edit tag",
       "deleteTag": "Delete tag",

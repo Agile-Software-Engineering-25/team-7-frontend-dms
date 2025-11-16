@@ -64,9 +64,7 @@ export function useCreateFolder({
         const folderData = (await api.getFolder(
           currentFolderIdRef.current
         )) as FolderResponse;
-        const parentGroups = parseStudyGroupIds(
-          folderData.folders?.studyGroupIds
-        );
+        const parentGroups = parseStudyGroupIds(folderData.studyGroupIds);
 
         if (parentGroups && parentGroups.length > 0) {
           setManageGroupsParentGroups(parentGroups);

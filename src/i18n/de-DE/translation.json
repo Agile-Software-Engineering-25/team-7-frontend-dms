@@ -120,6 +120,8 @@
       "saved": "Tags aktualisiert",
       "failed": "Aktualisieren der Tags fehlgeschlagen",
       "delete": "Löschen",
+      "deleteInfo": "Beim Löschen dieses Tags wird es von allen zugehörigen Dateien entfernt.",
+      "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden.",
       "filterPlaceholder": "Filtern nach Tags...",
       "editTag": "Tag bearbeiten",
       "deleteTag": "Tag löschen",
