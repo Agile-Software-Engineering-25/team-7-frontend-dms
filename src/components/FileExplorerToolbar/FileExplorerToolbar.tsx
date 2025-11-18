@@ -95,7 +95,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
       }
 
       // Refetch tags to update all components
-      await fetchTags();
+      await fetchTags(true); // ensure global cache updates once
       if (onRefetchTags) {
         await onRefetchTags();
       }
@@ -139,7 +139,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
       }
 
       // Refetch tags to update all components
-      await fetchTags();
+      await fetchTags(true); // ensure global cache updates once
       if (onRefetchTags) {
         await onRefetchTags();
       }
@@ -187,7 +187,7 @@ const FileExplorerToolbar: React.FC<FileExplorerToolbarProps> = ({
     setIsCreatingTag(true);
     try {
       const newTag = await createTag(filterInputValue.trim());
-      await fetchTags();
+      await fetchTags(true); // refresh cache for all consumers
       if (onRefetchTags) {
         await onRefetchTags();
       }

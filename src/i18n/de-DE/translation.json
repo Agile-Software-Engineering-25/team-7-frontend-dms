@@ -152,6 +152,7 @@
       "noDocsInSelection": "Keine Dateien in der Auswahl",
       "createFailed": "Erstellung fehlgeschlagen",
       "moved": "Verschoben",
+      "movedAndGroupsUpdated": "Verschoben und Studierendengruppen-Einschränkung angepasst",
       "moveFailed": "Verschieben fehlgeschlagen",
       "invalidMove": "Verschieben nicht möglich: Ein Ordner kann nicht in sich selbst oder seine Unterordner verschoben werden",
       "alreadyInFolderFolder": "Verschieben nicht möglich: Der Ordner befindet sich bereits in dem ausgewählten Ordner",

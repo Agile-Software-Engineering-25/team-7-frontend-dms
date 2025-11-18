@@ -101,41 +101,43 @@ const StudyGroupSelector: React.FC<Props> = ({
           }
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {selected.map((groupName) => (
-                <Chip
-                  key={groupName}
-                  label={groupName}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                  }}
-                  onDelete={
-                    !isRestricted || selectedGroupsCount > 1
-                      ? (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleDelete(groupName);
-                        }
-                      : undefined
-                  }
-                  disabled={disabled}
-                  sx={{
-                    backgroundColor: '#002E6D',
-                    color: '#ffffff',
-                    '& .MuiChip-deleteIcon': {
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      '&:hover': {
-                        color: '#ffffff',
-                      },
-                      pointerEvents: 'auto',
-                    },
-                    '&.Mui-disabled': {
-                      opacity: 0.6,
+              {[...selected]
+                .sort((a, b) => a.localeCompare(b))
+                .map((groupName) => (
+                  <Chip
+                    key={groupName}
+                    label={groupName}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onDelete={
+                      !isRestricted || selectedGroupsCount > 1
+                        ? (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(groupName);
+                          }
+                        : undefined
+                    }
+                    disabled={disabled}
+                    sx={{
                       backgroundColor: '#002E6D',
                       color: '#ffffff',
-                    },
-                  }}
-                />
-              ))}
+                      '& .MuiChip-deleteIcon': {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': {
+                          color: '#ffffff',
+                        },
+                        pointerEvents: 'auto',
+                      },
+                      '&.Mui-disabled': {
+                        opacity: 0.6,
+                        backgroundColor: '#002E6D',
+                        color: '#ffffff',
+                      },
+                    }}
+                  />
+                ))}
             </Box>
           )}
         >

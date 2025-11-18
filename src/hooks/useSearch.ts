@@ -36,7 +36,13 @@ export function useSearch(items: Item[], selectedTags: TagEntity[] = []) {
       filtered = filtered.filter((i) => i.name.toLowerCase().includes(q));
     }
 
-    return filtered;
+    // Sort alphabetically (case-insensitive). Keep folders before files if both exist.
+    const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+    const folders = filtered.filter((i) => i.itemType === 'folder');
+    const files = filtered.filter((i) => i.itemType !== 'folder');
+    folders.sort((a, b) => collator.compare(a.name, b.name));
+    files.sort((a, b) => collator.compare(a.name, b.name));
+    return [...folders, ...files];
   };
 
   // Update filtered items when items, search query, or selected tags change

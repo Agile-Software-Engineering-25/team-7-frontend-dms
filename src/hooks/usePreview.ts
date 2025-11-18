@@ -22,6 +22,7 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
     name: string;
     type: string | undefined;
   } | null>(null);
+  const [inProgressId, setInProgressId] = useState<string | null>(null);
 
   const handleCloseViewer = () => {
     setViewerOpen(false);
@@ -31,6 +32,11 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
 
   const handleConvertOfficeToPdf = async (docId: string) => {
     try {
+      // Prevent double-trigger if same doc is already being processed or viewer open for it
+      if (inProgressId === docId || (viewerOpen && viewerFile?.id === docId)) {
+        return;
+      }
+      setInProgressId(docId);
       const doc = items.find((i) => i.id === docId);
       if (!doc) return;
 
@@ -39,7 +45,7 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
       setViewerLoading(true);
       setViewerOpen(true);
 
-      const isOfficeDoc = /\.(docx?|pptx?)$/i.test(doc.name);
+      const isOfficeDoc = /\.(docx?|pptx?|xlsx?)$/i.test(doc.name);
 
       if (!isOfficeDoc) {
         // Regular file (PDF, image, text, etc.)
@@ -71,6 +77,8 @@ export function usePreview({ items, showSnack }: UsePreviewProps) {
       );
       setViewerLoading(false);
       setViewerOpen(false);
+    } finally {
+      setInProgressId(null);
     }
   };
 

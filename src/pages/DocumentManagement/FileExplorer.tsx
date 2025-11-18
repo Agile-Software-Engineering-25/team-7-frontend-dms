@@ -294,6 +294,104 @@ export default function FileExplorer(): React.ReactElement {
           (f) => f.name === sourceFolderName && f.id !== sourceId
         );
 
+        // (Ancestorship precomputed below before the move)
+
+        // Precompute relationship and groups BEFORE the move
+        const originalGroupsPre = parseStudyGroupIds(
+          sourceFolderData.studyGroupIds ??
+            sourceFolderData.folders?.studyGroupIds
+        );
+        const targetGroupsPre = parseStudyGroupIds(
+          targetFolderData.studyGroupIds ??
+            targetFolderData.folders?.studyGroupIds
+        );
+        const isTargetAncestorPreMove = await (async (
+          maybeAncestorId: string | undefined,
+          folderId: string
+        ) => {
+          if (!maybeAncestorId) return false;
+          try {
+            let current: string | undefined = folderId;
+            let depth = 0;
+            while (current && depth < MAX_PATH_DEPTH) {
+              const fd = (await api.getFolder(current)) as FolderResponse;
+              const md = parseFolderMetadata(fd, current);
+              const parent = md.parentId;
+              if (!parent) break;
+              if (parent === maybeAncestorId) return true;
+              if (parent === 'root') break;
+              current = parent;
+              depth += 1;
+            }
+          } catch {
+            // ignore
+          }
+          return false;
+        })(targetId, sourceId);
+
+        // Helper: after moving, decide final study group restriction and persist if changed.
+        // Returns true if groups were changed compared to original.
+        const applyStudyGroupPolicyAfterMove = async (): Promise<boolean> => {
+          try {
+            const originalGroups = originalGroupsPre;
+            const targetGroups = targetGroupsPre;
+            const targetIsAncestor = isTargetAncestorPreMove;
+
+            // Determine final groups:
+            // 1. Moving "up" (into ancestor): keep original groups exactly.
+            // 2. Target unrestricted (no targetGroups): keep original groups.
+            // 3. Original empty (unrestricted): adopt targetGroups (restrict now) -> changed if targetGroups not empty.
+            // 4. Original subset of targetGroups: keep original.
+            // 5. Otherwise: replace with targetGroups (intersection not allowed -> align fully).
+            let finalGroups: string[] = originalGroups.slice();
+            let changed = false;
+
+            if (targetIsAncestor) {
+              // Preserve
+              finalGroups = originalGroups.slice();
+            } else if (targetGroups.length === 0) {
+              finalGroups = originalGroups.slice();
+            } else if (originalGroups.length === 0) {
+              finalGroups = targetGroups.slice();
+              changed = targetGroups.length > 0;
+            } else {
+              const isSubset = originalGroups.every((g) =>
+                targetGroups.includes(g)
+              );
+              if (isSubset) {
+                finalGroups = originalGroups.slice();
+              } else {
+                finalGroups = targetGroups.slice();
+                changed = true;
+              }
+            }
+
+            // Compare sets to detect change even in ancestor/unrestricted cases (e.g. backend might drop groups)
+            const sameLength = finalGroups.length === originalGroups.length;
+            const sameContent =
+              sameLength &&
+              finalGroups.every((g) => originalGroups.includes(g));
+            if (!sameContent) changed = true;
+
+            // Persist only if there is a restriction (could be empty meaning unrestricted) OR if changed
+            if (changed) {
+              await api.updateFolderStudyGroups(sourceId, finalGroups);
+            } else {
+              // Ensure backend keeps groups if non-empty (avoid accidental wipe by move implementation)
+              if (finalGroups.length > 0) {
+                await api.updateFolderStudyGroups(sourceId, finalGroups);
+              }
+            }
+            return changed;
+          } catch (err) {
+            console.warn(
+              'StudyGroup policy application failed after move:',
+              err
+            );
+            return false;
+          }
+        };
+
         if (existingFolder) {
           fileOps.setConflictName(sourceFolderName);
           fileOps.setConflictType('folder');
@@ -309,10 +407,16 @@ export default function FileExplorer(): React.ReactElement {
 
                 await api.renameFolder(sourceId, newName);
                 await api.moveFolder(sourceId, targetId);
+                const changed = await applyStudyGroupPolicyAfterMove();
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
-                  t('documentManagement.snack.moved', 'Moved'),
+                  changed
+                    ? t(
+                        'documentManagement.snack.movedAndGroupsUpdated',
+                        'Moved and updated study group restriction'
+                      )
+                    : t('documentManagement.snack.moved', 'Moved'),
                   'success'
                 );
               },
@@ -323,10 +427,16 @@ export default function FileExplorer(): React.ReactElement {
               overwrite: async () => {
                 await api.deleteFolder(existingFolder.id);
                 await api.moveFolder(sourceId, targetId);
+                const changed = await applyStudyGroupPolicyAfterMove();
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
-                  t('documentManagement.snack.moved', 'Moved'),
+                  changed
+                    ? t(
+                        'documentManagement.snack.movedAndGroupsUpdated',
+                        'Moved and updated study group restriction'
+                      )
+                    : t('documentManagement.snack.moved', 'Moved'),
                   'success'
                 );
               },
@@ -340,10 +450,16 @@ export default function FileExplorer(): React.ReactElement {
 
                 await api.renameFolder(sourceId, newName);
                 await api.moveFolder(sourceId, targetId);
+                const changed = await applyStudyGroupPolicyAfterMove();
                 setItems((prev) => prev.filter((i) => i.id !== sourceId));
                 await refresh();
                 fileOps.showSnack(
-                  t('documentManagement.snack.moved', 'Moved'),
+                  changed
+                    ? t(
+                        'documentManagement.snack.movedAndGroupsUpdated',
+                        'Moved and updated study group restriction'
+                      )
+                    : t('documentManagement.snack.moved', 'Moved'),
                   'success'
                 );
               },
@@ -356,7 +472,23 @@ export default function FileExplorer(): React.ReactElement {
           return;
         }
 
+        // Default, no-conflict move
         await api.moveFolder(sourceId, targetId);
+        const changed = await applyStudyGroupPolicyAfterMove();
+        setItems((prev) => prev.filter((i) => i.id !== sourceId));
+        await refresh();
+        fileOps.showSnack(
+          changed
+            ? t(
+                'documentManagement.snack.movedAndGroupsUpdated',
+                'Moved and updated study group restriction'
+              )
+            : t('documentManagement.snack.moved', 'Moved'),
+          'success'
+        );
+        fileOps.setMoveChooserOpen(false);
+        fileOps.setMoveSourceId(null);
+        return;
       } else {
         // Document move logic
         // Note: getDocumentMetadata is optional, so we skip parent check if not available
@@ -452,7 +584,6 @@ export default function FileExplorer(): React.ReactElement {
 
         await api.moveDocument(sourceId, targetId);
       }
-
       setItems((prev) => prev.filter((i) => i.id !== sourceId));
       fileOps.showSnack(
         t('documentManagement.snack.moved', 'Moved'),
@@ -572,7 +703,7 @@ export default function FileExplorer(): React.ReactElement {
         selectedTags={selectedTags}
         onTagFilterChange={setSelectedTags}
         onRefetchTags={async () => {
-          await tagsHook.fetchTags();
+          await tagsHook.fetchTags(true); // force one refresh of global cache
           await refresh();
         }}
         onDeleteTag={async (tagUuid: string) => {

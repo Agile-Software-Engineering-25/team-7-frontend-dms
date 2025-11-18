@@ -152,6 +152,7 @@
       "noDocsInSelection": "No files in selection",
       "createFailed": "Create failed",
       "moved": "Moved",
+      "movedAndGroupsUpdated": "Moved and updated study group restriction",
       "moveFailed": "Move failed",
       "invalidMove": "Cannot move a folder into itself or its descendant",
       "alreadyInFolderFolder": "Cannot move folder: it is already in the selected folder",

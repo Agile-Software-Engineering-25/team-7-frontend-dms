@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Box,
   Typography,
@@ -41,6 +41,8 @@ const CONVERTIBLE_TYPES = [
   'application/msword', // .doc
   'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
   'application/vnd.ms-powerpoint', // .ppt
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+  'application/vnd.ms-excel', // .xls
 ];
 
 const FileViewer: React.FC<FileViewerProps> = ({
@@ -57,21 +59,38 @@ const FileViewer: React.FC<FileViewerProps> = ({
   const api = useDmsApiSelector();
   const [textContent, setTextContent] = useState<string | null>(null);
   const [internalLoading, setInternalLoading] = useState(false);
+  // Track previous fileUrl to differentiate between same file reopening vs new file
+  const prevFileUrlRef = useRef<string | null>(null);
   const isLoading = loading ?? internalLoading;
 
-  // Reset loading state when dialog opens with new file
-  useEffect(() => {
-    if (open && fileUrl) {
+  // Set loading BEFORE first paint when a new file starts loading to avoid late flicker.
+  useLayoutEffect(() => {
+    if (!open) return;
+    // New file selected or newly opened
+    const isNewFile = fileUrl && prevFileUrlRef.current !== fileUrl;
+    if (isNewFile) {
+      prevFileUrlRef.current = fileUrl;
+      setTextContent(null); // reset any previous text content
       setInternalLoading(true);
-      setTextContent(null);
+      setLoading?.(true);
     }
-  }, [open, fileUrl]);
+  }, [open, fileUrl, setLoading]);
+
+  // If dialog was closed, reset loading refs
+  useEffect(() => {
+    if (!open) {
+      setInternalLoading(false);
+    }
+  }, [open]);
 
   // Load text content for text files
   useEffect(() => {
     if (open && fileType?.startsWith('text/') && fileUrl) {
       // Remove fragment identifier for fetch
       const cleanUrl = fileUrl.split('#')[0];
+      // Ensure loading state (in case same URL triggers refetch)
+      setInternalLoading(true);
+      setLoading?.(true);
       fetch(cleanUrl)
         .then((response) => response.text())
         .then((text) => {
@@ -115,12 +134,12 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
   const canPreview = (type: string | null): boolean => {
     if (!type) return false;
-    return (
-      ALLOWED_PREVIEW_TYPES.includes(type) ||
-      CONVERTIBLE_TYPES.includes(type) ||
-      type.startsWith('image/') ||
-      type.startsWith('text/')
-    );
+    // Be explicit: allow images, allowed list, convertible list.
+    // Do NOT generally allow text/* to avoid odd HTML/CSV rendering.
+    if (ALLOWED_PREVIEW_TYPES.includes(type)) return true;
+    if (CONVERTIBLE_TYPES.includes(type)) return true;
+    if (type.startsWith('image/')) return true;
+    return false;
   };
 
   const renderPreview = () => {
@@ -184,9 +203,15 @@ const FileViewer: React.FC<FileViewerProps> = ({
               </Typography>
             </Box>
           )}
+          {/* Hide iframe visually until loaded to reduce layout jank */}
           <iframe
             src={fileUrl}
-            style={{ width: '100%', height: '80vh', border: 'none' }}
+            style={{
+              width: '100%',
+              height: '80vh',
+              border: 'none',
+              visibility: isLoading ? 'hidden' : 'visible',
+            }}
             title="PDF Preview"
             onLoad={() => {
               setLoading?.(false);
@@ -232,7 +257,11 @@ const FileViewer: React.FC<FileViewerProps> = ({
           <img
             src={fileUrl}
             alt={fileName ?? 'preview'}
-            style={{ maxWidth: '100%', maxHeight: '80vh' }}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '80vh',
+              visibility: isLoading ? 'hidden' : 'visible',
+            }}
             onLoad={() => {
               setLoading?.(false);
               setInternalLoading(false);
@@ -275,9 +304,12 @@ const FileViewer: React.FC<FileViewerProps> = ({
               backgroundColor: '#f5f5f5',
               padding: '1rem',
               margin: 0,
+              opacity: isLoading ? 0.3 : 1,
+              transition: 'opacity 0.2s ease',
             }}
           >
-            {textContent || 'Loading...'}
+            {textContent ||
+              t('documentManagement.viewer.loading', 'Loading preview...')}
           </pre>
         </Box>
       );
