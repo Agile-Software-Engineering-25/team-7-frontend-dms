@@ -51,11 +51,7 @@ const TagEditor: React.FC<Props> = ({
   // Initialize selected tags when dialog opens or currentTags change
   React.useEffect(() => {
     if (open) {
-      // Refresh tags from server when dialog opens
-      fetchTags();
-
-      // Filter currentTags to only include tags that still exist
-      // This handles the case where a tag was deleted while the dialog was closed
+      // Kein sofortiger Refetch: useTags lädt initial bzw. liefert Cache
       const validTags = currentTags.filter((currentTag) =>
         availableTags.some(
           (availableTag) => availableTag.uuid === currentTag.uuid
@@ -63,7 +59,7 @@ const TagEditor: React.FC<Props> = ({
       );
       setSelectedTags(validTags);
     }
-  }, [open, currentTags, fetchTags]);
+  }, [open, currentTags, availableTags]);
 
   // Update selected tags when availableTags changes (e.g., after tag deletion)
   React.useEffect(() => {
@@ -115,7 +111,7 @@ const TagEditor: React.FC<Props> = ({
       setSelectedTags([...selectedTags, newTag]);
     }
     // Refetch tags to ensure the list is up-to-date
-    await fetchTags();
+    await fetchTags(true); // force refresh after creating a new tag
     // Notify parent to refresh
     if (onTagsChanged) {
       await onTagsChanged();
@@ -125,7 +121,7 @@ const TagEditor: React.FC<Props> = ({
 
   // Handle when tags are updated in AddTagDialog
   const handleTagsUpdated = async () => {
-    await fetchTags();
+    await fetchTags(true); // force refresh after tags updated in dialog
     // Notify parent to refresh document list
     if (onTagsChanged) {
       await onTagsChanged();
